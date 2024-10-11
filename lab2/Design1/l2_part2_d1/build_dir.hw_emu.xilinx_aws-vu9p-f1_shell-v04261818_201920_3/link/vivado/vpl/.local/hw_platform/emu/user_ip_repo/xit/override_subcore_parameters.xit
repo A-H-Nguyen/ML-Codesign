@@ -1,0 +1,22 @@
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "BEGIN: SUBCORE_PARAMETER_OVERRIDES"
+
+if {[dict exists $CONFIG ADVANCED_PROPERTIES __subcore_parameter_overrides__]} {
+  set overrides [dict get $CONFIG ADVANCED_PROPERTIES __subcore_parameter_overrides__]
+  dict for {path assignments} $overrides {
+    set ip [get_bd_cells -quiet $path]
+    if {[llength $ip] == 1} {
+      dbg_puts "Applying subcore parameter assignment $assignments to $path..."
+      if {[catch {set_property -dict $assignments $ip}]} {
+        send_msg CRITICAL_WARNING 1 "Subcore parameter assignment ($assignments) at $path failed."
+      }
+    } else {
+      send_msg CRITICAL_WARNING 1 "Invalid subcore parameter override path ($path)"
+    }
+  }
+} else {
+  dbg_puts "No subcore parameter overrides specified."
+}
+
+dbg_puts "END: SUBCORE_PARAMETER_OVERRIDES"
+dbg_puts "----------------------------------------------------------------------"

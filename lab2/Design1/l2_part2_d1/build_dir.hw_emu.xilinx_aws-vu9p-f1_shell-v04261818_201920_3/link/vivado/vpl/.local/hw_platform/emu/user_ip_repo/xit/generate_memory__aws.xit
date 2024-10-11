@@ -1,0 +1,52 @@
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "BEGIN: GENERATE_MEMORY__AWS"
+
+set aws [create_bd_cell -vlnv xilinx.com:ip:aws:1.0 aws -set_params {CONFIG.MODE 1}]
+dict set hierarchy memory $aws $aws
+
+connect_bd_intf_net [get_bd_intf_ports S_SH] [get_bd_intf_pins $aws/S_SH]
+
+set mem_bank_aws_index_map {DDR4_MEM01 A DDR4_MEM02 B DDR4_MEM00 C DDR4_MEM03 D} 
+
+foreach bank [dict keys $mem_bank_utilization DDR4*] {
+  set aws_index [dict get $mem_bank_aws_index_map $bank]
+  set_property CONFIG.DDR_${aws_index}_PRESENT 1 $aws  
+
+  dict set mem_bank_ddr_inst $bank $aws
+  dict set mem_bank_data_intf $bank [get_bd_intf_pins $aws/S_AXI_DDR$aws_index]
+  dict set mem_bank_aclk $bank [get_bd_pins $aws/clk_main_a0_out]
+  dict set mem_bank_aresetn $bank [get_bd_pins $aws/rst_main_n_out]
+
+  set bank_ict [dict get $ict $bank]
+  connect_bd_intf_net [dict get $mem_bank_data_intf $bank] [find_first_unconnected_intf [get_bd_intf_pins $bank_ict/M*_AXI] ]
+}
+
+# ----------------------------------------------------------------------
+# Combine individual calibration signals to single status output bit 
+set num_banks [llength [dict keys $mem_bank_utilization DDR4*]]
+if {$num_banks > 0} {
+  set concat [create_bd_cell -vlnv xilinx.com:ip:xlconcat:2.1 calib_concat]
+  dict set hierarchy memory $concat $concat
+
+  set_property CONFIG.NUM_PORTS $num_banks $concat
+
+  foreach ddr_pin [get_bd_pins $aws/ddr*_is_ready] concat_pin [get_bd_pins $concat/In*] {
+    if {[llength $ddr_pin] == 1 && [llength $concat_pin] == 1} {
+      connect_bd_net $ddr_pin $concat_pin
+    } else {
+      puts "WARNING: incomplete concat connections: ddr_pin: $ddr_pin concat_pin: $concat_pin"
+    }
+  }
+
+  set calib_reduce [create_bd_cell -vlnv xilinx.com:ip:util_reduced_logic calib_reduce]
+  dict set hierarchy memory $calib_reduce $calib_reduce
+
+  set_property -dict "CONFIG.C_SIZE $num_banks CONFIG.C_OPERATION and" $calib_reduce
+
+  connect_bd_net [get_bd_pins $concat/Dout] [get_bd_pins $calib_reduce/op1]
+  connect_bd_net [get_bd_pins $calib_reduce/res] [get_bd_ports ddr4_mem_calib_complete]
+}
+
+dbg_puts "END: GENERATE_MEMORY__AWS"
+dbg_puts "----------------------------------------------------------------------"
+

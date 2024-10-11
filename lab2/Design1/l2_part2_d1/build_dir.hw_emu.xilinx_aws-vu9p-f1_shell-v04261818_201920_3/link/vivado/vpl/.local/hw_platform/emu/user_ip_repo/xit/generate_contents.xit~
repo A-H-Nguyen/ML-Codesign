@@ -1,0 +1,279 @@
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "BEGIN: GENERATE_CONTENTS"
+
+# ----------------------------------------------------------------------
+# SDK Requires this:
+set_driver_mode subcore
+set board_part [get_project_property BOARD]
+if {[llength $board_part] != 1 && ![info exists env(SDX_HIP_USE_AWS)]} {
+  send_msg INFO 1 "Vivado project has no BOARD_PART set.   No DDR4 resources will be generated." 
+}
+
+if {![dict exists $CONFIG advanced_properties __temp_dsa_info]} {
+  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  # TODO: Deprecate DSA_INFO when all DSA metadata is moved to official DSA data storage
+  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  if {![info exists env(DSA_INFO)]} {
+    dict set CONFIG dsa_info {}
+  } else {
+    # Limited extraction from environment variables during boundary elaboration
+    set env(SDX_HIP_DSA_INFO) $env(DSA_INFO)
+    dict set env_extract_spec DSA ERROR       
+    dict set CONFIG dsa_info $env(DSA_INFO)
+  }
+  dict set env_extract_spec ADDR ERROR 
+  dict set env_extract_spec SLR CRITICAL_WARNING 
+  dict set env_extract_spec SI_CLK_KEYS ERROR 
+} else {
+  dict set CONFIG dsa_info [dict get $CONFIG advanced_properties __temp_dsa_info]
+}
+
+dict set CONFIG segment_map {}
+
+# ----------------------------------------------------------------------
+# Import metadata
+source_ipfile xit/harvest.xit
+
+# ----------------------------------------------------------------------
+# SDK Requires this:
+set_driver_mode subcore
+
+# ----------------------------------------------------------------------
+# Automate clock associations
+#
+# Determine which aclk input is used by each of the S*_AXI* interfaces
+set clock_associations {}
+set clock_definitions {}
+source_ipfile xit/generate_clock_associations.xit
+source_ipfile xit/generate_slr_associations.xit
+
+# ----------------------------------------------------------------------
+# Generate data interconnect instances
+#source_ipfile xit/generate_interconnect__data.xit
+
+# ----------------------------------------------------------------------
+# Generate Memory Bank Instances
+
+# The generators will populate these dictionaries with hooks for later use
+set mem_bank_ctrl_intf {}
+set mem_bank_data_intf {}
+set mem_bank_ddr_inst {}
+
+#source_ipfile xit/generate_memory__ddr4.xit
+#source_ipfile xit/generate_memory__plram.xit
+
+
+dbg_puts "# ----------------------------------------------------------------------"
+dbg_puts "# BEGIN: GENERATE DDR clock"
+dbg_puts $CONFIG
+
+dbg_puts "# END: GENERATE XTLM Interconnect"
+dbg_puts "# ----------------------------------------------------------------------"
+
+
+dbg_puts "# ----------------------------------------------------------------------"
+dbg_puts "# BEGIN: GENERATE XTLM Interconnect"
+set num_icn [expr [dict get $CONFIG num_si]/31 ]
+set last_icn [expr [dict get $CONFIG num_si]%31]
+if { $last_icn != 0} {
+   set num_icn [expr [dict get $CONFIG num_si]/31 +1 ]	
+}
+for {set i 0 } {$i < $num_icn} {incr i} {
+   set xtlm_simple_intercon [ create_bd_cell -type ip -vlnv xilinx.com:xilinx:xtlm_simple_interconnect:1.0 xtlm_simple_intercon_${i} ]
+	 if {$i != [expr $num_icn -1]} {
+	   set_property -dict [list CONFIG.C_NUM_SI 32 ] [get_bd_cells xtlm_simple_intercon_$i ]
+	 } else {
+		 if {[expr [dict get $CONFIG num_si]%31]==0} {
+		 	 set_property -dict [list CONFIG.C_NUM_SI 31 ] [get_bd_cells xtlm_simple_intercon_$i ]
+		 } else {
+			 set_property -dict [list CONFIG.C_NUM_SI [expr [dict get $CONFIG num_si]%31] ] [get_bd_cells xtlm_simple_intercon_$i ]
+		 }
+	 }
+   if { $i > 0 } { 
+		 set_property -dict [list CONFIG.C_NUM_MI 1 ] [get_bd_cells xtlm_simple_intercon_$i ]
+		 set icn1_prop {}
+		 set icn2_prop {}
+		 foreach  {prop value} {ID_WIDTH 32 AWUSER_WIDTH 32 ARUSER_WIDTH 32 WUSER_WIDTH 32 RUSER_WIDTH 32 BUSER_WIDTH 32 DATA_WIDTH 512 ADDR_WIDTH 64 HAS_BRESP 1 HAS_BURST 1 HAS_CACHE 1 HAS_LOCK 1 HAS_PROT 1 HAS_QOS 1 HAS_REGION 1 HAS_RRESP 1 HAS_WSTRB 1} {
+				lappend icn1_prop CONFIG.C_S31_AXI_${prop} $value 
+		 }
+		 foreach {prop value } {ID_WIDTH 32 AWUSER_WIDTH 32 ARUSER_WIDTH 32 WUSER_WIDTH 32 RUSER_WIDTH 32 BUSER_WIDTH 32 DATA_WIDTH 512 ADDR_WIDTH 64 HAS_BRESP 1 HAS_BURST 1 HAS_CACHE 1 HAS_LOCK 1 HAS_PROT 1 HAS_QOS 1 HAS_RRESP 1 HAS_WSTRB 1} {
+				lappend icn2_prop CONFIG.C_M00_AXI_${prop} $value 
+		 }
+		 set_property -dict $icn1_prop [get_bd_cells xtlm_simple_intercon_[expr $i -1] ]
+		 set_property -dict $icn2_prop [get_bd_cells xtlm_simple_intercon_$i ]
+		 connect_bd_intf_net [get_bd_intf_pins xtlm_simple_intercon_[expr $i - 1]/S31_AXI] [get_bd_intf_pins xtlm_simple_intercon_$i/M00_AXI]
+		 connect_bd_net [get_bd_pins aclk   ] [get_bd_pins xtlm_simple_intercon_[expr $i -1]/s31_axi_aclk]
+		 connect_bd_net [get_bd_pins aresetn] [get_bd_pins xtlm_simple_intercon_[expr $i -1]/s31_axi_aresetn]
+		 connect_bd_net [get_bd_pins aclk   ] [get_bd_pins xtlm_simple_intercon_$i/m00_axi_aclk]
+		 connect_bd_net [get_bd_pins aresetn] [get_bd_pins xtlm_simple_intercon_$i/m00_axi_aresetn]
+   }
+}
+
+
+for {set i 0} {$i < [dict get $CONFIG num_si]} {incr i} {
+  set index $i
+  set sindex [expr $i % 31 ]
+	set icn_num [expr $i/31 ]
+  if { $i<10} { set index "0$i" } 
+  if { $sindex<10} { set sindex "0$sindex" } 
+  connect_bd_intf_net [get_bd_intf_pins xtlm_simple_intercon_${icn_num}/S${sindex}_AXI] [get_bd_intf_pins S${index}_AXI]
+  dbg_puts "# Propogate Slave interface properties $sindex $index"
+  set icn_prop {}
+  foreach prop {ID_WIDTH AWUSER_WIDTH ARUSER_WIDTH WUSER_WIDTH RUSER_WIDTH BUSER_WIDTH DATA_WIDTH ADDR_WIDTH HAS_BRESP HAS_BURST HAS_CACHE HAS_LOCK HAS_PROT HAS_QOS HAS_REGION HAS_RRESP HAS_WSTRB} {
+     lappend icn_prop CONFIG.C_S${sindex}_AXI_${prop} [dict get $CONFIG intf_metadata S${index}_AXI  CONFIG.${prop}] 
+  }
+  if { [llength $icn_prop] } {
+      set_property -dict $icn_prop [get_bd_cells xtlm_simple_intercon_$icn_num ]
+  }
+  dbg_puts "# Connect Clk and resets"
+  connect_bd_net [get_bd_pins [dict get $clock_associations S${index}_AXI]] [get_bd_pins xtlm_simple_intercon_${icn_num}/s${sindex}_axi_aclk]
+  connect_bd_net [get_bd_pins aresetn] [get_bd_pins xtlm_simple_intercon_${icn_num}/s${sindex}_axi_aresetn]
+}
+dbg_puts "# END: GENERATE XTLM Interconnect"
+dbg_puts "# ----------------------------------------------------------------------"
+
+set xtlm_simple_intercon_0 [get_bd_cells xtlm_simple_intercon_0]
+# Instantiate required number of DDR memories
+set ddr_clk_conn {}
+set ddr_rst_conn {}
+set icn_avil_itf 0
+dbg_puts "# ----------------------------------------------------------------------"
+dbg_puts "# BEGIN: GENERATE DDR Memories"
+foreach {bank bankattr} [dict get $CONFIG advanced_properties __temp_dsa_info sim_props] {
+  if {[regexp {^ddr4} $bank] } { 
+  dbg_puts "Generating: $bank"
+  if {[dict get $CONFIG advanced_properties __temp_dsa_info sim_props $bank passthrough]=="yes"} {
+    dbg_puts "Generating Passthrough: $bank"
+	dbg_puts "Prasad: passthrough is yes for $bank"
+	
+    set pass_itf_name "M${icn_avil_itf}_AXI"
+    if { $icn_avil_itf < 10  } {  set pass_itf_name "M0${icn_avil_itf}_AXI"}
+    set lowestAddress [dict get $CONFIG advanced_properties __temp_dsa_info sim_props $bank offset]
+    set range         [dict get $CONFIG advanced_properties __temp_dsa_info sim_props $bank range] 
+    set offset 0 
+    set range "0x[format %x $range]"
+    set offset "0x[format %x $offset]"
+    
+    ##Connect to the interconnect
+    set itf_pre $icn_avil_itf
+    if {$icn_avil_itf<10} { set itf_pre "0$icn_avil_itf" }
+    #Propogate all top level property
+    set icn_prop {}
+    foreach prop {ID_WIDTH AWUSER_WIDTH ARUSER_WIDTH WUSER_WIDTH RUSER_WIDTH BUSER_WIDTH DATA_WIDTH ADDR_WIDTH HAS_BRESP HAS_BURST HAS_CACHE HAS_LOCK HAS_PROT HAS_QOS HAS_RRESP HAS_WSTRB} {
+       lappend icn_prop CONFIG.C_M${itf_pre}_AXI_${prop} [dict get $CONFIG intf_metadata $pass_itf_name  CONFIG.${prop}] 
+    }
+    set_property -dict [list CONFIG.C_NUM_MI [expr $icn_avil_itf + 1 ] CONFIG.C_M${itf_pre}_AXI_ADDR_WIDTH [expr {int(log([expr $range - 1])/[expr log(2)])} ] ] $xtlm_simple_intercon_0
+    set_property -dict [list CONFIG.C_M${itf_pre}_A00_BASE_ADDRESS $lowestAddress CONFIG.C_M${itf_pre}_A00_ADDR_RANGE [expr $range -1] ] $xtlm_simple_intercon_0
+    connect_bd_intf_net [get_bd_intf_pins $pass_itf_name ] [get_bd_intf_pins xtlm_simple_intercon_0/M${itf_pre}_AXI]
+    if { [llength $icn_prop] } {
+      set_property -dict $icn_prop $xtlm_simple_intercon_0
+    }
+    connect_bd_net  [get_bd_pins xtlm_simple_intercon_0/m${itf_pre}_axi_aclk ] [get_bd_pins [dict get $clock_associations $pass_itf_name]] 
+    connect_bd_net  [get_bd_pins xtlm_simple_intercon_0/m${itf_pre}_axi_aresetn ] [get_bd_pins aresetn] 
+    incr icn_avil_itf
+  } else {  
+  set sim_ddr [create_bd_cell -type ip -vlnv xilinx.com:user:sim_ddr:1.0 ${bank} ]
+  
+  dbg_puts "Prasad: passthrough is no for $bank"
+  
+  set memory_config [dict create]
+  lappend memory_config CONFIG.C0_DDR_SAXI_ADDR_WIDTH.VALUE_SRC USER
+  lappend memory_config CONFIG.C0_DDR_SAXI_DATA_WIDTH.VALUE_SRC USER
+  set lowestAddress [dict get $CONFIG advanced_properties __temp_dsa_info sim_props $bank offset]
+  set range         [dict get $CONFIG advanced_properties __temp_dsa_info sim_props $bank range] 
+  set offset 0 
+  set range "0x[format %x $range]"
+  set offset "0x[format %x $offset]"
+  lappend memory_config CONFIG.C0_DDR_SAXI_ADDR_WIDTH [expr {int([expr log([expr $range - 1])]/[expr log(2)])} ] 
+  lappend memory_config CONFIG.C0_DDR_SAXI_DATA_WIDTH 512
+  lappend memory_config CONFIG.C_NUMBER_OF_GLOBAL_MEMORIES {1} 
+  lappend memory_config CONFIG.C0_A00_BASE_ADDR $offset
+  lappend memory_config CONFIG.C0_A00_BASE_ADDR $offset
+  lappend memory_config CONFIG.C0_A00_HIGH_ADDR [expr $range -1]    
+  lappend memory_config CONFIG.C0_DDR_SAXI_BASEADDR $offset
+  lappend memory_config CONFIG.C0_DDR_SAXI_HIGHADDR $range
+
+  if { [llength $memory_config] } {
+   set_property -dict $memory_config $sim_ddr
+  }
+  dbg_puts "# Connect Clk and resets"
+  lappend ddr_clk_conn [get_bd_pins ${bank}/c0_ui_clk ]
+  lappend ddr_clk_conn [get_bd_pins ${bank}/c0_ddr_saxi_aclk ]
+  lappend ddr_clk_conn [get_bd_pins ${bank}/s_xdma_axi_aclk ]
+  lappend ddr_rst_conn [get_bd_pins ${bank}/c0_ddr_saxi_aresetn ]
+  lappend ddr_rst_conn [get_bd_pins ${bank}/s_xdma_axi_aresetn ]
+
+  ##Connect to the interconnect
+  set itf_pre $icn_avil_itf
+  if {$icn_avil_itf<10} { set itf_pre "0$icn_avil_itf" }
+  set_property -dict [list CONFIG.C_NUM_MI [expr $icn_avil_itf + 1 ] CONFIG.C_M${itf_pre}_AXI_DATA_WIDTH {512} CONFIG.C_M${itf_pre}_AXI_ADDR_WIDTH [expr {int([expr log([expr $range - 1])]/[expr log(2)])} ] ] $xtlm_simple_intercon_0
+  set_property -dict [list CONFIG.C_M${itf_pre}_A00_BASE_ADDRESS $lowestAddress CONFIG.C_M${itf_pre}_A00_ADDR_RANGE [expr $range -1] ] $xtlm_simple_intercon_0
+  connect_bd_intf_net [get_bd_intf_pins ${bank}/C0_DDR_SAXI] [get_bd_intf_pins xtlm_simple_intercon_0/M${itf_pre}_AXI]
+  lappend ddr_clk_conn [get_bd_pins xtlm_simple_intercon_0/m${itf_pre}_axi_aclk ]
+  lappend ddr_rst_conn [get_bd_pins xtlm_simple_intercon_0/m${itf_pre}_axi_aresetn ]
+
+  incr icn_avil_itf
+  }
+  }
+}
+dbg_puts "# END: GENERATE DDR Memories"
+dbg_puts "# ----------------------------------------------------------------------"
+
+# Instantiate required number or PLRAM
+dbg_puts "# ----------------------------------------------------------------------"
+dbg_puts "# BEGIN: GENERATE PLRAM "
+foreach {bank bankattr} [dict get $CONFIG advanced_properties __temp_dsa_info sim_props] {
+  if {[regexp {^plram} $bank] } { 
+  dbg_puts "Generating: $bank"
+  if {[dict get $CONFIG advanced_properties __temp_dsa_info sim_props $bank passthrough]=="yes"} {
+   dbg_puts "Generating Passthrough: $bank"
+   dbg_puts "Prasad PLRAM: passthrough is yes for $bank"
+  } else {
+     dbg_puts "Prasad PLRAM: passthrough is NO for $bank" 
+  set lowestAddress [dict get $CONFIG advanced_properties __temp_dsa_info sim_props $bank offset]
+  set range         [dict get $CONFIG advanced_properties __temp_dsa_info sim_props $bank range] 
+  set offset  0 
+  set range  "0x[format %x $range]"
+  set offset "0x[format %x $offset]"
+
+  set plram [create_bd_cell -type ip -vlnv xilinx.com:xilinx:xtlm_simple_memory:1.0 ${bank} ]
+  set_property -dict [list CONFIG.C_MEM_SIZE $range CONFIG.C_S00_AXI_ADDR_WIDTH {64} CONFIG.C_S00_AXI_DATA_WIDTH {512}] $plram
+  dbg_puts "# Connect Clk and resets"
+  lappend ddr_clk_conn [get_bd_pins ${bank}/s00_axi_aclk ]
+  lappend ddr_rst_conn [get_bd_pins ${bank}/s00_axi_aresetn ]
+
+  
+  ##Connect to the interconnect
+  set itf_pre $icn_avil_itf
+  if {$icn_avil_itf<10} { set itf_pre "0$icn_avil_itf" }
+  set_property -dict [list CONFIG.C_NUM_MI [expr $icn_avil_itf + 1 ] CONFIG.C_M${itf_pre}_AXI_DATA_WIDTH {512} CONFIG.C_M${itf_pre}_AXI_ADDR_WIDTH [expr {int(log([expr $range +1])/[expr log(2)])} ] ] $xtlm_simple_intercon_0
+  set_property -dict [list CONFIG.C_M${itf_pre}_A00_BASE_ADDRESS $lowestAddress CONFIG.C_M${itf_pre}_A00_ADDR_RANGE $range ] $xtlm_simple_intercon_0
+  connect_bd_intf_net [get_bd_intf_pins ${bank}/S00_AXI] [get_bd_intf_pins xtlm_simple_intercon_0/M${itf_pre}_AXI]
+  lappend ddr_clk_conn [get_bd_pins xtlm_simple_intercon_0/m${itf_pre}_axi_aclk ]
+  lappend ddr_rst_conn [get_bd_pins xtlm_simple_intercon_0/m${itf_pre}_axi_aresetn ]
+
+  incr icn_avil_itf
+  }
+  }
+}
+
+dbg_puts "# END: GENERATE PLRAM"
+dbg_puts "# ----------------------------------------------------------------------"
+dbg_puts "Prasad: ddr_clk_conn: $ddr_clk_conn"
+dbg_puts "Prasad: ddr_rst_conn: $ddr_rst_conn"
+
+#if {[llength $ddr_clk_conn] ne 0} {
+  connect_bd_net [get_bd_pins aclk] $ddr_clk_conn
+#}
+#if {[llength $ddr_rst_conn] ne 0} {
+  connect_bd_net [get_bd_pins aresetn ] $ddr_rst_conn
+#}
+set fn sdx_memory_subsystem.rld
+add_ipfile -fileType elaboratedData $fn
+puts_ipfile $fn {}
+close_ipfile $fn
+
+source_ipfile xit/generate_rld__memory.xit
+dbg_puts "# END: CONNECTING CLOCKS"
+dbg_puts "# END: GENERATE_CONTENTS"
+dbg_puts "# ----------------------------------------------------------------------"

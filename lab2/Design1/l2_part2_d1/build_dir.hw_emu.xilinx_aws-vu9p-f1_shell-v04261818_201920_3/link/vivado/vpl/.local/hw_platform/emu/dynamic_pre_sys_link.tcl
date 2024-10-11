@@ -1,0 +1,10 @@
+set ::env(OLD_DSA_INFO) {excluded_board_components {amazon:minotaur-vu9p-f1:ddr4_sdram_c0:1.0 amazon:minotaur-vu9p-f1:ddr4_sdram_c1:1.0 amazon:minotaur-vu9p-f1:ddr4_sdram_c2:1.0 amazon:minotaur-vu9p-f1:ddr4_sdram_c3:1.0} axi_passthrough {amazon:minotaur-vu9p-f1:ddr4_sdram_c0:1.0 {offset 0x4000000000 range 16G slr SLR0} amazon:minotaur-vu9p-f1:ddr4_sdram_c1:1.0 {offset 0x400000000 range 16G slr SLR1} amazon:minotaur-vu9p-f1:ddr4_sdram_c2:1.0 {offset 0x4800000000 range 16G slr SLR1} amazon:minotaur-vu9p-f1:ddr4_sdram_c3:1.0 {offset 0x4c00000000 range 16G slr SLR2}} sim_props {ddr4_0 {offset 0x4000000000 range 0x400000000 slr SLR0 passthrough yes} ddr4_1 {offset 0x400000000 range 0x400000000 slr SLR1 passthrough yes} ddr4_2 {offset 0x4800000000 range 0x400000000 slr SLR1 passthrough yes} ddr4_3 {offset 0x4c00000000 range 0x400000000 slr SLR2 passthrough yes} plram_0 {offset 0x5000000000 range 0x20000 slr SLR0 passthrough no} plram_1 {offset 0x5000020000 range 0x20000 slr SLR1 passthrough no} plram_2 {offset 0x5000040000 range 0x20000 slr SLR2 passthrough no}} slr_pblock_map {SLR0 block_dynamic_SLR0 SLR1 pblock_dynamic_SLR1 SLR2 pblock_dynamic_SLR2} child_pblock_declarations {pblock_ddr4_mem00 {range CLOCKREGION_X2Y1:CLOCKREGION_X2Y3 parent pblock_dynamic_SLR0 cell_paths memory/ddr4_mem00} pblock_ddr4_mem02 {range CLOCKREGION_X2Y7:CLOCKREGION_X2Y9 parent pblock_dynamic_SLR1 cell_paths memory/ddr4_mem02} pblock_ddr4_mem03 {range CLOCKREGION_X4Y11:CLOCKREGION_X4Y13 parent pblock_dynamic_SLR2 cell_paths memory/ddr4_mem03}} board_component_slr_map {aws_ddra SLR2 aws_ddrb SLR1 aws_ddrc SLR1 aws_ddrd SLR0}}
+set_param bd.skipSupportedIPCheck true
+set __sdx_hip_slr_automation_level 2
+if {[info exists ::env(SDX_HIP_SLR_AUTOMATION_LEVEL)]} {
+  set __sdx_hip_slr_automation_level $::env(SDX_HIP_SLR_AUTOMATION_LEVEL)
+}
+set_param ips.enableSLRParameter $__sdx_hip_slr_automation_level
+set_param project.enablePRFlowIPI 1
+set_param bd.skipSupportedIPCheck 1
+set_param checkpoint.useBaseFileNamesWhileWritingDCP 1

@@ -1,0 +1,507 @@
+xsim emu_wrapper_behav -key {Behavioral:sim_1:Functional:emu_wrapper} -tclbatch emu_wrapper.tcl -protoinst protoinst_files/bd_d216.protoinst -protoinst protoinst_files/pfm_dynamic.protoinst -protoinst protoinst_files/emu.protoinst -log simulate.log --wdb xilinx:pcie-hw-em:7v3:1.0-0-dot_prod_app.wdb --protoinst ./dr_behav.protoinst
+
+****** xsim v2021.2 (64-bit)
+  **** SW Build 3367213 on Tue Oct 19 02:47:39 MDT 2021
+  **** IP Build 3369179 on Thu Oct 21 08:25:16 MDT 2021
+    ** Copyright 1986-2021 Xilinx, Inc. All Rights Reserved.
+
+source xsim.dir/emu_wrapper_behav/xsim_script.tcl
+# xsim {emu_wrapper_behav} -wdb {xilinx:pcie-hw-em:7v3:1.0-0-dot_prod_app.wdb} -autoloadwcfg -tclbatch {emu_wrapper.tcl} -key {Behavioral:sim_1:Functional:emu_wrapper} -protoinst {protoinst_files/bd_d216.protoinst} -protoinst {protoinst_files/pfm_dynamic.protoinst} -protoinst {protoinst_files/emu.protoinst} -protoinst {./dr_behav.protoinst}
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.System_DPA.dpa_hub.inst.s_aximm_wr_util. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.System_DPA.dpa_hub.inst.s_aximm_wr_util_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.System_DPA.dpa_mon0.inst.rd_mon.rd_skt. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.System_DPA.dpa_mon0.inst.rd_mon.rd_skt_0
+In file: sc_object_manager.cpp:161
+CRITICAL_WARNING::[ XTLM::751 ] Deprecated.! Please instantiate Memory Manager with this pointer (sc_module pointer).
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.System_DPA.dpa_mon0.inst.wr_mon.wr_skt. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.System_DPA.dpa_mon0.inst.wr_mon.wr_skt_0
+In file: sc_object_manager.cpp:161
+CRITICAL_WARNING::[ XTLM::751 ] Deprecated.! Please instantiate Memory Manager with this pointer (sc_module pointer).
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.System_DPA.dpa_mon0.inst.mon_saxi_rd_socket. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.System_DPA.dpa_mon0.inst.mon_saxi_rd_socket_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.System_DPA.dpa_mon0.inst.mon_saxi_wr_socket. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.System_DPA.dpa_mon0.inst.mon_saxi_wr_socket_0
+In file: sc_object_manager.cpp:161
+
+Info: (I804) /IEEE_Std_1666/deprecated: sc_sensitive_neg is deprecated use sc_sensitive << with neg() instead
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.memory_subsystem.inst.rd_socket. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.memory_subsystem.inst.rd_socket_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.memory_subsystem.inst.wr_socket. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.memory_subsystem.inst.wr_socket_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.memory_subsystem.inst.rd_socket. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.memory_subsystem.inst.rd_socket_1
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.memory_subsystem.inst.wr_socket. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.memory_subsystem.inst.wr_socket_1
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.memory_subsystem.inst.rd_socket. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.memory_subsystem.inst.rd_socket_2
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.memory_subsystem.inst.wr_socket. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.memory_subsystem.inst.wr_socket_2
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.memory_subsystem.inst.rd_socket. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.memory_subsystem.inst.rd_socket_3
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.memory_subsystem.inst.wr_socket. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.memory_subsystem.inst.wr_socket_3
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.memory_subsystem.inst.rd_socket. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.memory_subsystem.inst.rd_socket_4
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.memory_subsystem.inst.wr_socket. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.memory_subsystem.inst.wr_socket_4
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.memory_subsystem.inst.rd_socket. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.memory_subsystem.inst.rd_socket_5
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.memory_subsystem.inst.wr_socket. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.memory_subsystem.inst.wr_socket_5
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.memory_subsystem.inst.rd_socket. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.memory_subsystem.inst.rd_socket_6
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.memory_subsystem.inst.wr_socket. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.memory_subsystem.inst.wr_socket_6
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.memory_subsystem.inst.rd_socket. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.memory_subsystem.inst.rd_socket_7
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.memory_subsystem.inst.wr_socket. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.memory_subsystem.inst.wr_socket_7
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.sim_ddr_0.inst.axi_crossbar_model.master_skt_wr_0. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.sim_ddr_0.inst.axi_crossbar_model.master_skt_wr_0_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.sim_ddr_0.inst.axi_crossbar_model.master_skt_rd_0. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.sim_ddr_0.inst.axi_crossbar_model.master_skt_rd_0_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.sim_ddr_0.inst.axi_crossbar_model.slave_skt_wr_0. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.sim_ddr_0.inst.axi_crossbar_model.slave_skt_wr_0_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.sim_ddr_0.inst.axi_crossbar_model.slave_skt_rd_0. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.sim_ddr_0.inst.axi_crossbar_model.slave_skt_rd_0_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.sim_ddr_0.inst.axi_crossbar_model.slave_skt_wr_1. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.sim_ddr_0.inst.axi_crossbar_model.slave_skt_wr_1_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.sim_ddr_0.inst.axi_crossbar_model.slave_skt_rd_1. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.sim_ddr_0.inst.axi_crossbar_model.slave_skt_rd_1_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.sim_ddr_0.inst.ddrx_top_tlm_model_0.axi_app_tlm_model_0.rd_skt_util. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.sim_ddr_0.inst.ddrx_top_tlm_model_0.axi_app_tlm_model_0.rd_skt_util_0
+In file: sc_object_manager.cpp:161
+CRITICAL_WARNING::[ XTLM::751 ] Deprecated.! Please instantiate Memory Manager with this pointer (sc_module pointer).
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.sim_ddr_2.inst.axi_crossbar_model.master_skt_wr_0. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.sim_ddr_2.inst.axi_crossbar_model.master_skt_wr_0_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.sim_ddr_2.inst.axi_crossbar_model.master_skt_rd_0. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.sim_ddr_2.inst.axi_crossbar_model.master_skt_rd_0_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.sim_ddr_2.inst.axi_crossbar_model.slave_skt_wr_0. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.sim_ddr_2.inst.axi_crossbar_model.slave_skt_wr_0_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.sim_ddr_2.inst.axi_crossbar_model.slave_skt_rd_0. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.sim_ddr_2.inst.axi_crossbar_model.slave_skt_rd_0_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.sim_ddr_2.inst.axi_crossbar_model.slave_skt_wr_1. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.sim_ddr_2.inst.axi_crossbar_model.slave_skt_wr_1_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.sim_ddr_2.inst.axi_crossbar_model.slave_skt_rd_1. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.sim_ddr_2.inst.axi_crossbar_model.slave_skt_rd_1_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.sim_ddr_2.inst.ddrx_top_tlm_model_0.axi_app_tlm_model_0.rd_skt_util. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.sim_ddr_2.inst.ddrx_top_tlm_model_0.axi_app_tlm_model_0.rd_skt_util_0
+In file: sc_object_manager.cpp:161
+CRITICAL_WARNING::[ XTLM::751 ] Deprecated.! Please instantiate Memory Manager with this pointer (sc_module pointer).
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.sim_ddr_3.inst.axi_crossbar_model.master_skt_wr_0. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.sim_ddr_3.inst.axi_crossbar_model.master_skt_wr_0_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.sim_ddr_3.inst.axi_crossbar_model.master_skt_rd_0. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.sim_ddr_3.inst.axi_crossbar_model.master_skt_rd_0_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.sim_ddr_3.inst.axi_crossbar_model.slave_skt_wr_0. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.sim_ddr_3.inst.axi_crossbar_model.slave_skt_wr_0_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.sim_ddr_3.inst.axi_crossbar_model.slave_skt_rd_0. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.sim_ddr_3.inst.axi_crossbar_model.slave_skt_rd_0_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.sim_ddr_3.inst.axi_crossbar_model.slave_skt_wr_1. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.sim_ddr_3.inst.axi_crossbar_model.slave_skt_wr_1_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.sim_ddr_3.inst.axi_crossbar_model.slave_skt_rd_1. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.sim_ddr_3.inst.axi_crossbar_model.slave_skt_rd_1_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.dynamic_region.sim_ddr_3.inst.ddrx_top_tlm_model_0.axi_app_tlm_model_0.rd_skt_util. Latter declaration will be renamed to .emu_wrapper.emu_i.dynamic_region.sim_ddr_3.inst.ddrx_top_tlm_model_0.axi_app_tlm_model_0.rd_skt_util_0
+In file: sc_object_manager.cpp:161
+CRITICAL_WARNING::[ XTLM::751 ] Deprecated.! Please instantiate Memory Manager with this pointer (sc_module pointer).
+CRITICAL_WARNING::[ XTLM::751 ] Deprecated.! Please instantiate Memory Manager with this pointer (sc_module pointer).
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.static_region.sim_copy_kernel_0.inst.kdma.m_axi_rd_skt. Latter declaration will be renamed to .emu_wrapper.emu_i.static_region.sim_copy_kernel_0.inst.kdma.m_axi_rd_skt_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.static_region.sim_copy_kernel_0.inst.kdma.m_axi_wr_skt. Latter declaration will be renamed to .emu_wrapper.emu_i.static_region.sim_copy_kernel_0.inst.kdma.m_axi_wr_skt_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.static_region.sim_copy_kernel_1.inst.kdma.m_axi_rd_skt. Latter declaration will be renamed to .emu_wrapper.emu_i.static_region.sim_copy_kernel_1.inst.kdma.m_axi_rd_skt_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.static_region.sim_copy_kernel_1.inst.kdma.m_axi_wr_skt. Latter declaration will be renamed to .emu_wrapper.emu_i.static_region.sim_copy_kernel_1.inst.kdma.m_axi_wr_skt_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.static_region.sim_copy_kernel_2.inst.kdma.m_axi_rd_skt. Latter declaration will be renamed to .emu_wrapper.emu_i.static_region.sim_copy_kernel_2.inst.kdma.m_axi_rd_skt_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.static_region.sim_copy_kernel_2.inst.kdma.m_axi_wr_skt. Latter declaration will be renamed to .emu_wrapper.emu_i.static_region.sim_copy_kernel_2.inst.kdma.m_axi_wr_skt_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.static_region.sim_copy_kernel_3.inst.kdma.m_axi_rd_skt. Latter declaration will be renamed to .emu_wrapper.emu_i.static_region.sim_copy_kernel_3.inst.kdma.m_axi_rd_skt_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.static_region.sim_copy_kernel_3.inst.kdma.m_axi_wr_skt. Latter declaration will be renamed to .emu_wrapper.emu_i.static_region.sim_copy_kernel_3.inst.kdma.m_axi_wr_skt_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.static_region.sim_ddr_1.inst.axi_crossbar_model.master_skt_wr_0. Latter declaration will be renamed to .emu_wrapper.emu_i.static_region.sim_ddr_1.inst.axi_crossbar_model.master_skt_wr_0_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.static_region.sim_ddr_1.inst.axi_crossbar_model.master_skt_rd_0. Latter declaration will be renamed to .emu_wrapper.emu_i.static_region.sim_ddr_1.inst.axi_crossbar_model.master_skt_rd_0_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.static_region.sim_ddr_1.inst.axi_crossbar_model.slave_skt_wr_0. Latter declaration will be renamed to .emu_wrapper.emu_i.static_region.sim_ddr_1.inst.axi_crossbar_model.slave_skt_wr_0_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.static_region.sim_ddr_1.inst.axi_crossbar_model.slave_skt_rd_0. Latter declaration will be renamed to .emu_wrapper.emu_i.static_region.sim_ddr_1.inst.axi_crossbar_model.slave_skt_rd_0_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.static_region.sim_ddr_1.inst.axi_crossbar_model.slave_skt_wr_1. Latter declaration will be renamed to .emu_wrapper.emu_i.static_region.sim_ddr_1.inst.axi_crossbar_model.slave_skt_wr_1_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.static_region.sim_ddr_1.inst.axi_crossbar_model.slave_skt_rd_1. Latter declaration will be renamed to .emu_wrapper.emu_i.static_region.sim_ddr_1.inst.axi_crossbar_model.slave_skt_rd_1_0
+In file: sc_object_manager.cpp:161
+
+Warning: (W505) object already exists: .emu_wrapper.emu_i.static_region.sim_ddr_1.inst.ddrx_top_tlm_model_0.axi_app_tlm_model_0.rd_skt_util. Latter declaration will be renamed to .emu_wrapper.emu_i.static_region.sim_ddr_1.inst.ddrx_top_tlm_model_0.axi_app_tlm_model_0.rd_skt_util_0
+In file: sc_object_manager.cpp:161
+CRITICAL_WARNING::[ XTLM::751 ] Deprecated.! Please instantiate Memory Manager with this pointer (sc_module pointer).
+CRITICAL_WARNING::[ XTLM::751 ] Deprecated.! Please instantiate Memory Manager with this pointer (sc_module pointer).
+CRITICAL_WARNING::[ XTLM::751 ] Deprecated.! Please instantiate Memory Manager with this pointer (sc_module pointer).
+
+Info: (I804) /IEEE_Std_1666/deprecated: sc_sensitive_pos is deprecated use sc_sensitive << with pos() instead
+INFO: [Wavedata 42-565] Reading protoinst file protoinst_files/bd_d216.protoinst
+WARNING: [Wavedata 42-558] Couldn't load one or more protocol instances from protoinst file protoinst_files/bd_d216.protoinst for the following reason(s):
+There are no instances of module "bd_d216" in the design.
+
+INFO: [Wavedata 42-565] Reading protoinst file protoinst_files/pfm_dynamic.protoinst
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//System_DPA/S00_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//System_DPA/S_AXIMM
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//System_DPA/dpa_ctrl_interconnect/M00_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//System_DPA/dpa_ctrl_interconnect/M01_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//System_DPA/dpa_ctrl_interconnect/S00_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//System_DPA/dpa_ctrl_interconnect/m00_couplers/M_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//System_DPA/dpa_ctrl_interconnect/m00_couplers/S_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//System_DPA/dpa_ctrl_interconnect/m00_couplers/auto_cc/M_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//System_DPA/dpa_ctrl_interconnect/m00_couplers/auto_cc/S_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//System_DPA/dpa_ctrl_interconnect/m00_couplers/m00_regslice/M_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//System_DPA/dpa_ctrl_interconnect/m00_couplers/m00_regslice/S_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//System_DPA/dpa_ctrl_interconnect/m01_couplers/M_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//System_DPA/dpa_ctrl_interconnect/m01_couplers/S_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//System_DPA/dpa_ctrl_interconnect/m01_couplers/auto_cc/M_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//System_DPA/dpa_ctrl_interconnect/m01_couplers/auto_cc/S_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//System_DPA/dpa_ctrl_interconnect/m01_couplers/m01_regslice/M_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//System_DPA/dpa_ctrl_interconnect/m01_couplers/m01_regslice/S_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//System_DPA/dpa_ctrl_interconnect/s00_couplers/M_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//System_DPA/dpa_ctrl_interconnect/s00_couplers/S_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//System_DPA/dpa_ctrl_interconnect/s00_couplers/s00_regslice/M_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//System_DPA/dpa_ctrl_interconnect/s00_couplers/s00_regslice/S_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//System_DPA/dpa_ctrl_interconnect/xbar/M00_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//System_DPA/dpa_ctrl_interconnect/xbar/M01_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//System_DPA/dpa_ctrl_interconnect/xbar/S00_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//System_DPA/dpa_hub/S_AXIFIFO
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//System_DPA/dpa_hub/S_AXIHUB
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//System_DPA/dpa_hub/S_AXIMM
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//System_DPA/dpa_hub/TRACE_IN_0
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//System_DPA/dpa_hub/TRACE_IN_1
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//System_DPA/dpa_mon0/TRACE_OUT_0
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//System_DPA/dpa_mon0/TRACE_OUT_1
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//dot_prod_1/m_axi_gmem
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//dot_prod_1/s_axi_control
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//memory_subsystem/M00_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//memory_subsystem/M01_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//memory_subsystem/M02_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//memory_subsystem/M03_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//memory_subsystem/S00_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//memory_subsystem/S01_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//memory_subsystem/S02_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//memory_subsystem/S03_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//memory_subsystem/S04_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//sim_ddr_0/C0_DDR_SAXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//sim_ddr_2/C0_DDR_SAXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//sim_ddr_3/C0_DDR_SAXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr0/M00_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr0/S00_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr0/S00_AXI1
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr0/icn_pass_0/M00_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr0/icn_pass_0/S00_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr0/interconnect_axilite_user_0/M00_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr0/interconnect_axilite_user_0/S00_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr0/interconnect_axilite_user_0/s00_couplers/M_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr0/interconnect_axilite_user_0/s00_couplers/S_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr0/to_delete_kernel_ctrl_0/S_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr1/M00_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr1/M00_AXI1
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr1/M00_AXI2
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr1/M01_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr1/S00_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr1/S00_AXI1
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr1/S00_AXI2
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr1/icn_pass_1/M00_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr1/icn_pass_1/S00_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr1/icn_pass_2/M00_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr1/icn_pass_2/S00_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr1/interconnect_axilite_user_1/M00_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr1/interconnect_axilite_user_1/M01_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr1/interconnect_axilite_user_1/S00_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr1/interconnect_axilite_user_1/m00_couplers/M_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr1/interconnect_axilite_user_1/m00_couplers/S_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr1/interconnect_axilite_user_1/m01_couplers/M_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr1/interconnect_axilite_user_1/m01_couplers/S_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr1/interconnect_axilite_user_1/m01_couplers/auto_cc/M_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr1/interconnect_axilite_user_1/m01_couplers/auto_cc/S_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr1/interconnect_axilite_user_1/m01_couplers/m01_regslice/M_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr1/interconnect_axilite_user_1/m01_couplers/m01_regslice/S_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr1/interconnect_axilite_user_1/s00_couplers/M_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr1/interconnect_axilite_user_1/s00_couplers/S_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr1/interconnect_axilite_user_1/xbar/M00_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr1/interconnect_axilite_user_1/xbar/M01_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr1/interconnect_axilite_user_1/xbar/S00_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr2/M00_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr2/S00_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr2/S00_AXI1
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr2/icn_pass_3/M00_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr2/icn_pass_3/S00_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr2/interconnect_axilite_user_2/M00_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr2/interconnect_axilite_user_2/S00_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr2/interconnect_axilite_user_2/s00_couplers/M_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr2/interconnect_axilite_user_2/s00_couplers/S_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//slr2/to_delete_kernel_ctrl_2/S_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//user_slr_icn/M00_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//user_slr_icn/M01_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//user_slr_icn/M02_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//user_slr_icn/S00_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//user_slr_icn/m00_couplers/M_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//user_slr_icn/m00_couplers/S_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//user_slr_icn/m01_couplers/M_AXI
+INFO: [Wavedata 42-564]   Found protocol instance at /emu_wrapper/emu_i/dynamic_region//user_slr_icn/m01_couplers/S_AXI
+INFO: [Common 17-14] Message 'Wavedata 42-564' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Wavedata 42-565] Reading protoinst file protoinst_files/emu.protoinst
+INFO: [Wavedata 42-565] Reading protoinst file ./dr_behav.protoinst
+Time resolution is 1 ps
+source emu_wrapper.tcl
+## set curr_wave [current_wave_config]
+## if { [string length $curr_wave] == 0 } {
+##   if { [llength [get_objects]] > 0} {
+##     add_wave /
+##     set_property needs_save false [current_wave_config]
+##   } else {
+##      send_msg_id Add_Wave-1 WARNING "No top level signals found. Simulator will start without a wave window. If you want to open a wave window go to 'File->New Waveform Configuration' or type 'create_wave_config' in the TCL console."
+##   }
+## }
+WARNING: [Simtcl 6-168] No object found for the given pattern.
+WARNING: [Add_Wave-1] No top level signals found. Simulator will start without a wave window. If you want to open a wave window go to 'File->New Waveform Configuration' or type 'create_wave_config' in the TCL console.
+## if { [file exists vitis_params.tcl] } {
+##   source vitis_params.tcl
+## }
+## if { [info exists ::env(USER_PRE_SIM_SCRIPT)] } {
+##   if { [catch {source $::env(USER_PRE_SIM_SCRIPT)} msg] } {
+##     puts $msg
+##   }
+## }
+## if { [info exists ::env(VITIS_WAVEFORM)] } {
+##   if { [file exists $::env(VITIS_WAVEFORM)] == 1} {
+##     open_wave_config $::env(VITIS_WAVEFORM)
+##   }
+## }
+## if { [file exists pre_sim_tool_scripts.tcl] } {
+##   source pre_sim_tool_scripts.tcl
+## }
+### if { [file exists preprocess_profile.tcl] } {
+###   if { [catch {source -notrace preprocess_profile.tcl} msg] } {
+###     puts $msg 
+###   }
+### }
+### if { [info exists ::env(XILINX_SC_HW_EMU)] } {
+###   source $::env(XILINX_VITIS)/data/system_compiler/examples/sc_hw_emu_pre_xsim.tcl
+### }
+## puts "We are running simulator for infinite time. Added some default signals in the waveform. You can pause simulation and add signals and then resume the simulaion again."
+We are running simulator for infinite time. Added some default signals in the waveform. You can pause simulation and add signals and then resume the simulaion again.
+## puts ""
+
+## puts "Stopping at breakpoint in simulator also stops the host code execution"
+Stopping at breakpoint in simulator also stops the host code execution
+## puts ""
+
+## if { [info exists ::env(VITIS_LAUNCH_WAVEFORM_GUI) ] } {
+##   run 1ns
+## } else {
+##   run all
+## }
+Warning: [XPM_MEMORY 30-15] MEMORY_TYPE (2) and MEMORY_PRIMITIVE (1) together specify a true dual port distributed RAM, which will be mapped to a dual port RAM structure using port A and B read interfaces but a single port A write interface, leaving the port B write interface unused. emu_wrapper.emu_i.static_region.embedded_schedular.embedded_scheduler_hw_0.inst.cu_addr_lut.xpm_memory_base_inst.config_drc
+Time: 1 ps  Iteration: 0  Process: /emu_wrapper/emu_i/static_region/embedded_schedular/embedded_scheduler_hw_0/inst/cu_addr_lut/xpm_memory_base_inst/Initial297_1473  Scope: emu_wrapper.emu_i.static_region.embedded_schedular.embedded_scheduler_hw_0.inst.cu_addr_lut.xpm_memory_base_inst.config_drc  File: /opt/Xilinx/Vivado/2021.2/data/ip/xpm/xpm_memory/hdl/xpm_memory.sv Line: 530
+$stop called at time : 42303460 ps
+run: Time (s): cpu = 00:00:03 ; elapsed = 00:00:09 . Memory (MB): peak = 2947.852 ; gain = 0.000 ; free physical = 10632 ; free virtual = 25254
+## if { [file exists post_sim_tool_scripts.tcl] } {
+##   source post_sim_tool_scripts.tcl
+## }
+### if { [file exists profile.tcl] } {
+###   if { [catch {source -notrace profile.tcl } msg] } {
+###     puts $msg
+###   }
+### }
+Waiting for protocol analyzers to complete...
+Done!
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.dataflowTxWaveData.OutStanding
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_0
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_1
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_2
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_3
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_4
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_5
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_6
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_7
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_8
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_9
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_10
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_11
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_12
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_13
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_14
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_15
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_16
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_17
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_18
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_19
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_20
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_21
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_22
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_23
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_24
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_25
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_26
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_27
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_28
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_29
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_30
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_31
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_32
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_33
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_34
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_35
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_36
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_37
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_38
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_39
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_40
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_41
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_42
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_43
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_44
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_45
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_46
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_47
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_48
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_49
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_50
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_51
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_52
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_53
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_54
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_55
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_56
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_57
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_58
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_59
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_60
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_61
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_62
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_load_fu_150/grp_dot_prod_Pipeline_load_fu_150.iterationsWave_63
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.dataflowTxWaveData.OutStanding
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_0
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_1
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_2
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_3
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_4
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_5
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_6
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_7
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_8
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_9
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_10
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_11
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_12
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_13
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_14
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_15
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_16
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_17
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_18
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_19
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_20
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_21
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_22
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_23
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_24
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_25
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_26
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_27
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_28
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_29
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_30
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_31
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_32
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_33
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_34
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_35
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_36
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_37
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_38
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_39
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_40
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_41
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_42
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_43
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_44
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_45
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_46
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_47
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_48
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_49
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_50
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_51
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_52
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_53
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_54
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_55
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_56
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_57
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_58
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_59
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_60
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_61
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_62
+Unable to find signal: /emu_wrapper/emu_i/dynamic_region/dot_prod_1/inst//grp_dot_prod_Pipeline_compute_fu_158/grp_dot_prod_Pipeline_compute_fu_158.iterationsWave_63
+### if { [info exists ::env(XILINX_SC_HW_EMU)] } {
+###   source $::env(XILINX_VITIS)/data/system_compiler/examples/sc_hw_emu_post_xsim.tcl
+### }
+## if { [info exists ::env(VITIS_LAUNCH_WAVEFORM_BATCH) ] } {
+##   if { [info exists ::env(USER_POST_SIM_SCRIPT) ] } {
+##     if { [catch {source $::env(USER_POST_SIM_SCRIPT)} msg] } {
+##       puts $msg
+##     }
+##   }
+##   quit
+## }
+INFO: [Common 17-206] Exiting xsim at Fri Oct 11 17:39:10 2024...

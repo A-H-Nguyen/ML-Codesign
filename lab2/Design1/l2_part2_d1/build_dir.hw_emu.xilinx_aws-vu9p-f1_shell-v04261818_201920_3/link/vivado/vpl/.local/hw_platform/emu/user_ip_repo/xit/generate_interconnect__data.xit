@@ -1,0 +1,551 @@
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "BEGIN: GENERATE_INTERCONNECT__DATA"
+
+set addr_info [dict get $CONFIG addr_info]
+
+set sparse_connectivity {}
+set si_dimension {}
+set mi_dimension {}
+dbg_puts "mem_bank_utilization: $mem_bank_utilization"
+set bank_names [lsort [dict keys $mem_bank_utilization]]
+set ict {}
+
+for {set i 0} {$i < [dict get $CONFIG num_si]} {incr i} {
+  set row {}
+  #set banks [lsort [dict keys $mem_bank_component_map]]
+  foreach bank $bank_names {
+    set si [format S%.2d $i]_AXI
+    set v 0
+    if {[dict exists $addr_info $si] && [dict exists $addr_info $si $bank]} {
+      dict incr si_dimension $si
+      dict incr mi_dimension $bank
+      set v 1
+    }
+    lappend row $v
+  }
+  lappend sparse_connectivity $row
+}
+
+dbg_puts "sparse_connectivity: $sparse_connectivity"
+set formatstr "%10s [string repeat %14s [llength $bank_names]]"
+dbg_puts [format $formatstr si {*}$bank_names]
+dbg_brk
+set i 0
+foreach row $sparse_connectivity {
+  set si_name [format S%.2d_AXI $i]
+  dbg_puts [format $formatstr $si_name {*}$row]
+  incr i
+}
+dbg_puts "si_dimension: $si_dimension"
+dbg_puts "mi_dimension: $mi_dimension"
+
+if {![info exists env(SDX_MSS_DISABLE_SLR_AGGREGATION)]} {
+  set resource_clients {}
+  set formatstr "%20s %10s %10s"
+
+  foreach si_name [lsort [dict keys $si_dimension]] {
+    
+    if {[dict exists $CONFIG addr_info $si_name]} {
+      set target_resource_names [lsort [dict keys [dict get $CONFIG addr_info $si_name]]]
+      if {[llength $target_resource_names] == 1} {
+        set si_port [get_bd_intf_ports $si_name]
+        dict lappend resource_clients $target_resource_names $si_port 
+      }
+      if {[llength $target_resource_names] > 1} {        
+        set si_ict_name interconnect_$si_name
+        set si_ict [create_bd_cell -vlnv xilinx.com:ip:smartconnect:1.0 $si_ict_name]
+        dict set si_ict_params CONFIG.NUM_SI 1
+        dict set si_ict_params CONFIG.NUM_MI [llength $target_resource_names]
+        dict set si_ict_params CONFIG.ADVANCED_PROPERTIES {} 
+        set_property -dict $si_ict_params $si_ict
+
+        dbg_puts [format $formatstr $si_ict_name 1 [llength $target_resource_names]]
+
+        connect_bd_intf_net [get_bd_intf_ports $si_name] [find_first_unconnected_intf [get_bd_intf_pins $si_ict/S*_AXI]]
+
+        set si_clock_source [get_bd_ports [dict get $clock_associations $si_name ]]
+        connect_bd_net [get_bd_pins $si_ict/aclk] $si_clock_source
+        set psr [dict get $CONFIG psr [get_property name $si_clock_source] [dict get $CONFIG si_slr_map $si_name]]
+        connect_bd_net [get_bd_pins $si_ict/aresetn] [get_bd_pins $psr/interconnect_aresetn]
+
+        dict set ict $si_ict_name $si_ict
+        dict set hierarchy interconnect $si_ict $si_ict
+        dict set CONFIG ict_slr_map $si_ict_name [dict get $CONFIG si_slr_map $si_name]
+        
+        foreach target $target_resource_names mi [get_bd_intf_pins $si_ict/M*_AXI] {
+          dict lappend resource_clients $target $mi
+        }
+      }
+    }
+  }
+  
+  dbg_brk
+  dbg_puts "resource_clients:"
+  foreach k [lsort [dict keys $resource_clients]] {dbg_puts "$k $v"}
+  
+  foreach resource [lsort [dict keys $resource_clients]] {
+    set clients [dict get $resource_clients $resource]
+    set slr_client_map {}
+    foreach client $clients {
+
+      if {[string match "bd_intf_pin" [get_property class $client]]} {
+        set si_ict [get_bd_cells -of $client]
+        regexp -nocase {(S\d\d_AXI)} [get_property name $si_ict] source_si_name
+        set source_si [get_bd_intf_ports $source_si_name]
+      }
+      
+      if {[string match "bd_intf_port" [get_property class $client]]} {
+        set source_si $client
+      }
+
+      set source_si_name [get_property NAME $source_si]  
+      set source_si_slr [dict get $CONFIG si_slr_map $source_si_name]
+
+      dict lappend slr_client_map $source_si_slr $client
+    }
+  
+    set client_slrs [lsort [dict keys $slr_client_map]]
+    set num_client_slrs [llength $client_slrs]
+    set slr_aggregation_threshold 1
+    if {[dict exists $CONFIG advanced_properties slr_aggregation_threshold]} {
+      set slr_aggregation_threshold [dict get $CONFIG advanced_properties slr_aggregation_threshold]
+    }
+    if {$num_client_slrs <= $slr_aggregation_threshold} {
+      foreach slr [lsort [dict keys $slr_client_map]] {
+        foreach client [dict get $slr_client_map $slr] {
+          dict lappend memory_clients $resource $client
+        }        
+      }
+    } else {      
+      foreach slr [lsort [dict keys $slr_client_map]] {
+        set clients [lsort [dict get $slr_client_map $slr]]
+        set num_clients [llength $clients]
+        if {$num_clients == 1 || $slr == [dict get $mem_bank_slr_map $resource]} {
+          foreach client $clients {
+            dict lappend memory_clients $resource $client
+          }
+        } else {
+          set aggregator_ict_name interconnect_${slr}_${resource}
+          set aggregator_ict [create_bd_cell -vlnv xilinx.com:ip:smartconnect:1.0 $aggregator_ict_name]                
+          set_property CONFIG.ADVANCED_PROPERTIES {} $aggregator_ict
+          set_property CONFIG.NUM_SI $num_clients $aggregator_ict
+          set_property CONFIG.NUM_MI 1 $aggregator_ict
+          
+          dict set hierarchy interconnect $aggregator_ict $aggregator_ict
+          
+          foreach client $clients si [get_bd_intf_pins $aggregator_ict/S*_AXI] {
+            connect_bd_intf_net $client $si
+          }
+          
+          dict set CONFIG ict_slr_map $aggregator_ict_name $slr
+          dict lappend memory_clients $resource [get_bd_intf_pins $aggregator_ict/M00_AXI]
+        }
+      }
+    }
+  }
+
+  dbg_brk
+  dbg_puts "memory_clients:"  
+  foreach k [lsort [dict keys $memory_clients]] {dbg_puts "$k [dict get $memory_clients $k]"}
+  
+  foreach resource [lsort [dict keys $memory_clients]] {
+    dbg_puts "resource: $resource"
+    set clients [lsort [dict get $memory_clients $resource]]
+    set num_clients [llength $clients]
+    regexp {(M\d\d_AXI)_MEM\d\d} $resource {} mi
+
+    set is_axi_passthrough [string match "M??_AXI_MEM??" $resource]
+    set is_multipath_axi_passthrough 0
+
+    if {$is_axi_passthrough} {
+      set passthrough_key [dict get $CONFIG resource_name_to_axi_passthrough_key $resource]      
+      set passthrough_configuration [dict get $CONFIG dsa_info axi_passthrough $passthrough_key]
+      set is_multipath_axi_passthrough [dict exists $passthrough_configuration multipath_level]
+      dbg_puts "passthrough_key: $passthrough_key"
+      dbg_puts "passthrough_configuration: $passthrough_configuration"
+      dbg_puts "is_multipath_axi_passthrough: $is_multipath_axi_passthrough"
+      if {$is_multipath_axi_passthrough} {
+        set multipath_level [dict get $passthrough_configuration multipath_level]        
+        dbg_puts "multipath_level: $multipath_level"
+      }
+    }
+
+
+    if {!$is_multipath_axi_passthrough} {
+      dbg_puts "Not multipath passthrough - generating standard passthrough interconnect... "
+      set resource_ict_name  interconnect_$resource
+      set resource_ict [create_bd_cell -vlnv xilinx.com:ip:smartconnect:1.0 $resource_ict_name]
+      
+      if {$is_axi_passthrough} {
+        connect_bd_intf_net [get_bd_intf_ports $mi] [get_bd_intf_pins $resource_ict/M00_AXI]
+      }
+
+      set_property CONFIG.ADVANCED_PROPERTIES {} $resource_ict
+      set_property CONFIG.NUM_SI $num_clients $resource_ict
+      
+      foreach client $clients si [get_bd_intf_pins $resource_ict/S*_AXI] {
+        connect_bd_intf_net $client $si
+      }
+
+      dict set ict $resource $resource_ict
+      dict set hierarchy interconnect $resource_ict $resource_ict
+      dict set CONFIG ict_slr_map $resource_ict_name [dict get $mem_bank_slr_map $resource]
+    } else {
+
+      dbg_puts "Generating interconnect for multipath_pasthrough: $multipath_level"
+
+      set resource_interconnect_sis {}
+      set remaining_clients $num_clients
+      set num_clients_per_interconnect [expr int(ceil($num_clients/($multipath_level*1.0)))]
+      puts "num_clients_per_interconnect: $num_clients_per_interconnect"
+      set num_multipath_interconnects [expr $num_clients < $multipath_level ? $num_clients : $multipath_level]
+
+      for {set i 0} {$i < $num_multipath_interconnects} {incr i} {        
+        set mp_idx [format MP%.2d $i]
+        set resource_ict_name  interconnect_${resource}_${mp_idx}
+        set resource_ict [create_bd_cell -vlnv xilinx.com:ip:smartconnect:1.0 $resource_ict_name]
+        dbg_puts "resource_ict: $resource_ict"
+
+        set multipath_interface [get_bd_intf_ports ${mi}_${mp_idx}]
+        connect_bd_intf_net $multipath_interface [get_bd_intf_pins $resource_ict/M00_AXI]
+        dbg_puts "connect_bd_intf_net [get_bd_intf_ports ${mi}_${mp_idx}] [get_bd_intf_pins $resource_ict/M00_AXI]"
+
+        set ict_num_si $num_clients_per_interconnect
+        if {$remaining_clients < $num_clients_per_interconnect} {          
+          set ict_num_si $remaining_clients
+        }
+        set remaining_clients [expr $remaining_clients - $num_clients_per_interconnect]
+
+        set_property CONFIG.ADVANCED_PROPERTIES {} $resource_ict
+        set_property CONFIG.NUM_SI $ict_num_si $resource_ict
+        lappend resource_interconnect_sis {*}[get_bd_intf_pins $resource_ict/S*_AXI]
+
+        dict lappend ict $resource $resource_ict
+        dict set hierarchy interconnect $resource_ict $resource_ict
+        dict set CONFIG ict_slr_map $resource_ict_name [dict get $mem_bank_slr_map $resource]        
+      }
+
+      if {[llength $resource_interconnect_sis] != [llength $clients]} {
+        dbg_puts "ERROR: mismatch between num SI [llength $resource_interconnect_sis] and num clients [llength $clients]"
+      }
+
+      foreach interconnect_si_path $resource_interconnect_sis client $clients {
+        set interconnect_si [get_bd_intf_pins $interconnect_si_path]
+        dbg_puts "$interconnect_si -> $client "
+        connect_bd_intf_net $interconnect_si $client
+
+        # During SBD_ADDR_ASSIGNMENTS need to reconcile which multipath port is alllocated to which toplevel intf_port:
+        set multipath_interconnect [get_bd_cells -of $interconnect_si]
+        set multipath_interconnect_mi [get_bd_intf_pins $multipath_interconnect/M00_AXI]
+        set multipath_interface [find_bd_objs -relation CONNECTED_TO $multipath_interconnect_mi]
+
+        set effective_clients $client
+
+        # It's possible that the client is an interconnect MI.  Acquire actual client intf_ports...
+        if {[get_property CLASS $client] == "bd_intf_pin"} {
+          set effective_clients [find_bd_objs -relation ADDRESSING_MASTER $client]
+        }
+        dbg_puts "effective_clients: $effective_clients"
+        foreach c $effective_clients {
+          dict set CONFIG multipath_si_association [get_property NAME $c] $multipath_interface
+          dbg_puts "multipath_si_association: [get_property NAME $c] $multipath_interface"          
+        }
+      }
+    }
+  }
+
+  dbg_puts "ict: $ict"
+  dict for {k v} $ict {dbg_puts [format "%30s %30s" $k $v]}
+  dbg_brk
+  dbg_puts "Apply SI Buffers"
+  set formatStr "%40s %10s %10s %10s %10s"
+  dbg_puts [format $formatStr Interconnect R_SIZE W_SIZE PKT_R_THR PKT_W_THR]
+  foreach si [get_bd_intf_ports S*_AXI] {
+    set target_si [find_bd_objs -relation CONNECTED_TO $si]
+    if {[llength $target_si] == 0} {
+      continue
+    }
+    set target_si_name [get_property NAME $target_si]
+    regexp {S(\d\d)_AXI} $target_si_name {} idx
+    set sc [get_bd_cells -of $target_si]
+
+    set si_buffer_size 512
+    set si_pkt_r_thr 512
+    set si_pkt_w_thr 64
+    set sc_advanced_properties [get_property CONFIG.ADVANCED_PROPERTIES $sc]
+    set si_rwm [dict get $CONFIG intf_metadata $target_si_name CONFIG.READ_WRITE_MODE ]
+    if {[string match *WRITE* $si_rwm]} {
+      dict set sc_advanced_properties __view__ functional S${idx}_Buffer R_SIZE $si_buffer_size
+      if {![info exists env(SDX_HIP_DISABLE_PKT_R_THR)]} {
+        dict set sc_advanced_properties __view__ functional S${idx}_Entry PKT_R_THR $si_pkt_r_thr      
+      }
+    }
+    if {[string match *READ* $si_rwm]} {
+      dict set sc_advanced_properties __view__ functional S${idx}_Buffer W_SIZE $si_buffer_size
+      if {![info exists env(SDX_HIP_DISABLE_PKT_W_THR)]} {
+        dict set sc_advanced_properties __view__ functional S${idx}_Entry PKT_W_THR $si_pkt_w_thr      
+      }
+    }
+    
+    set_property CONFIG.ADVANCED_PROPERTIES $sc_advanced_properties $sc
+    dbg_puts [format $formatStr $sc $si_buffer_size $si_buffer_size $si_pkt_r_thr $si_pkt_w_thr]
+  }
+
+  dbg_brk
+  dbg_puts "SI ICT SLR CROSSING PROPERITES AND HANDOFF "
+  # Construct SLR handoff metadata
+  foreach sc [lsort [get_bd_cells -quiet interconnect_S??_AXI]] {
+    set sc_name [get_property NAME $sc]
+    regexp {(S(\d\d)_AXI)} $sc_name {} si_pidx idx
+    set si_slr [dict get $CONFIG si_slr_map $si_pidx]
+    
+    # SI is always the same as the SI SLR
+    dict set slr_crossings $sc_name S00_AXI source_slr $si_slr
+    dict set slr_crossings $sc_name S00_AXI target_slr $si_slr
+    
+    foreach mi [get_bd_intf_pins $sc/M*_AXI] {
+      set mi_name [get_property NAME $mi]
+      set mi_target_intf [find_bd_objs -relation CONNECTED_TO $mi]
+      set mi_target_intf_class [get_property CLASS $mi_target_intf]
+      
+      if {[string match "bd_intf_pin" $mi_target_intf_class]} {
+        set mi_target_sc [get_bd_cells -of $mi_target_intf]
+        set mi_target_sc_name [get_property NAME $mi_target_sc]        
+        set mi_target_slr [dict get $CONFIG ict_slr_map $mi_target_sc_name]
+        
+      } elseif {[string match "bd_intf_port" $mi_target_intf_class]} {
+        dbg_puts "ERRROR_ unexpected intf_port direct connect from SI ict"
+        continue
+      }
+
+      dict set slr_crossings $sc_name $mi_name source_slr $si_slr
+      dict set slr_crossings $sc_name $mi_name target_slr $mi_target_slr
+    }
+  }
+
+  dbg_brk
+  dbg_puts "AGGREGATOR ICT SLR CROSSING PROPERITES AND HANDOFF "
+  
+  foreach sc [get_bd_cells -quiet interconnect_SLR*] {
+    set sc_name [get_property NAME $sc]
+    set sc_slr [dict get $CONFIG ict_slr_map $sc_name]
+    
+    foreach intf [lsort [get_bd_intf_pins $sc/*_AXI]] {
+      set intf_name [get_property NAME $intf]
+      set target_intf [find_bd_objs -relation CONNECTED_TO $intf]
+      set target_intf_class [get_property CLASS $target_intf]
+      
+      if {[string match "bd_intf_pin" $target_intf_class]} {
+        set target_sc [get_bd_cells -of $target_intf]
+        set target_sc_name [get_property NAME $target_sc]        
+        set target_slr [dict get $CONFIG ict_slr_map $target_sc_name] 
+      } elseif {[string match "bd_intf_port" $target_intf_class]} {
+        set target_slr [dict get $CONFIG si_slr_map [get_property NAME $target_intf]]
+      }
+      if {[string match "S*_AXI" $intf_name]} {
+        dict set slr_crossings $sc_name $intf_name source_slr $target_slr
+        dict set slr_crossings $sc_name $intf_name target_slr $sc_slr        
+      } else {
+        dict set slr_crossings $sc_name $intf_name source_slr $sc_slr
+        dict set slr_crossings $sc_name $intf_name target_slr $target_slr        
+      }
+    }    
+  }
+
+  dbg_brk
+  dbg_puts "RESOURCE ICT SLR CROSSING PROPERITES AND HANDOFF "
+  
+  foreach resource_name [lsort [dict keys $mem_bank_utilization]] {
+    set resource_interconnects [dict get $ict $resource_name]
+    foreach sc $resource_interconnects {
+      set sc [get_bd_cells $sc]
+#      set sc [get_bd_cells interconnect_$resource_name]
+      set sc_name [get_property NAME $sc]
+      set sc_slr [dict get $CONFIG ict_slr_map $sc_name]
+
+      # MI is always the same as the sc_slr
+      dict set slr_crossings $sc_name M00_AXI source_slr $sc_slr
+      dict set slr_crossings $sc_name M00_AXI target_slr $sc_slr
+
+      foreach intf [lsort [get_bd_intf_pins $sc/S*_AXI]] {
+        set intf_name [get_property NAME $intf]
+        set target_intf [find_bd_objs -relation CONNECTED_TO $intf]
+        set target_intf_class [get_property CLASS $target_intf]
+        
+        if {[string match "bd_intf_pin" $target_intf_class]} {
+          # Aggregator interconnect has already applied the crossing.
+          set target_slr $sc_slr
+          
+        } elseif {[string match "bd_intf_port" $target_intf_class]} {
+          set target_slr [dict get $CONFIG si_slr_map [get_property NAME $target_intf]]
+        }
+
+        if {[string match "S*_AXI" $intf_name]} {
+          dict set slr_crossings $sc_name $intf_name source_slr $target_slr
+          dict set slr_crossings $sc_name $intf_name target_slr $sc_slr        
+        } else {
+          dict set slr_crossings $sc_name $intf_name source_slr $sc_slr
+          dict set slr_crossings $sc_name $intf_name target_slr $target_slr        
+        }      
+      }      
+    }
+  }
+  dbg_puts "slr_crossings: $slr_crossings"
+  dbg_brk
+  
+  
+  dbg_puts "SLR Crossing Property assignment"
+  set formatstr "%40s %10s %10s %10s %10s"
+  dbg_puts [format $formatstr Interconnect Intf Source_SLR Target_SLR Depth]
+  # Apply SLR crossings to SC interconnect instances
+  foreach sc_name [lsort [dict keys $slr_crossings]] {
+    set sc [get_bd_cells $sc_name]
+    set sc_name [get_property NAME $sc]
+    foreach intf_name [lsort [dict keys [dict get $slr_crossings $sc_name]]] {
+      set source_slr [dict get $slr_crossings $sc_name $intf_name source_slr]
+      set target_slr [dict get $slr_crossings $sc_name $intf_name target_slr]
+      
+      regexp {SLR(\d)} $source_slr {} source_slr_idx
+      regexp {SLR(\d)} $target_slr {} target_slr_idx
+
+      set slr_crossing_distance [expr abs($source_slr_idx-$target_slr_idx)]
+      set slr_pipeline_depth [expr $slr_crossing_distance + 1]
+      set node_slr_crossing_config {}
+      foreach param { AR_SLR_PIPE AW_SLR_PIPE R_SLR_PIPE W_SLR_PIPE B_SLR_PIPE} {
+        dict set node_slr_crossing_config $param $slr_pipeline_depth
+      }
+        
+      dict set slr_crossings $sc_name $intf_name depth $slr_pipeline_depth
+      
+      if {![string equal -nocase $source_slr $target_slr]} {
+        regexp {([SM])(\d\d)_AXI} $intf_name {} role idx
+        set sc_params [get_property CONFIG.ADVANCED_PROPERTIES $sc]
+        if {$sc_params == 0} { set sc_params {} }
+        dict set sc_params  __view__ timing ${role}${idx}_Buffer $node_slr_crossing_config
+        set_property CONFIG.ADVANCED_PROPERTIES $sc_params $sc
+      } 
+
+      dbg_puts [format $formatstr $sc $intf_name $source_slr $target_slr $slr_pipeline_depth]
+    }
+  }
+}
+
+
+
+if {[info exists env(SDX_MSS_DISABLE_SLR_AGGREGATION)]} {
+  
+  set formatstr "%30s %10s %20s"
+  dbg_puts [format $formatstr Name NUM_MI SI_BUFFER_SIZE]
+  set sc_params {}
+  dict for {i v} $si_dimension {
+    set si_ict_name  interconnect_[string tolower $i]
+    if {[info exists env(SDX_HIP_ENABLE_SHORT_INTERCONNECT_NAMES)]} {
+      set si_ict_name  itc_[string tolower $i]    
+    }
+  
+    dict set sc_params CONFIG.NUM_SI 1
+    dict set sc_params CONFIG.NUM_MI $v
+    set si_buffer_size 512
+    dict set sc_params CONFIG.ADVANCED_PROPERTIES __view__ functional S00_Buffer R_SIZE $si_buffer_size
+    dict set sc_params CONFIG.ADVANCED_PROPERTIES __view__ functional S00_Buffer W_SIZE $si_buffer_size
+  
+    set sc [create_bd_cell -vlnv xilinx.com:ip:smartconnect:1.0 $si_ict_name]
+    set_property -dict $sc_params $sc
+    dict set ict $i $sc
+    dict set hierarchy interconnect $sc $sc
+  
+    dbg_puts [format $formatstr $si_ict_name $v $si_buffer_size]
+  }
+  
+  set sc_params {}
+  set formatstr "%30s %10s %20s %20s"
+  dbg_puts [format $formatstr Name NUM_SI SI_BUFFER_DEPTH MI_BUFFER_DEPTH]
+  dict for {i v} $mi_dimension {
+    set mi_ict_name interconnect_[string tolower $i]
+    if {[info exists env(SDX_HIP_ENABLE_SHORT_INTERCONNECT_NAMES)]} {
+      set mi_ict_name itc_[string tolower $i]
+    }
+    dict set sc_params CONFIG.NUM_MI 1
+    dict set sc_params CONFIG.NUM_SI $v
+  #  dict set sc_params CONFIG.NUM_CLKS [expr $v+1]
+  
+    # Optional ENV-driven overrides
+    set si_buffer_depth 0
+    set mi_buffer_depth 0
+    if {[info exists env(SDX_HIP_USE_MEM_ICT_BUFFERS)]} {
+      if {[info exists env(SDX_HIP_USE_MEM_SI_BRAM_BUFFFERS)]} {   
+        set si_buffer_depth 512
+      } elseif {[info exists env(SDX_HIP_USE_MEM_SI_LUTRAM_BUFFERS)]} {
+        set si_buffer_depth 64  
+      } else {
+        set mi_buffer_depth 512
+      }    
+    }
+  
+    if {$si_buffer_depth > 0} {
+      for {set j 0} {$j < $v} {incr j} {
+        set idx [format %.2d $j]
+        dict set sc_params CONFIG.ADVANCED_PROPERTIES __view__ functional S${idx}_Buffer R_SIZE $si_buffer_depth
+        dict set sc_params CONFIG.ADVANCED_PROPERTIES __view__ functional S${idx}_Buffer W_SIZE $si_buffer_depth
+      }    
+    }
+    if {$mi_buffer_depth > 0} {
+      dict set sc_params CONFIG.ADVANCED_PROPERTIES __view__ functional M00_Buffer R_SIZE $mi_buffer_depth
+      dict set sc_params CONFIG.ADVANCED_PROPERTIES __view__ functional M00_Buffer W_SIZE $mi_buffer_depth
+    }
+    
+    dict set sc_params CONFIG.ADVANCED_PROPERTIES __view__ timing M00_Buffer R_SLR_PIPE 1
+    dict set sc_params CONFIG.ADVANCED_PROPERTIES __view__ timing M00_Buffer R_M_SEND_PIPE 1
+    dict set sc_params CONFIG.ADVANCED_PROPERTIES __view__ timing M00_Exit REGSLICE 0
+  
+    set sc [create_bd_cell -vlnv xilinx.com:ip:smartconnect:1.0 $mi_ict_name]
+    set_property -dict $sc_params $sc
+    dict set ict $i $sc
+    dict set hierarchy interconnect $sc $sc
+    dbg_puts [format $formatstr $mi_ict_name $v $si_buffer_depth $mi_buffer_depth]
+  }
+  
+  # Interior connectivity of the interconnect instances:
+  for {set i 0} {$i < [dict get $CONFIG num_si]} {incr i} {
+    set banks [lsort [dict keys $mem_bank_utilization]]
+    foreach bank $banks {
+      set si [format S%.2d $i]_AXI
+      if {[dict exists $addr_info $si] && [dict exists $addr_info $si $bank]} {
+        set si_ict [dict get $ict $si]
+        set mi_ict [dict get $ict $bank]
+        set si_ict_m_axi [get_bd_intf_pins $si_ict/M*_AXI]
+        set mi_ict_s_axi [get_bd_intf_pins $mi_ict/S*_AXI]     
+        set si_ict_src [find_first_unconnected_intf $si_ict_m_axi]
+        set mi_ict_dest [find_first_unconnected_intf $mi_ict_s_axi]
+        if {[llength $si_ict_src] == 1 && [llength $mi_ict_dest] == 1} {
+          connect_bd_intf_net $si_ict_src $mi_ict_dest
+        } else {
+          # ERROR: Can't find available connection points on source and destination interconnects
+        }
+      }
+    }
+  }
+  
+  # Connect the S*_AXI interconnects to the boundary interface port objects
+  dict for {si sc} [dict filter $ict key S*_AXI] {
+    set si_port [get_bd_intf_ports $si]
+    set mi_port [get_bd_intf_pins $sc/S00_AXI]
+    connect_bd_intf_net $si_port $mi_port
+  }
+  
+  # Connect the M*_AXI interconnects to the boundary interface port objects
+  dict for {bank sc} [dict filter $ict key M*_AXI*] {
+    regexp {(M\d\d_AXI)} $bank {} mi_port_name
+    set si_port [get_bd_intf_ports $mi_port_name]
+    set mi_port [get_bd_intf_pins $sc/M00_AXI]
+    connect_bd_intf_net $si_port $mi_port
+  }
+  
+  dbg_brk
+  dbg_puts "ict: $ict"
+  dbg_brk
+
+}
+
+dbg_puts "END: GENERATE_INTERCONNECT__DATA"
+dbg_puts "----------------------------------------------------------------------"

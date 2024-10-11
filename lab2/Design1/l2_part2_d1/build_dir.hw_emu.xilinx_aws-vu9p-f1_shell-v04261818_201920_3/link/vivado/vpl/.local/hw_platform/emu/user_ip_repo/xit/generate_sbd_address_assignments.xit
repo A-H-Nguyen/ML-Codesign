@@ -1,0 +1,148 @@
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "BEGIN: GENERATE_SBD_ADDRESS_ASSIGNMENTS"
+
+# ------------------------------------------------------
+# Strength of SI ADDR_WIDTH inhibits proper propagation.
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "BEGIN: WORKAROUND CR: 999244"
+foreach si [dict keys [dict get $CONFIG addr_info]] {
+  set si [get_bd_intf_ports $si]
+  set ext_intf [find_bd_objs -thru_hier -boundary_type extern -relation CONNECTED_TO $si]
+  if {[llength $ext_intf] == 1} {  
+    set original_addr_width [get_property CONFIG.ADDR_WIDTH $si]
+    set new_addr_width [get_property CONFIG.ADDR_WIDTH $ext_intf]    
+    dbg_puts "Changing $si ADDR_WIDTH from $original_addr_width to $new_addr_width"
+    set_property CONFIG.ADDR_WIDTH $new_addr_width $si
+  } else {
+    dbg_puts "INTERNAL ERROR: expected to find a connection for a mapped addr seg at $si but no external interface object found!"
+  }
+}
+dbg_puts "END: WORKAROUND CR: 999244"
+dbg_puts "----------------------------------------------------------------------"
+
+set formatstr "%10s %20s %20s %-20s"
+dbg_puts "SI Address Assignments:"
+foreach si [lsort [dict keys [dict get $CONFIG addr_info]]] {
+  set addr_space [get_bd_addr_space -of [get_bd_intf_ports $si]]
+  foreach bank [dict keys [dict get $addr_info $si]] {
+    set ddr_axi [dict get $mem_bank_data_intf $bank]
+    dbg_puts "ddr_axi: $ddr_axi"
+    if {[llength $ddr_axi] > 1} {
+      dbg_puts "multipath_si_association: [dict get $CONFIG multipath_si_association]"
+      set ddr_axi [dict get $CONFIG multipath_si_association $si] 
+    }
+    dbg_puts "ddr_axi: $ddr_axi"
+    set bank_segment [get_bd_addr_segs -of $ddr_axi]
+    dbg_puts "bank_segment: $bank_segment"
+    if {[llength $bank_segment] == 1} {
+      lassign [dict get $addr_info $si $bank] offset range
+      dbg_puts [format $formatstr $addr_space $offset "<$range>" $bank_segment]
+      assign_bd_address $bank_segment -target_address_space $addr_space -offset $offset -range $range
+
+      # ----------------------------------------------------------------------
+      # TODO: remove dependency on set_param
+      # ----------------------------------------------------------------------
+      if {[get_param bd.hooks.addr.debug_scoped_use_ms_name]} {
+        set master_segments [get_bd_addr_segs -of $bank_segment]
+        if {[llength $master_segments] > 0} {
+          foreach mas $master_segments {
+            # Optionally adjust the name of the segment from its default to its bank name so that
+            # the internal/external segments can be matched.
+            if {![string equal [get_property NAME $mas] $bank]} {
+#              dbg_puts "Renaming master address segment from [get_property NAME $mas] to $bank in $addr_space"
+              set_property NAME $bank $mas                          
+            }
+          }
+        } else {
+          send_msg CRITICAL_WARNING 1 "Rename SBD segment ($bank_segment) unable to proceed - no MAS, did assignment fail?"
+        }
+      }
+    }
+  }
+}
+
+foreach si [lsort [dict keys [dict get $CONFIG addr_info]]] {
+  foreach seg [get_bd_addr_segs -of [get_bd_intf_ports $si]] {
+    dbg_puts "$si [get_property NAME $seg] [get_property OFFSET $seg] [get_property RANGE $seg]"
+  }
+}
+
+set ctrl_intf [get_bd_intf_ports -quiet S_AXI_CTRL]
+if {[llength $ctrl_intf] == 1} {
+
+  # ------------------------------------------------------
+  # Strength of exterior interface ADDR_WIDTH inhibits proper propagation.
+  dbg_puts "----------------------------------------------------------------------"
+  dbg_puts "BEGIN: WORKAROUND CR: 999244"
+  set ext_ctrl_intf [find_bd_objs -thru_hier -boundary_type extern -relation CONNECTED_TO $ctrl_intf]
+  if {[llength $ext_intf] == 1} {  
+    set original_addr_width [get_property CONFIG.ADDR_WIDTH $ctrl_intf]
+    set new_addr_width [get_property CONFIG.ADDR_WIDTH $ext_ctrl_intf]    
+    dbg_puts "Changing $ctrl_intf ADDR_WIDTH from $original_addr_width to $new_addr_width"
+    set_property CONFIG.ADDR_WIDTH $new_addr_width $ctrl_intf
+  } else {
+    dbg_puts "INTERNAL ERROR: expected to find a connection for a mapped addr seg at $si but no external interface object found!"
+  }
+  dbg_puts "END: WORKAROUND CR: 999244"
+  dbg_puts "----------------------------------------------------------------------"
+
+  dbg_brk
+  dbg_puts "Control Interface Address Assignment:"
+
+  set addr_space [get_bd_addr_space -of [get_bd_intf_ports S_AXI_CTRL]]
+  dict for {bank instance} $mem_bank_ddr_inst {
+    if {![dict exists $mem_bank_ctrl_intf $bank]} {
+      dbg_puts "No control interface on bank $bank"
+      continue
+    }  
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    # TODO: ctrl_cc affected ctrl_intf dictionary so direct lookup no longer worked :(
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    set ddr_axi [get_bd_intf_pins $instance/*S_AXI_CTRL]
+    set bank_segment [get_bd_addr_segs -of $ddr_axi]
+    if {[llength $bank_segment] == 1} {
+      set ctrl_seg_name ${bank}_CTRL
+      if {[dict exists $CONFIG ctrl_addr_info $ctrl_seg_name]} {
+        set ctrl_seg_config [dict get $CONFIG ctrl_addr_info $ctrl_seg_name]
+        lassign $ctrl_seg_config offset range
+        dbg_puts [format $formatstr $addr_space $offset "<$range>" $bank_segment ]
+        assign_bd_address -quiet $bank_segment -target_address_space $addr_space -offset $offset -range $range
+        
+        if {[get_param bd.hooks.addr.debug_scoped_use_ms_name]} {
+          set ctrl_master_segments [get_bd_addr_segs -of $bank_segment]
+          if {[llength $ctrl_master_segments] > 1} {
+            foreach master_segment $ctrl_master_segments {
+#            dbg_puts "Renaming master address segment  from [get_property NAME $mas] to ${bank}_CTRL"
+            set_property NAME $ctrl_bank_name $master_segment                              
+            }
+          }
+        }        
+      } else {
+        send_msg WARNING 1 "Memory bank $bank was mapped but companion control register ($ctrl_seg_name) was not..."
+      }
+    }
+  }
+}
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# TODO: This /should/ work but addressable_slave relation not returning expected data
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+#set ctrl_addr_space [get_bd_addr_space -of [get_bd_intf_ports S_AXI_CTRL]]
+#foreach mi [lsort [get_bd_intf_pins $ctrl_interconnect/M*_AXI]] {
+#  set si [find_bd_objs -relation addressable_slave $mi]
+#  if {[llength $si] == 1} {
+#    set bank_segment [get_bd_addr_segs -of $si]
+#    if {[llength $bank_segment] == 1} {
+#      dbg_puts "assigning $ctrl_addr_space <- $bank_segment"
+#      assign_bd_address $bank_segment -target_address_space $ctrl_addr_space
+#    } else {
+#      send_msg ERROR 1 "ctrl interconnect MI attached memory slave has incorrect number of segments ([llength $bank_segment])"
+#    }
+#  } else {
+#    send_msg ERROR 1 "ctrl interconnect MI can't find attached memory slave ctrl port"
+#  }
+#}
+
+dbg_puts "END: GENERATE_SBD_ADDRESS_ASSIGNMENTS"
+dbg_puts "----------------------------------------------------------------------"

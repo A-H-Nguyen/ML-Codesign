@@ -1,0 +1,76 @@
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "BEGIN: GENERATE_SLR_ASSOCIATIONS"
+
+set board_component_slr_map [dict get $CONFIG dsa_info board_component_slr_map]
+
+dbg_puts "board_component_slr_map:"
+dict for {k v} $board_component_slr_map { dbg_puts [format "%20s %s" $k $v] }
+
+dbg_puts "mem_bank_slr_map:"
+dict for {k v} $mem_bank_slr_map { dbg_puts [format "%20s %s" $k $v] }
+
+dict set CONFIG si_slr_map {}
+
+if {[dict exists $CONFIG slr_info S_AXI_CTRL]} {
+  set v [dict get $CONFIG slr_info S_AXI_CTRL]
+} elseif {[dict exists $CONFIG dsa_info ctrl_port_slr]} {
+  set v [dict get $CONFIG dsa_info ctrl_port_slr]
+} else {
+  set v SLR0
+}
+dbg_brk
+dbg_puts "CTRL SLR Map:"
+dbg_puts [format "%20s %s" S_AXI_CTRL $v]
+dict set CONFIG ctrl_slr_map S_AXI_CTRL $v
+dbg_brk
+
+# Determine SLR occupancy of the kernel attached to each SI
+set formatstr "%-20s %20s %20s (%10s)"
+for {set i 0} {$i < [dict get $CONFIG num_si]} {incr i} {
+  set pidx [format S%.2d_AXI $i]
+
+  set bank_slrs {}
+  if {[dict exists $CONFIG slr_info $pidx] &&
+    [string length [dict get $CONFIG slr_info $pidx]] > 0} {
+    set v  [dict get $CONFIG slr_info $pidx]
+    set vs "USER_ASSIGNED"
+  } elseif {[dict exists $CONFIG addr_info $pidx]} {
+    set si_banks [dict keys [dict get $CONFIG addr_info $pidx]]
+  
+    foreach bank $si_banks {
+      dict incr bank_slrs [dict get $mem_bank_slr_map $bank]
+    }
+  
+    set slr_max_ref_count 0
+    set most_common_slr {}
+    dict for {slr ref_count} $bank_slrs {
+      if {$ref_count > $slr_max_ref_count} {
+        set slr_max_ref_count $ref_count
+        set most_common_slr $slr
+      }
+    }
+    
+    set v $most_common_slr
+    set vs "AUTOMATED"
+  
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    # TODO: Resolve tiebreak situation most_common_slr defaults to first SLR
+    # where over-allocation of logic to first lexical SLR match could occur...
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  } else {
+    # TODO: Assume a default of SLR0?
+    set v SLR0
+    set vs DEFAULT
+  }
+  
+  # TODO: Deprecate si_slr_map and just update slr_info directly
+  dict set CONFIG si_slr_map $pidx $v
+
+  dbg_puts [format $formatstr $pidx $bank_slrs $v $vs]
+}
+
+dbg_brk
+dbg_puts "si_slr_map: [dict get $CONFIG si_slr_map]"
+
+dbg_puts "END: GENERATE_SLR_ASSOCIATIONS"
+dbg_puts "----------------------------------------------------------------------"

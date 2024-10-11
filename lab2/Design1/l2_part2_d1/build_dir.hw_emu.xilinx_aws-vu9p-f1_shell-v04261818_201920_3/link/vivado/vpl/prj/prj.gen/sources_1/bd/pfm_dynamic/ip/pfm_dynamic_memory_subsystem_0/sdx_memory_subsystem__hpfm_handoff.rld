@@ -1,0 +1,1 @@
+M01_AXI_MEM00 {size 16G data_width 512 peak_memory_bandwidth 18317 slr SLR1 max_masters 15}

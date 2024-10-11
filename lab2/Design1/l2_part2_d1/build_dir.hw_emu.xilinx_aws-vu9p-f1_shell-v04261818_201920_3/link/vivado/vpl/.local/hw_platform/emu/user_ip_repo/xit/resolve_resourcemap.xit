@@ -1,0 +1,53 @@
+
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "Initial Resource Graph"
+sdx_graph::print $graph
+
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "Generate REQ-RESP Resource Graph"
+set adjacency_list [dict get $graph adjacency_list]
+lappend adjacency_list {*}[sdx_graph::transpose $adjacency_list]
+dict set graph adjacency_list $adjacency_list
+sdx_graph::print $graph
+
+
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "BEGIN: Interconnect Segmentation"
+set endpoint_masters [dict keys [dict get $graph adjacency_list] S*]
+set graph [sdx_graph::bft $graph $endpoint_masters insert_interconnect]
+
+sdx_graph::print $graph
+dbg_puts "END: Interconnect Segmentation"
+dbg_puts "----------------------------------------------------------------------"
+
+
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "BEGIN: Assign Switchboard SLRs"
+
+set iter 0
+dict set graph unassigned_slr_count 0
+set graph [sdx_graph::bft $graph $endpoint_masters count_unassigned_slrs]
+
+while {$iter < 10 && [dict get $graph unassigned_slr_count] > 0} {
+  dbg_puts "----------------------------------------------------------------------"
+  dbg_puts "SLR Assigment Iteration: $iter"
+  set graph [sdx_graph::bft $graph $endpoint_masters slr_allocator]
+
+  dbg_puts "----------------------------------------------------------------------"
+  dbg_puts "Post assignment graph:"
+  dbg_puts [sdx_graph::print $graph {slr proposed_slr}]
+  
+  dict set graph unassigned_slr_count 0
+  set graph [sdx_graph::bft $graph $endpoint_masters count_unassigned_slrs]
+  dbg_puts "Unassigned slr count: [dict get $graph unassigned_slr_count]"
+  
+  incr iter
+}
+
+dbg_puts "END: Assign Switchboard SLRs"
+dbg_puts "----------------------------------------------------------------------"
+
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "RESULT:"
+dbg_puts [sdx_graph::print $graph {slr}]
+dbg_puts "----------------------------------------------------------------------"

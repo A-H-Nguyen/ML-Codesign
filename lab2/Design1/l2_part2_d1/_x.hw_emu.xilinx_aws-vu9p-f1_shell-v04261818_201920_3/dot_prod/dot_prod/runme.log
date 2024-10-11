@@ -1,0 +1,156 @@
+
+*** Running vitis_hls
+    with args -f dot_prod.tcl -messageDb vitis_hls.pb
+
+
+****** Vitis HLS - High-Level Synthesis from C, C++ and OpenCL v2021.2 (64-bit)
+  **** SW Build 3367213 on Tue Oct 19 02:47:39 MDT 2021
+  **** IP Build 3369179 on Thu Oct 21 08:25:16 MDT 2021
+    ** Copyright 1986-2021 Xilinx, Inc. All Rights Reserved.
+
+source /opt/Xilinx/Vitis_HLS/2021.2/scripts/vitis_hls/hls.tcl -notrace
+INFO: Applying HLS Y2K22 patch v1.2 for IP revision
+INFO: [HLS 200-10] Running '/opt/Xilinx/Vitis_HLS/2021.2/bin/unwrapped/lnx64.o/vitis_hls'
+INFO: [HLS 200-10] For user 'centos' on host 'ip-172-31-83-237.ec2.internal' (Linux_x86_64 version 3.10.0-1160.66.1.el7.x86_64) on Fri Oct 11 17:28:45 UTC 2024
+INFO: [HLS 200-10] On os "CentOS Linux release 7.9.2009 (Core)"
+INFO: [HLS 200-10] In directory '/home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/_x.hw_emu.xilinx_aws-vu9p-f1_shell-v04261818_201920_3/dot_prod/dot_prod'
+Sourcing Tcl script 'dot_prod.tcl'
+INFO: [HLS 200-1510] Running: open_project dot_prod 
+INFO: [HLS 200-10] Creating and opening project '/home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/_x.hw_emu.xilinx_aws-vu9p-f1_shell-v04261818_201920_3/dot_prod/dot_prod/dot_prod'.
+INFO: [HLS 200-1510] Running: set_top dot_prod 
+INFO: [HLS 200-1510] Running: add_files /home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/src/dot_prod.cpp -cflags  -g -I /home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/src  
+INFO: [HLS 200-10] Adding design file '/home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/src/dot_prod.cpp' to the project
+INFO: [HLS 200-1510] Running: open_solution -flow_target vitis solution 
+INFO: [HLS 200-10] Creating and opening solution '/home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/_x.hw_emu.xilinx_aws-vu9p-f1_shell-v04261818_201920_3/dot_prod/dot_prod/dot_prod/solution'.
+INFO: [HLS 200-1505] Using flow_target 'vitis'
+Resolution: For help on HLS 200-1505 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.2;t=hls+guidance;d=200-1505.html
+INFO: [HLS 200-435] Setting 'open_solution -flow_target vitis' configuration: config_interface -m_axi_latency=64
+INFO: [HLS 200-435] Setting 'open_solution -flow_target vitis' configuration: config_interface -m_axi_alignment_byte_size=64
+INFO: [HLS 200-435] Setting 'open_solution -flow_target vitis' configuration: config_interface -m_axi_max_widen_bitwidth=512
+INFO: [HLS 200-435] Setting 'open_solution -flow_target vitis' configuration: config_rtl -register_reset_num=3
+INFO: [HLS 200-1510] Running: set_part xcvu9p-flgb2104-2-i 
+INFO: [HLS 200-1611] Setting target device to 'xcvu9p-flgb2104-2-i'
+INFO: [HLS 200-1510] Running: create_clock -period 250.000000MHz -name default 
+INFO: [SYN 201-201] Setting up clock 'default' with a period of 4ns.
+INFO: [HLS 200-1510] Running: config_rtl -kernel_profile 
+INFO: [HLS 200-1510] Running: config_dataflow -strict_mode warning 
+INFO: [HLS 200-1510] Running: config_debug -enable 
+INFO: [HLS 200-1510] Running: config_export -deadlock_detection none 
+INFO: [HLS 200-1510] Running: config_interface -m_axi_conservative_mode=1 
+INFO: [HLS 200-1510] Running: config_interface -m_axi_addr64 
+INFO: [HLS 200-1510] Running: config_interface -m_axi_auto_max_ports=0 
+INFO: [HLS 200-1510] Running: config_export -format xo -ipname dot_prod 
+INFO: [HLS 200-1510] Running: csynth_design 
+INFO: [HLS 200-111] Finished File checks and directory preparation: CPU user time: 0.01 seconds. CPU system time: 0 seconds. Elapsed time: 0 seconds; current allocated memory: 1009.277 MB.
+INFO: [HLS 200-10] Analyzing design file '/home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/src/dot_prod.cpp' ... 
+INFO: [HLS 200-111] Finished Source Code Analysis and Preprocessing: CPU user time: 0.66 seconds. CPU system time: 0.31 seconds. Elapsed time: 0.61 seconds; current allocated memory: 1009.277 MB.
+INFO: [HLS 200-777] Using interface defaults for 'Vitis' flow target.
+INFO: [HLS 214-284] Auto array partition mode is set into default.
+INFO: [HLS 214-270] Starting automatic array partition analysis...
+INFO: [HLS 200-111] Finished Compiling Optimization and Transform: CPU user time: 5.81 seconds. CPU system time: 0.33 seconds. Elapsed time: 5.38 seconds; current allocated memory: 72.168 MB.
+INFO: [HLS 200-111] Finished Checking Pragmas: CPU user time: 0 seconds. CPU system time: 0 seconds. Elapsed time: 0 seconds; current allocated memory: 72.168 MB.
+INFO: [HLS 200-10] Starting code transformations ...
+INFO: [HLS 200-111] Finished Standard Transforms: CPU user time: 0.01 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.02 seconds; current allocated memory: 72.168 MB.
+INFO: [HLS 200-10] Checking synthesizability ...
+INFO: [HLS 200-111] Finished Checking Synthesizability: CPU user time: 0.01 seconds. CPU system time: 0 seconds. Elapsed time: 0.01 seconds; current allocated memory: 72.168 MB.
+INFO: [XFORM 203-510] Pipelining loop 'load' (/home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/src/dot_prod.cpp:34) in function 'dot_prod' automatically.
+INFO: [XFORM 203-510] Pipelining loop 'compute' (/home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/src/dot_prod.cpp:30) in function 'dot_prod' automatically.
+INFO: [HLS 200-111] Finished Loop, function and other optimizations: CPU user time: 0.04 seconds. CPU system time: 0 seconds. Elapsed time: 0.05 seconds; current allocated memory: 136.168 MB.
+INFO: [HLS 200-472] Inferring partial write operation for 'va_buffer' (/home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/src/dot_prod.cpp:35:18)
+INFO: [HLS 200-472] Inferring partial write operation for 'vb_buffer' (/home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/src/dot_prod.cpp:36:18)
+INFO: [HLS 200-111] Finished Architecture Synthesis: CPU user time: 0.04 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.05 seconds; current allocated memory: 136.168 MB.
+INFO: [HLS 200-10] Starting hardware synthesis ...
+INFO: [HLS 200-10] Synthesizing 'dot_prod' ...
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'dot_prod_Pipeline_load' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'load'.
+INFO: [HLS 200-1470] Pipelining result : Target II = NA, Final II = 1, Depth = 2, loop 'load'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.03 seconds. CPU system time: 0.03 seconds. Elapsed time: 0.05 seconds; current allocated memory: 144.172 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.03 seconds. CPU system time: 0 seconds. Elapsed time: 0.02 seconds; current allocated memory: 144.172 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'dot_prod_Pipeline_compute' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'compute'.
+INFO: [HLS 200-1470] Pipelining result : Target II = NA, Final II = 1, Depth = 5, loop 'compute'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.06 seconds. CPU system time: 0 seconds. Elapsed time: 0.06 seconds; current allocated memory: 144.172 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.05 seconds. CPU system time: 0 seconds. Elapsed time: 0.05 seconds; current allocated memory: 144.172 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'dot_prod' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.27 seconds. CPU system time: 0 seconds. Elapsed time: 0.28 seconds; current allocated memory: 144.172 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.65 seconds. CPU system time: 0 seconds. Elapsed time: 0.66 seconds; current allocated memory: 144.172 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'dot_prod_Pipeline_load' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'dot_prod_Pipeline_load' pipeline 'load' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Finished creating RTL model for 'dot_prod_Pipeline_load'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.14 seconds. CPU system time: 0 seconds. Elapsed time: 0.14 seconds; current allocated memory: 144.172 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'dot_prod_Pipeline_compute' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'dot_prod_Pipeline_compute' pipeline 'compute' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'mul_32s_32s_32_2_1': 1 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'dot_prod_Pipeline_compute'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.08 seconds. CPU system time: 0 seconds. Elapsed time: 0.09 seconds; current allocated memory: 144.172 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'dot_prod' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+WARNING: [RTGEN 206-101] Design contains AXI ports. Reset is fixed to synchronous and active low.
+INFO: [RTGEN 206-500] Setting interface mode on port 'dot_prod/gmem' to 'm_axi'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'dot_prod/vec_a' to 's_axilite & ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'dot_prod/vec_b' to 's_axilite & ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'dot_prod/results' to 's_axilite & ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'dot_prod/vector_len' to 's_axilite & ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on function 'dot_prod' to 's_axilite & ap_ctrl_chain'.
+INFO: [RTGEN 206-100] Bundling port 'vec_a', 'vec_b', 'results', 'vector_len' and 'ap_local_deadlock' to AXI-Lite port control.
+INFO: [RTGEN 206-100] Finished creating RTL model for 'dot_prod'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.15 seconds. CPU system time: 0 seconds. Elapsed time: 0.16 seconds; current allocated memory: 144.172 MB.
+INFO: [RTMG 210-278] Implementing memory 'dot_prod_va_buffer_RAM_AUTO_1R1W_ram (RAM)' using auto RAMs.
+INFO: [HLS 200-111] Finished Generating all RTL models: CPU user time: 0.57 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.58 seconds; current allocated memory: 144.172 MB.
+INFO: [HLS 200-111] Finished Updating report files: CPU user time: 0.55 seconds. CPU system time: 0.02 seconds. Elapsed time: 0.59 seconds; current allocated memory: 144.172 MB.
+INFO: [VHDL 208-304] Generating VHDL RTL for dot_prod.
+INFO: [VLOG 209-307] Generating Verilog RTL for dot_prod.
+INFO: [HLS 200-790] **** Loop Constraint Status: All loop constraints were satisfied.
+INFO: [HLS 200-789] **** Estimated Fmax: 342.47 MHz
+INFO: [HLS 200-111] Finished Command csynth_design CPU user time: 9.18 seconds. CPU system time: 0.73 seconds. Elapsed time: 8.81 seconds; current allocated memory: -865.105 MB.
+INFO: [HLS 200-1510] Running: export_design 
+INFO: [IMPL 213-8] Exporting RTL as a Vivado IP.
+
+****** Vivado v2021.2 (64-bit)
+  **** SW Build 3367213 on Tue Oct 19 02:47:39 MDT 2021
+  **** IP Build 3369179 on Thu Oct 21 08:25:16 MDT 2021
+    ** Copyright 1986-2021 Xilinx, Inc. All Rights Reserved.
+
+source run_ippack.tcl -notrace
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/opt/Xilinx/Vivado/2021.2/data/ip'.
+Running package_xo -xo_path /home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/_x.hw_emu.xilinx_aws-vu9p-f1_shell-v04261818_201920_3/dot_prod/dot_prod/dot_prod/solution/impl/export.xo -kernel_name dot_prod -kernel_xml /home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/_x.hw_emu.xilinx_aws-vu9p-f1_shell-v04261818_201920_3/dot_prod/dot_prod/dot_prod/solution/impl/ip/../kernel/kernel.xml -kernel_files /home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/src/dot_prod.cpp -ip_directory /home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/_x.hw_emu.xilinx_aws-vu9p-f1_shell-v04261818_201920_3/dot_prod/dot_prod/dot_prod/solution/impl/ip/ip_unzip_dir -design_xml /home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/_x.hw_emu.xilinx_aws-vu9p-f1_shell-v04261818_201920_3/dot_prod/dot_prod/dot_prod/solution/.autopilot/db/dot_prod.design.xml -debug_directory /home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/_x.hw_emu.xilinx_aws-vu9p-f1_shell-v04261818_201920_3/dot_prod/dot_prod/dot_prod/solution/.debug -hls_directory /home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/_x.hw_emu.xilinx_aws-vu9p-f1_shell-v04261818_201920_3/dot_prod/dot_prod/dot_prod/solution/impl/ip/hls_files
+INFO: [Common 17-206] Exiting Vivado at Fri Oct 11 17:29:15 2024...
+INFO: [HLS 200-802] Generated output file dot_prod/solution/impl/export.xo
+INFO: [HLS 200-111] Finished Command export_design CPU user time: 20.68 seconds. CPU system time: 0.97 seconds. Elapsed time: 19.82 seconds; current allocated memory: 0.000 MB.
+HLS completed successfully
+INFO: [HLS 200-112] Total CPU user time: 31.12 seconds. Total CPU system time: 2.08 seconds. Total elapsed time: 30.29 seconds; peak allocated memory: 1009.277 MB.
+INFO: [Common 17-206] Exiting vitis_hls at Fri Oct 11 17:29:15 2024...

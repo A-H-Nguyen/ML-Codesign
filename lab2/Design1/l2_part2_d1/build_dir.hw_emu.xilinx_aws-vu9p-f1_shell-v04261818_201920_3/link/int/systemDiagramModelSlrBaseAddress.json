@@ -1,0 +1,375 @@
+{
+ "system_diagram_metadata": {
+  "schema_version": {
+   "major": "2",
+   "minor": "0",
+   "patch": "0"
+  },
+  "xsa": {
+   "vendor": "xilinx",
+   "board_id": "aws-vu9p-f1",
+   "name": "shell-v04261818",
+   "version_major": "201920",
+   "version_minor": "3",
+   "description": "\n    {No description given}\n  ",
+   "generated_by": {
+    "name": "Vivado",
+    "version": "2019.2",
+    "cl": "2708876",
+    "time_stamp": "Tue Sep  7 15:13:00 2021"
+   },
+   "board": {
+    "name": "",
+    "vendor": "amazon",
+    "part": "",
+    "board_part": ""
+   },
+   "available_resources": {
+    "LUT": "1182240",
+    "REG": "",
+    "BRAM": "2160",
+    "DSP": "6840",
+    "URAM": ""
+   },
+   "device_topology": [
+    {
+     "id": "0",
+     "type": "Ddr4",
+     "used": "no",
+     "sizeKB": "0x1000000",
+     "base_address": "0x4000000000",
+     "tag": "bank0",
+     "slr": "SLR1",
+     "spTag": "DDR[0]"
+    },
+    {
+     "id": "1",
+     "type": "Ddr4",
+     "used": "yes",
+     "sizeKB": "0x1000000",
+     "base_address": "0x400000000",
+     "tag": "bank1",
+     "slr": "SLR2",
+     "spTag": "DDR[1]"
+    },
+    {
+     "id": "2",
+     "type": "Ddr4",
+     "used": "no",
+     "sizeKB": "0x1000000",
+     "base_address": "0x4800000000",
+     "tag": "bank2",
+     "slr": "SLR1",
+     "spTag": "DDR[2]"
+    },
+    {
+     "id": "3",
+     "type": "Ddr4",
+     "used": "no",
+     "sizeKB": "0x1000000",
+     "base_address": "0x4c00000000",
+     "tag": "bank3",
+     "slr": "SLR0",
+     "spTag": "DDR[3]"
+    },
+    {
+     "id": "4",
+     "type": "Dram",
+     "used": "no",
+     "sizeKB": "0x80",
+     "base_address": "0x5000000000",
+     "tag": "PLRAM[0]",
+     "slr": "SLR2",
+     "spTag": "PLRAM[0]"
+    },
+    {
+     "id": "5",
+     "type": "Dram",
+     "used": "no",
+     "sizeKB": "0x80",
+     "base_address": "0x5000020000",
+     "tag": "PLRAM[1]",
+     "slr": "SLR1",
+     "spTag": "PLRAM[1]"
+    },
+    {
+     "id": "6",
+     "type": "Dram",
+     "used": "no",
+     "sizeKB": "0x80",
+     "base_address": "0x5000040000",
+     "tag": "PLRAM[2]",
+     "slr": "SLR0",
+     "spTag": "PLRAM[2]"
+    }
+   ],
+   "design_intent": [
+    "dataCenter",
+    "externalHost",
+    "serverManaged"
+   ],
+   "clocks": [
+    {
+     "name": "CPU",
+     "orig_name": "CPU",
+     "id": -1,
+     "default": false,
+     "type": "RESERVED",
+     "spec_frequency": 1,
+     "spec_period": 1000,
+     "requested_frequency": 0,
+     "achieved_frequency": 0,
+     "clock_domain": "",
+     "inst_ref": "",
+     "comp_ref": "",
+     "xclbin_name": ""
+    },
+    {
+     "name": "PL 3",
+     "orig_name": "_bd_top_clk_extra_a1",
+     "id": 3,
+     "default": false,
+     "type": "SCALABLE",
+     "spec_frequency": 125,
+     "spec_period": 8,
+     "requested_frequency": 0,
+     "achieved_frequency": 0,
+     "clock_domain": "",
+     "inst_ref": "",
+     "comp_ref": "",
+     "xclbin_name": ""
+    },
+    {
+     "name": "PL 0",
+     "orig_name": "_bd_top_clk_extra_b0",
+     "id": 0,
+     "default": false,
+     "type": "SCALABLE",
+     "spec_frequency": 250,
+     "spec_period": 4,
+     "requested_frequency": 0,
+     "achieved_frequency": 0,
+     "clock_domain": "",
+     "inst_ref": "",
+     "comp_ref": "",
+     "xclbin_name": ""
+    },
+    {
+     "name": "PL 1",
+     "orig_name": "_bd_top_clk_extra_c0",
+     "id": 1,
+     "default": false,
+     "type": "SCALABLE",
+     "spec_frequency": 500,
+     "spec_period": 2,
+     "requested_frequency": 0,
+     "achieved_frequency": 0,
+     "clock_domain": "",
+     "inst_ref": "",
+     "comp_ref": "",
+     "xclbin_name": ""
+    },
+    {
+     "name": "PL 2",
+     "orig_name": "_bd_top_clk_main_a0",
+     "id": 2,
+     "default": false,
+     "type": "SCALABLE",
+     "spec_frequency": 250,
+     "spec_period": 4,
+     "requested_frequency": 0,
+     "achieved_frequency": 0,
+     "clock_domain": "",
+     "inst_ref": "",
+     "comp_ref": "",
+     "xclbin_name": ""
+    }
+   ]
+  },
+  "xclbin": {
+   "generated_by": {
+    "name": "v++",
+    "version": "2021.2",
+    "cl": "3363252",
+    "time_stamp": "2021-10-14-04:41:01",
+    "options": "/opt/Xilinx/Vitis/2021.2/bin/unwrapped/lnx64.o/v++ -t hw_emu --platform /home/centos/src/project_data/aws-fpga/Vitis/aws_platform/xilinx_aws-vu9p-f1_shell-v04261818_201920_3/xilinx_aws-vu9p-f1_shell-v04261818_201920_3.xpfm --save-temps -g --temp_dir ./build_dir.hw_emu.xilinx_aws-vu9p-f1_shell-v04261818_201920_3 -l -obuild_dir.hw_emu.xilinx_aws-vu9p-f1_shell-v04261818_201920_3/dot_prod_app.xclbin _x.hw_emu.xilinx_aws-vu9p-f1_shell-v04261818_201920_3/dot_prod.xo ",
+    "xclbin_name": "dot_prod_app",
+    "uuid": "f7c09b85-17fb-4f39-9a79-4a3c6c83c9bf",
+    "link_uuid": "f7c09b85-17fb-4f39-9a79-4a3c6c83c9bf",
+    "package_uuid": "",
+    "system_compile_flow": false
+   },
+   "user_regions": [
+    {
+     "name": "OCL_REGION_0",
+     "type": "clc_region",
+     "instance_path": "WRAPPER_INST/CL",
+     "available_resources": {
+      "LUT": "",
+      "REG": "",
+      "BRAM": "",
+      "DSP": "",
+      "by_SLR": [],
+      "URAM": ""
+     },
+     "kernels": [
+      {
+       "name": "dot_prod",
+       "estimated_resources": {
+        "LUT": "75",
+        "REG": "1032",
+        "BRAM": "",
+        "DSP": "",
+        "URAM": ""
+       },
+       "ports": [
+        {
+         "name": "M_AXI_GMEM",
+         "mode": "master",
+         "range": "0xFFFFFFFF",
+         "data_width": "512",
+         "port_type": "addressable",
+         "base": "0x0",
+         "direction": "DirUnknown"
+        },
+        {
+         "name": "S_AXI_CONTROL",
+         "mode": "slave",
+         "range": "0x3C",
+         "data_width": "32",
+         "port_type": "addressable",
+         "base": "0x0",
+         "direction": "DirUnknown"
+        }
+       ],
+       "arguments": [
+        {
+         "id": "0",
+         "name": "vec_a",
+         "address_qualifier": "1",
+         "port": "M_AXI_GMEM",
+         "size": "0x8",
+         "offset": "0x10",
+         "host_offset": "0x0",
+         "host_size": "0x8",
+         "type": "void*",
+         "direction": "DirUnknown"
+        },
+        {
+         "id": "1",
+         "name": "vec_b",
+         "address_qualifier": "1",
+         "port": "M_AXI_GMEM",
+         "size": "0x8",
+         "offset": "0x1C",
+         "host_offset": "0x0",
+         "host_size": "0x8",
+         "type": "void*",
+         "direction": "DirUnknown"
+        },
+        {
+         "id": "2",
+         "name": "results",
+         "address_qualifier": "1",
+         "port": "M_AXI_GMEM",
+         "size": "0x8",
+         "offset": "0x28",
+         "host_offset": "0x0",
+         "host_size": "0x8",
+         "type": "void*",
+         "direction": "DirUnknown"
+        },
+        {
+         "id": "3",
+         "name": "vector_len",
+         "address_qualifier": "0",
+         "port": "S_AXI_CONTROL",
+         "size": "0x4",
+         "offset": "0x34",
+         "host_offset": "0x0",
+         "host_size": "0x4",
+         "type": "unsigned int",
+         "direction": "DirUnknown"
+        }
+       ],
+       "clock_name": "",
+       "clock_id": 0,
+       "clocks": []
+      }
+     ],
+     "compute_units": [
+      {
+       "id": "0",
+       "kernel_name": "dot_prod",
+       "cu_name": "dot_prod_1",
+       "base_address": "0x1d020000",
+       "actual_resources": [],
+       "clock_name": "",
+       "clock_id": 0,
+       "clocks": [
+        {
+         "port_name": "ap_clk",
+         "id": "0"
+        }
+       ]
+      }
+     ],
+     "connectivity": [
+      {
+       "id": "0",
+       "node1": {
+        "type": "compute_unit",
+        "id": "0",
+        "kernel_argument_id": "0",
+        "arg_name": "vec_a",
+        "mode": "Master"
+       },
+       "node2": {
+        "type": "memory",
+        "id": "1",
+        "kernel_argument_id": "",
+        "arg_name": "",
+        "mode": ""
+       }
+      },
+      {
+       "id": "1",
+       "node1": {
+        "type": "compute_unit",
+        "id": "0",
+        "kernel_argument_id": "1",
+        "arg_name": "vec_b",
+        "mode": "Master"
+       },
+       "node2": {
+        "type": "memory",
+        "id": "1",
+        "kernel_argument_id": "",
+        "arg_name": "",
+        "mode": ""
+       }
+      },
+      {
+       "id": "2",
+       "node1": {
+        "type": "compute_unit",
+        "id": "0",
+        "kernel_argument_id": "2",
+        "arg_name": "results",
+        "mode": "Master"
+       },
+       "node2": {
+        "type": "memory",
+        "id": "1",
+        "kernel_argument_id": "",
+        "arg_name": "",
+        "mode": ""
+       }
+      }
+     ]
+    }
+   ]
+  }
+ }
+}
+

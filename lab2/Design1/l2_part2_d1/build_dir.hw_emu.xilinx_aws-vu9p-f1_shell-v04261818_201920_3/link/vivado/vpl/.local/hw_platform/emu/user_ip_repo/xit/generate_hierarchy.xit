@@ -1,0 +1,11 @@
+dbg_puts "# ----------------------------------------------------------------------"
+dbg_puts "# BEGIN: GENERATE_HIERARCHY"
+
+dict for {hier_name cells} $hierarchy {
+  dbg_puts "Creating hierarchy $hier_name with:"
+  foreach i [dict values $cells] { dbg_puts $i }
+  group_bd_cells $hier_name [dict values $cells]
+}
+
+dbg_puts "# END: GENERATE_HIERARCHY"
+dbg_puts "# ----------------------------------------------------------------------"

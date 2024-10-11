@@ -1,0 +1,125 @@
+{
+    "schema_version": {
+        "major": "1",
+        "minor": "0",
+        "patch": "0"
+    },
+    "build_metadata": {
+        "dsa": {
+            "vendor": "xilinx",
+            "board_id": "aws-vu9p-f1",
+            "name": "shell-v04261818",
+            "version_major": "201920",
+            "version_minor": "3",
+            "description": "",
+            "generated_by": {
+                "name": "Vivado",
+                "version": "2019.2",
+                "cl": "2708876",
+                "time_stamp": "Tue Sep  7 15:13:00 2021"
+            },
+            "board": {
+                "name": "",
+                "vendor": "amazon",
+                "part": "",
+                "board_part": ""
+            },
+            "feature_roms": [
+                {
+                    "time_epoch": "0"
+                }
+            ]
+        },
+        "xclbin": {
+            "generated_by": {
+                "name": "v++",
+                "version": "2021.2",
+                "cl": "3363252",
+                "time_stamp": "2021-10-14-04:41:01",
+                "options": "\/opt\/Xilinx\/Vitis\/2021.2\/bin\/unwrapped\/lnx64.o\/v++ --debug --input_files _x.hw_emu.xilinx_aws-vu9p-f1_shell-v04261818_201920_3\/dot_prod.xo --link --optimize 0 --output build_dir.hw_emu.xilinx_aws-vu9p-f1_shell-v04261818_201920_3\/dot_prod_app.xclbin --platform \/home\/centos\/src\/project_data\/aws-fpga\/Vitis\/aws_platform\/xilinx_aws-vu9p-f1_shell-v04261818_201920_3\/xilinx_aws-vu9p-f1_shell-v04261818_201920_3.xpfm --report_level 0 --save-temps --target hw_emu --temp_dir .\/build_dir.hw_emu.xilinx_aws-vu9p-f1_shell-v04261818_201920_3 "
+            },
+            "user_regions": [
+                {
+                    "name": "OCL_REGION_0",
+                    "type": "clc_region",
+                    "instance_path": "WRAPPER_INST\/CL",
+                    "base_address": "",
+                    "kernels": [
+                        {
+                            "name": "dot_prod",
+                            "ports": [
+                                {
+                                    "name": "M_AXI_GMEM",
+                                    "mode": "master",
+                                    "range": "0xFFFFFFFF",
+                                    "data_width": "512",
+                                    "port_type": "addressable",
+                                    "base": "0x0"
+                                },
+                                {
+                                    "name": "S_AXI_CONTROL",
+                                    "mode": "slave",
+                                    "range": "0x3C",
+                                    "data_width": "32",
+                                    "port_type": "addressable",
+                                    "base": "0x0"
+                                }
+                            ],
+                            "arguments": [
+                                {
+                                    "name": "vec_a",
+                                    "address_qualifier": "1",
+                                    "id": "0",
+                                    "port": "M_AXI_GMEM",
+                                    "size": "0x8",
+                                    "offset": "0x10",
+                                    "host_offset": "0x0",
+                                    "host_size": "0x8",
+                                    "type": "void*"
+                                },
+                                {
+                                    "name": "vec_b",
+                                    "address_qualifier": "1",
+                                    "id": "1",
+                                    "port": "M_AXI_GMEM",
+                                    "size": "0x8",
+                                    "offset": "0x1C",
+                                    "host_offset": "0x0",
+                                    "host_size": "0x8",
+                                    "type": "void*"
+                                },
+                                {
+                                    "name": "results",
+                                    "address_qualifier": "1",
+                                    "id": "2",
+                                    "port": "M_AXI_GMEM",
+                                    "size": "0x8",
+                                    "offset": "0x28",
+                                    "host_offset": "0x0",
+                                    "host_size": "0x8",
+                                    "type": "void*"
+                                },
+                                {
+                                    "name": "vector_len",
+                                    "address_qualifier": "0",
+                                    "id": "3",
+                                    "port": "S_AXI_CONTROL",
+                                    "size": "0x4",
+                                    "offset": "0x34",
+                                    "host_offset": "0x0",
+                                    "host_size": "0x4",
+                                    "type": "unsigned int"
+                                }
+                            ],
+                            "instances": [
+                                {
+                                    "name": "dot_prod_1"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}

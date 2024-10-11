@@ -1,0 +1,106 @@
+# ----------------------------------------------------------------------
+# Graph Visitors
+
+proc insert_interconnect { graph vertex } {
+  dbg_puts "INSERT_INTERCONNECT: $vertex"
+
+  dict with graph {
+    set vertex_adjacencies [dict get $adjacency_list $vertex]
+    set vertex_type {}
+    if {[dict exists $vertex_props $vertex type]} {
+      set vertex_type [dict get $vertex_props $vertex type]
+    }
+
+    set multiple_endpoint_outreach [expr [string match endpoint* $vertex_type] && [llength $vertex_adjacencies] > 1]
+
+    set endpoint_direct_connect 0
+    if {[llength $vertex_adjacencies] == 1} {
+      set other_endpoint $vertex_adjacencies
+      if {[dict exists $vertex_props $other_endpoint type]} {
+        set is_endpoint  [expr [string match endpoint* $vertex_type] && [string match endpoint* [dict get $vertex_props $other_endpoint type]]]
+        set endpoint_edge_count [llength [dict get $adjacency_list $other_endpoint]]
+        set endpoint_direct_connect [expr $is_endpoint && $endpoint_edge_count == 1]
+      }
+    }
+
+    if {$multiple_endpoint_outreach || $endpoint_direct_connect} {
+      dbg_puts "Interconnect required at $vertex [llength $vertex_adjacencies]"
+      dbg_puts "multiple_endpoint_outreach $multiple_endpoint_outreach"
+      dbg_puts "endpoint_direct_connect $endpoint_direct_connect"
+
+      set ictname ict_$vertex
+      dict set adjacency_list $vertex $ictname
+      dict set adjacency_list $ictname [list $vertex {*}$vertex_adjacencies]
+
+      # Update source vertex in referenced adjacencies 
+      foreach a $vertex_adjacencies {
+        set g [dict get $graph adjacency_list $a]
+        set g2 [lsearch -all -inline -not -exact $g $vertex]
+        lappend g2 $ictname
+        dbg_puts "updating $a ($g) -> ($g2)"      
+        dict set adjacency_list $a $g2
+      }
+    }
+  }
+  return $graph
+}
+
+proc slr_allocator { graph vertex } {
+  dbg_puts "----------------------------------------------------------------------"
+  dbg_puts "SLR_ALLOCATION: $vertex"
+
+  dict with graph {
+    if {![dict exists $vertex_props $vertex slr]} {
+      set adj {}
+      set adj_slrs {}
+      if {[dict exists $adjacency_list $vertex]} { lappend adj {*}[dict get $adjacency_list $vertex] }
+
+      # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      # TODO:  Apply a heavier weighting to directly assigned SLR data versus 
+      # proposed_slr data?
+      # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      set undefined_slrs 0
+      set slr_assignment_count {}
+      foreach a $adj {
+        if {[dict exists $vertex_props $a slr]} {
+          set s [dict get $vertex_props $a slr]
+          dict incr slr_assignment_count $s
+#          lappend adj_slrs $s
+        } elseif {[dict exists $vertex_props $a proposed_slr]} {
+          set s [dict get $vertex_props $a proposed_slr]
+          dict incr slr_assignment_count $s
+#          lappend adj_slrs $s
+        } else {
+          incr undefined_slrs
+        }
+      }
+
+      dbg_puts "slr_assignment_count: $slr_assignment_count"
+
+      if {[llength $slr_assignment_count] > 0} {
+        set slr_ranking {}
+        dict for {k v} $slr_assignment_count {lappend slr_ranking [list $k $v]}
+        set slr_ranking [lsort -integer -decreasing -index 1 $slr_ranking]
+        set slr [lindex $slr_ranking 0 0]
+        set p slr
+        if {$undefined_slrs > 0} { set p proposed_slr }
+        dict set vertex_props $vertex $p $slr
+        dbg_puts "---> $vertex $p $slr"
+      } else {
+        dbg_puts "failed to resolve slr or proposed_slr at $vertex - insufficient adjacent information?"
+      }
+    }
+  }
+  return $graph
+}
+
+proc count_unassigned_slrs { graph vertex } {
+  if {![dict exists $graph vertex_props $vertex slr]} {
+    dict incr graph unassigned_slr_count
+  } else {
+    if {[string length [dict get $graph vertex_props $vertex slr]] == 0} {
+      dict incr graph unassigned_slr_count
+    }
+  }
+  return $graph
+}

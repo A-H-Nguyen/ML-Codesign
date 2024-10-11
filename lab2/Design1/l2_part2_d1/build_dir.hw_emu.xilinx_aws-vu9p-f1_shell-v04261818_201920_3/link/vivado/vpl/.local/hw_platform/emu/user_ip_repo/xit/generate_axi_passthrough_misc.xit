@@ -1,0 +1,43 @@
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "BEGIN: AXI_PASSTHROUGH_MISC"
+
+# TODO: Merge with data interconnect clocks and resets?
+set formatstr "%30s %30s %30s"
+
+set passthrough_bank_names [dict keys $mem_bank_component_map M??_AXI_MEM??] 
+foreach bank $passthrough_bank_names {
+  if {[dict exists $mem_bank_utilization $bank]} {
+    set bank_ict_names [dict get $ict $bank]
+    foreach ict_name $bank_ict_names {
+#      set instance [dict get $ict $bank]
+      set instance [get_bd_cells $ict_name]
+
+#      regexp {(M\d\d_AXI)} $bank {} mi_port_name
+      regexp {(M\d\d_AXI)_MEM\d\d(.*)} $ict_name {} mi_port_idx mi_multipath_idx
+      set mi_port_name $mi_port_idx
+      if {[llength $mi_multipath_idx] != 0} {
+        set mi_port_name ${mi_port_idx}${mi_multipath_idx}
+      }
+      dbg_puts "mi_port_name: $mi_port_idx $mi_multipath_idx ($ict_name) $mi_port_name"
+      set clock_source [dict get $clock_associations $mi_port_name]
+  #    connect_bd_net [get_bd_ports $clock_source] [get_bd_pins $instance/aclk]
+   
+      set psr [dict get $CONFIG psr $clock_source [dict get $mem_bank_slr_map $bank]]
+      set reset_source [get_bd_pins $psr/interconnect_aresetn]
+  #    connect_bd_net $reset_source [get_bd_pins $instance/aresetn]
+
+  #    dbg_puts [format $formatstr $instance - $reset_source]
+
+      dict set mem_bank_aclk $bank [get_bd_ports $clock_source]    
+      dict set mem_bank_aresetn $bank $reset_source
+
+      # There may be multiple interfaces per bank:
+      dict lappend mem_bank_data_intf $bank [get_bd_intf_port $mi_port_name]
+
+    }
+  }
+}
+
+dbg_puts "END: AXI_PASSTHROUGH_MISC"
+dbg_puts "----------------------------------------------------------------------"
+

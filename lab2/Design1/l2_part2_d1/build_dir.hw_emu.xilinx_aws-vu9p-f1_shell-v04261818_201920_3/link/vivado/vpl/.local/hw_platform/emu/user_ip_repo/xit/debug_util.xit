@@ -1,0 +1,10 @@
+proc dbg_puts { s } {
+  global env
+  if {[info exists env(XIL_SDX_DEBUG)]} {
+    puts "([get_datetime]) DBG(sdx_memory_subsystem): $s"
+  }
+}
+
+proc dbg_brk {} {
+  dbg_puts [string repeat - 40]
+}

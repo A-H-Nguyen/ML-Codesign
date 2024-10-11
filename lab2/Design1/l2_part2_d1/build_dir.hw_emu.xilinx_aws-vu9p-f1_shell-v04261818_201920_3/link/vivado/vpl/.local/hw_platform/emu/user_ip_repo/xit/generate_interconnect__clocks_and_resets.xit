@@ -1,0 +1,119 @@
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "BEGIN: DATA_INTERCONNECT_CLOCKS_AND_RESETS"
+
+set formatstr "%30s %30s %30s"
+
+dbg_brk
+dbg_puts "SI Interconnects:"
+dict for {si_name instance} [dict filter $ict key S*_AXI] {
+  set clock_source_name [dict get $clock_associations $si_name]
+  connect_bd_net [get_bd_ports $clock_source_name] [get_bd_pins $instance/aclk]
+  set psr [dict get $CONFIG psr $clock_source_name [dict get $CONFIG si_slr_map $si_name]]
+  set reset_source [get_bd_pins $psr/interconnect_aresetn]
+  connect_bd_net $reset_source [get_bd_pins $instance/aresetn]
+  dbg_puts [format $formatstr $instance $clock_source $reset_source]
+}
+
+dbg_brk
+dbg_puts "SLR Interconnects:"
+
+foreach aggregator_ict [get_bd_cells -quiet interconnect_SLR*_*] {
+  set aggregator_ict_name [get_property NAME $aggregator_ict ]
+  regexp {interconnect_(SLR\d)_(\w+)} $aggregator_ict_name {} source_slr target_resource
+
+  set source_clocks {}
+  foreach aggregator_si [lsort [get_bd_intf_pins $aggregator_ict/S*_AXI]] {
+    set si_source [find_bd_objs -relation ADDRESSING_MASTER $aggregator_si]
+    if {[llength $si_source] != 1} {
+      send_msg_id ERROR 1 "Can't find addressing master of $aggregator_si"
+    }
+    set si_source_name [get_property NAME $si_source]
+    dict incr source_clocks [get_bd_ports [dict get $clock_associations $si_source_name]]
+  }
+  
+  # TODO: ACLK should be the fastest of the SI clocks to sustain throughput  
+  set fastest_si_clock_source [find_fastest_clk [dict keys $source_clocks]]
+  set psr [dict get $CONFIG psr [get_property NAME $fastest_si_clock_source] $source_slr]
+  set reset_source [get_bd_pins $psr/interconnect_aresetn]
+  
+  connect_bd_net [get_bd_pins $aggregator_ict/aclk] $fastest_si_clock_source
+  connect_bd_net [get_bd_pins $aggregator_ict/aresetn] $reset_source
+  dbg_puts [format $formatstr $aggregator_ict $fastest_si_clock_source $reset_source]    
+  
+  # Lock the MI to the selected clock
+  set aggregator_ict_ap [get_property CONFIG.ADVANCED_PROPERTIES $aggregator_ict ]
+  if {$aggregator_ict_ap == 1} {
+    set aggregator_ict_ap {}
+  }
+  dict set aggregator_ict_ap __view__ clocking M00_Exit ASSOCIATED_CLK aclk
+  set_property CONFIG.ADVANCED_PROPERTIES $aggregator_ict_ap $aggregator_ict
+  set num_source_clocks [llength [dict keys $source_clocks]]
+  set_property CONFIG.NUM_CLKS $num_source_clocks $aggregator_ict
+  
+  dict unset source_clocks $fastest_si_clock_source
+  
+  foreach clk [lsort [dict keys $source_clocks]] {
+    set clock_dest [find_first_unconnected_pin [get_bd_pins $aggregator_ict/aclk*]]
+    connect_bd_net $clk $clock_dest
+    dbg_puts [format $formatstr $aggregator_ict $clk -]    
+  }
+}
+
+dbg_brk
+dbg_puts "Resource Interconnects:"
+
+foreach resource_filter [list "*DDR4_MEM*" "*PLRAM_MEM*" "*M*_AXI_MEM*"] {
+  dict for {bank instances} [dict filter $ict key $resource_filter] {
+    foreach instance_name $instances {
+      set instance [get_bd_cells $instance_name]
+      set clock_source [dict get $mem_bank_aclk $bank]
+      set reset_source [dict get $mem_bank_aresetn $bank]
+
+      # ---------------------------------------------------------------
+      # CR-1018889: Exception for DRM control - use aresetn (distributed per slr)
+      # to make it easier to hold DDR interconnect instances in reset until DRM 
+      # IP enables operation in the platform...
+      #   
+      if {[string match DDR4_MEM* $bank]} {
+        set bank_slr [dict get $mem_bank_slr_map $bank]
+        
+        # TODO: get the slowest clock source from the SI clocks of this DDR resource interconnect
+        set reset_source_psr [dict get $CONFIG psr aclk $bank_slr]
+        set reset_source [get_bd_pins $reset_source_psr/interconnect_aresetn]
+      } 
+      dbg_puts [format $formatstr $instance $clock_source $reset_source]
+
+      connect_bd_net $clock_source [get_bd_pins $instance/aclk]
+      connect_bd_net $reset_source [get_bd_pins $instance/aresetn]
+
+      set source_clocks {}
+      dict incr source_clocks [get_bd_obj $clock_source]
+      foreach si [get_bd_intf_pins $instance/S??_AXI] {  
+        set si_source [find_bd_objs -relation CONNECTED_TO $si ]
+        set si_source_class [get_property class $si_source]
+        
+        if {$si_source_class == "bd_intf_pin"} {
+          set si_source_cell [get_bd_cells -of $si_source]
+          set si_source_aclk_pin [get_bd_pins $si_source_cell/aclk]
+          set si_source_aclk_source [find_bd_objs -relation CONNECTED_TO $si_source_aclk_pin ]
+          dict incr source_clocks $si_source_aclk_source
+        }
+        if {$si_source_class == "bd_intf_port"} {
+          dict incr source_clocks [get_bd_ports [dict get $clock_associations [get_property NAME $si_source]]]
+        }
+      }
+      set num_source_clocks [llength [dict keys $source_clocks]]
+      set_property CONFIG.NUM_CLKS $num_source_clocks $instance
+      dict unset source_clocks [get_bd_obj $clock_source]
+      
+      foreach clk [lsort [dict keys $source_clocks]] {
+        set clock_dest [find_first_unconnected_pin [get_bd_pins $instance/aclk*]]
+        connect_bd_net $clk $clock_dest
+        dbg_puts [format $formatstr $instance $clk -]    
+      }
+    }
+  }
+}
+
+dbg_puts "END: DATA_INTERCONNECT_CLOCKS_AND_RESETS"
+dbg_puts "----------------------------------------------------------------------"

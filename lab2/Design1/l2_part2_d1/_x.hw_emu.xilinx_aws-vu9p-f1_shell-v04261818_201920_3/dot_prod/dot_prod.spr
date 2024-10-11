@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="dot_prod" dir="">
+  <FileSets>
+    <FileSet Name="kernel_dot_prod" Type="DesignSrcs">
+      <File Path="/home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/src/dot_prod.cpp"/>
+      <Config/>
+    </FileSet>
+  </FileSets>
+  <Runs/>
+</project>

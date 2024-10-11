@@ -1,0 +1,30 @@
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "BEGIN: VALIDATE_ADVANCED_PROPERTIES"
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# TODO: extract all advanced properties to feature keys in CONFIG.
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+if {[dict exists $CONFIG advanced_properties] && [dict get $CONFIG advanced_properties] != 0 } {
+  set valid_toplevel_keys { __temp_dsa_info plram_specifications resource_access_constraints resource_map_replication minimal_initial_configuration }
+  foreach key [dict keys [dict get $CONFIG advanced_properties]] {
+    if {[lsearch $valid_toplevel_keys $key] == -1} {
+      send_msg CRITICAL_WARNING 1 "Invalid entry ($key) detected in CONFIG.ADVANCED_PROPERTIES."
+    }
+  }
+  
+  # __temp_dsa_info
+  if {[dict exists $CONFIG advanced_properties __temp_dsa_info]} {
+    set valid_dsa_info_keys { axi_passthrough excluded_board_components enable_aws}
+    foreach key [dict keys [dict get $CONFIG advanced_properties __temp_dsa_info]] {      
+      if {[lsearch $valid_dsa_info_keys $key] == -1} {
+        send_msg CRITICAL_WARNING 1 "Invalid entry ($key) detected in __temp_dsa_info of CONFIG.ADVANCED_PROPERTIES."
+      }
+    }
+  }
+} else {
+  dbg_puts "No advanced_properties specified."
+}
+
+dbg_puts "END: VALIDATE_ADVANCED_PROPERTIES"
+dbg_puts "----------------------------------------------------------------------"

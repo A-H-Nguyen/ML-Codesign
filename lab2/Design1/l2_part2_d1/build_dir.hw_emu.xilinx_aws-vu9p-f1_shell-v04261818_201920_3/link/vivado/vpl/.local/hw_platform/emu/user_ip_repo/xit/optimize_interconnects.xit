@@ -1,0 +1,93 @@
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "BEGIN: OPTIMIZE_INTERCONNECT"
+if {[info exists env(SDX_HIP_DISABLE_INTERCONNECT_OPTIMIZATION)]} {
+  dbg_puts "Interconnect optimization disabled"
+  return
+}
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# Todo: remove when transition to resource graph is complete
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+set modified_slr_handoff {}
+
+foreach si_pidx [dict keys $ict S*_AXI] {
+  set si_ict [dict get $ict $si_pidx]
+  set si_ict_name [get_property NAME $si_ict]
+  
+  if {[get_property CONFIG.NUM_SI $si_ict] == 1 && [get_property CONFIG.NUM_MI $si_ict] == 1} {
+    dbg_puts "Trimming 1:1 SI interconnect for $si_pidx"
+    set target_ddr_bank [dict keys [dict get $CONFIG addr_info $si_pidx]]    
+    set mi_ict [dict get $ict $target_ddr_bank]
+    set mi_ict_name [get_property NAME $mi_ict]
+    set si_ict_mi [get_bd_intf_pins $si_ict/M00_AXI]
+    set si_ict_si [get_bd_intf_pins $si_ict/S00_AXI]
+
+    set mi_ict_si [find_bd_objs -relation CONNECTED_TO $si_ict_mi]
+    
+    delete_bd_objs [get_bd_intf_nets -of $si_ict_mi] 
+    delete_bd_objs [get_bd_intf_nets -of $si_ict_si]
+    
+    connect_bd_intf_net [get_bd_intf_ports $si_pidx] $mi_ict_si
+
+    if {[llength $modified_slr_handoff] == 0} {
+      set modified_slr_handoff $slr_handoff
+    }
+    if {[dict exists $modified_slr_handoff interconnect_slr_map $si_ict_name]} {
+      dbg_puts "removing $si_ict_name from interconnect_slr_map"
+      set interconnect_slr_map [dict get $modified_slr_handoff interconnect_slr_map]
+        
+      set interconnect_slr_map [dict remove $interconnect_slr_map $si_ict_name]      
+      dict set modified_slr_handoff interconnect_slr_map $interconnect_slr_map
+    } else {
+      dbg_puts "can't find $si_ict_name in [dict keys [dict get $modified_slr_handoff interconnect_slr_map]]"
+    }
+    
+    if {[dict exists $modified_slr_handoff slr_crossings $si_ict_name M00_AXI]} {
+      dbg_puts "Transferring SLR crossing configuration to memory interconnect"
+      set slr_crossings [dict get $modified_slr_handoff slr_crossings]
+      set si_ict_slr_crossing [dict get $slr_crossings $si_ict_name]
+      set slr_crossings [dict remove $slr_crossings $si_ict_name] 
+      set mi_ict_si_name [get_property NAME $mi_ict_si]
+      set crossing_spec [dict get $si_ict_slr_crossing M00_AXI]
+#      lassign $si_ict_slr_crossing orig_crossing_port crossing_spec
+      dbg_puts "Original crossing spec was: $crossing_spec"
+      dict with crossing_spec {
+        dbg_puts "Applying SLR Crossing at $mi_ict_name $mi_ict_si_name (source_slr: $source_slr target_slr: $target_slr)"
+        dict set slr_crossings $mi_ict_name $mi_ict_si_name source_slr $source_slr
+        dict set slr_crossings $mi_ict_name $mi_ict_si_name target_slr $target_slr        
+        if {![string equal -nocase $source_slr $target_slr]} {
+          regexp {SLR(\d)} $source_slr {} source_slr_idx
+          regexp {SLR(\d)} $target_slr {} target_slr_idx
+          set slr_crossing_distance [expr abs($source_slr_idx-$target_slr_idx)]
+          set slr_pipeline_depth [expr $slr_crossing_distance + 1]
+          dbg_puts "SLR Distance $slr_crossing_distance, applying pipeline depth $slr_pipeline_depth"
+          set node_slr_crossing_config [list AR_SLR_PIPE $slr_pipeline_depth AW_SLR_PIPE $slr_pipeline_depth R_SLR_PIPE $slr_pipeline_depth W_SLR_PIPE $slr_pipeline_depth B_SLR_PIPE $slr_pipeline_depth]  
+          set sc_params [get_property CONFIG.ADVANCED_PROPERTIES $mi_ict]
+          regex {(S\d\d)_AXI} [get_property NAME $mi_ict_si] {} mi_ict_si_pidx
+          dict set sc_params  __view__ timing ${mi_ict_si_pidx}_Buffer $node_slr_crossing_config
+          set_property CONFIG.ADVANCED_PROPERTIES $sc_params $mi_ict
+        }
+      }
+      dict set modified_slr_handoff slr_crossings $slr_crossings
+    }
+    
+
+    delete_bd_objs $si_ict
+  }
+}
+
+# --------------------------------------------------------------------------------
+# Constraint Generation Data Handoff
+#
+if {[llength $modified_slr_handoff] > 0} {
+#  dbg_puts "original_slr_handoff: $slr_handoff"
+  dbg_brk
+  dbg_puts "modified_slr_handoff:"
+  dict for {k v} $modified_slr_handoff {
+    dbg_puts [format "%-20s %s" $k $v]
+  }
+  set slr_handoff $modified_slr_handoff
+}
+
+dbg_puts "END: OPTIMIZE_INTERCONNECT"
+dbg_puts "----------------------------------------------------------------------"

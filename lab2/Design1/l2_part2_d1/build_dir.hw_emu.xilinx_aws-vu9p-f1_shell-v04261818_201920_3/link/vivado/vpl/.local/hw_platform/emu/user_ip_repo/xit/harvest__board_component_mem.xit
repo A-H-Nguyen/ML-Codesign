@@ -1,0 +1,173 @@
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "BEGIN: HARVEST__BOARD_COMPONENT_MEM"
+
+set board_ddr_components [lsort [board::get_board_components -filter {SUB_TYPE==ddr}]]
+dbg_puts "ddr_components:"
+foreach bc $board_ddr_components {
+  dbg_puts $bc
+}
+
+if {[dict exists $CONFIG dsa_info excluded_board_components]} {
+  set excluded_board_components [dict get $CONFIG dsa_info excluded_board_components]
+  dbg_puts "Excluded components:"
+  foreach c $excluded_board_components {
+    dbg_puts "$c"
+    if {[lsearch $board_ddr_components $c] == -1} {
+      send_msg CRITICAL_WARNING 1 "dsa_info excluded board component $c is not found in the board definition."
+    }
+  }
+} else {
+  dbg_puts "No excluded_board_components specified in dsa_info."
+}
+
+set i 0
+foreach board_component $board_ddr_components {
+  set bank_name DDR4_MEM[format %.2d $i]
+  set bcn [get_property NAME $board_component]
+  set ddr_component_intf {}
+  set diff_clk_intf {}
+
+  dbg_brk
+  dbg_puts "Processing: $board_component"
+  
+  set modes [board::get_board_component_modes -of $board_component]
+  if {[llength $modes] == 0} {
+    send_msg ERROR 1 "Could not find board component mode for board component $bcn.  Unable to proceed..."
+    return
+  }
+  if {[llength $modes] != 1} {
+    send_msg CRITICAL_WARNING 1 "Multiple board component modes for board component $bcn were detected.  This is not supported - using first component mode..."
+    set modes [lindex $modes 0]
+  }
+  
+  set mode_interfaces [get_property INTERFACES $modes]  
+  if {[llength $mode_interfaces] == 0} {
+    send_msg ERROR 1 "Board component mode $modes does have any associated interfaces.  Unable to proceed..."
+    return
+  }
+
+  foreach mi $mode_interfaces {
+    set bci [board::get_board_component_interfaces $mi]
+    set bci_vlnv [get_property VLNV $bci]
+    
+    if {[string match "xilinx.com:interface:ddr4_rtl:*" $bci_vlnv]} {
+      set ddr_component_intf $bci
+    }
+    
+    if {[string match "xilinx.com:interface:diff_clock_rtl:*" $bci_vlnv]} {
+      set ddr_clock_intf $bci
+    }
+  }
+
+  if {[llength $ddr_clock_intf] != 1 || [llength $ddr_component_intf] != 1} {      
+    send_msg ERROR 1 "Could not identify clock and ddr interface of $board_component.  Unable to proceed..."
+    return
+  }
+
+  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  # TODO: Skip board component if it is already utilized
+  # CR: ###### To be opened
+  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  if {[dict exists $CONFIG dsa_info excluded_board_components]} {
+    set excluded_board_components [dict get $CONFIG dsa_info excluded_board_components]        
+    if {[lsearch -exact [dict get $CONFIG dsa_info excluded_board_components] $bcn] != -1} {
+      dbg_puts "Board component $bcn has been excluded in dsa_info..."
+      continue
+    }
+  }
+
+  # This must follow the excluded board components check...
+  dict set board_info $bcn ddr_component_intf $ddr_component_intf
+  dict set board_info $bcn ddr_clock_intf $ddr_clock_intf
+
+  # ---------------------------------------------------------------------------
+  # Extract MIG properties from board file:
+  # ---------------------------------------------------------------------------
+  set ddr_preset_name [get_property PRESETS $ddr_component_intf]
+  if {[string length $ddr_preset_name] == 0} {
+    send_msg ERROR 1 "Board component interface $ddr_component_intf does not define a preset.  Unable to proceed..."
+    return
+  }
+
+  set ddr_preset [xilinx::board::get_board_presets $ddr_preset_name]
+  if {[llength $ddr_preset] == 0} {
+    send_msg ERROR 1 "Preset $ddr_preset_name was not found... Unable to proceed..."
+    return
+  }
+  
+  foreach p [list_property $ddr_preset CONFIG.*] {
+    dict set board_info $bcn preset $p [get_property $p $ddr_preset]
+  }
+    
+  # ---------------------------------------------------------------------------
+  # Enable a control register segment for this board component if the preset configures MIG for ECC...
+  # ---------------------------------------------------------------------------      
+  if {[dict exists $board_info $bcn preset CONFIG.C0.DDR4_Ecc]} {
+    if {[string match -nocase true [dict get $board_info $bcn preset CONFIG.C0.DDR4_Ecc]]} {
+      dbg_puts "ECC: enabled"
+      set ddr4_ecc_enabled 1          
+      # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      # TODO:  Override the control segment size?
+      # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      dict set CONFIG ctrl_segment_map $bank_name 64K
+    }
+  }
+  set frequency [get_property PARAM.frequency $ddr_clock_intf]
+  if {[string length $frequency] == 0} {
+    send_msg ERROR 1 "Board component interface $ddr_clock_intf does not define PARAM.frequency... Unable to proceed..."
+    return
+  }
+  dict set board_info $bcn component_properties frequency $frequency
+  dbg_puts "Frequency: $frequency"
+  
+  set size [get_property PARAM.size $board_component]
+  if {[string length $size] == 0} {
+    send_msg ERROR 1 "Board component $bcn does not define PARAM.size... Unable to proceed..."
+    return
+  }
+  if {[regexp {(\d+)(\w)} $size {} size_val size_type]} { 
+    set size_type [string toupper $size_type]
+    if {$size_type != "G" && $size_type != "M" && $size_type != "T"} {
+      send_msg ERROR 1 "Invalid board paramaters detected.   Board component $board_component size ($size) is not in a recognized format"
+      return
+    }
+    
+    # Trim size to IPI address editor format
+    set size $size_val$size_type
+    dict set board_info $bcn component_properties size $size
+    dbg_puts "Size: $size"        
+  } else {
+    send_msg ERROR 1 "Invalid board parameters detected.   Board component $board_component size ($size) is not a recognized format..."
+    return
+  }
+
+  set slr [get_property PARAM.SLR $board_component]
+  if {[string length $slr] == 0} {
+    # Temporary fallback?
+    if {[dict exists $CONFIG dsa_info board_component_slr_map $bcn]} {
+      send_msg CRITICAL_WARNING 1 "Board component $bcn does not define PARAM.SLR.  Update the board file to specify the necessary SLR metadata."
+      set slr [dict get $CONFIG dsa_info board_component_slr_map $bcn]
+    } else {
+      send_msg ERROR 1 "Board component $bcn does not define PARAM.SLR... Unable to proceed..."
+      return      
+    }
+  }
+  if {[regexp {SLR\d+} $slr]} {
+    dict set board_info $bcn component_properties slr $slr
+    dbg_puts "SLR: $slr"
+  } else {
+    send_msg CRITICAL_WARNING 1 "SLR specification in board component ($slr) is not a valid SLR name..."
+  }
+
+  incr i
+  dict set CONFIG segment_map $bank_name range $size
+  dict set CONFIG resource_names $bank_name 1
+  dict set mem_bank_component_map $bank_name $bcn
+  dict set mem_bank_slr_map $bank_name $slr
+  dbg_puts "Resource name: $bank_name"
+
+}
+dbg_brk
+dbg_puts "board_info: $board_info"
+dbg_puts "END: HARVEST__BOARD_COMPONENT_MEM"
+dbg_puts "----------------------------------------------------------------------"

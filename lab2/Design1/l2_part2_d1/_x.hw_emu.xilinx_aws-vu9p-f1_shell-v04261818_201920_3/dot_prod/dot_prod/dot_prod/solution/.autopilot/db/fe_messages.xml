@@ -1,0 +1,30 @@
+<xilinx:hls_fe_msgs>
+    <msg msg_groups="PRAGMA_VERBOSE_DUMP" msg_id="207-5471" msg_severity="WARNING" msg_loc="/home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/src/dot_prod.cpp:16:9" msg_body="HLS pragma dump">
+        <args ARG_PragmaContext="directive" ARG_PragmaFunction="dot_prod" ARG_PragmaIsValid="1" ARG_PragmaOptions="name=dot_prod" ARG_PragmaType="top" ClangWarningOption="dump-hls-pragmas"/>
+    </msg>
+    <msg msg_groups="PRAGMA_VERBOSE_DUMP" msg_id="207-5471" msg_severity="WARNING" msg_loc="/home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/src/dot_prod.cpp:18:9" msg_body="HLS pragma dump">
+        <args ARG_PragmaFunction="dot_prod" ARG_PragmaIsValid="1" ARG_PragmaOptions="m_axi port = vec_a offset = slave depth = 16 bundle = gmem" ARG_PragmaType="interface" ClangWarningOption="dump-hls-pragmas"/>
+    </msg>
+    <msg msg_groups="PRAGMA_VERBOSE_DUMP" msg_id="207-5471" msg_severity="WARNING" msg_loc="/home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/src/dot_prod.cpp:19:9" msg_body="HLS pragma dump">
+        <args ARG_PragmaFunction="dot_prod" ARG_PragmaIsValid="1" ARG_PragmaOptions="m_axi port = vec_b offset = slave depth = 16 bundle = gmem" ARG_PragmaType="interface" ClangWarningOption="dump-hls-pragmas"/>
+    </msg>
+    <msg msg_groups="PRAGMA_VERBOSE_DUMP" msg_id="207-5471" msg_severity="WARNING" msg_loc="/home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/src/dot_prod.cpp:20:9" msg_body="HLS pragma dump">
+        <args ARG_PragmaFunction="dot_prod" ARG_PragmaIsValid="1" ARG_PragmaOptions="m_axi port = results offset = slave depth = 1 bundle = gmem" ARG_PragmaType="interface" ClangWarningOption="dump-hls-pragmas"/>
+    </msg>
+    <msg msg_groups="PRAGMA_VERBOSE_DUMP" msg_id="207-5471" msg_severity="WARNING" msg_loc="/home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/src/dot_prod.cpp:22:9" msg_body="HLS pragma dump">
+        <args ARG_PragmaFunction="dot_prod" ARG_PragmaIsValid="1" ARG_PragmaOptions="s_axilite port = vec_a bundle = control" ARG_PragmaType="interface" ClangWarningOption="dump-hls-pragmas"/>
+    </msg>
+    <msg msg_groups="PRAGMA_VERBOSE_DUMP" msg_id="207-5471" msg_severity="WARNING" msg_loc="/home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/src/dot_prod.cpp:23:9" msg_body="HLS pragma dump">
+        <args ARG_PragmaFunction="dot_prod" ARG_PragmaIsValid="1" ARG_PragmaOptions="s_axilite port = vec_b bundle = control" ARG_PragmaType="interface" ClangWarningOption="dump-hls-pragmas"/>
+    </msg>
+    <msg msg_groups="PRAGMA_VERBOSE_DUMP" msg_id="207-5471" msg_severity="WARNING" msg_loc="/home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/src/dot_prod.cpp:24:9" msg_body="HLS pragma dump">
+        <args ARG_PragmaFunction="dot_prod" ARG_PragmaIsValid="1" ARG_PragmaOptions="s_axilite port = results bundle = control" ARG_PragmaType="interface" ClangWarningOption="dump-hls-pragmas"/>
+    </msg>
+    <msg msg_groups="PRAGMA_VERBOSE_DUMP" msg_id="207-5471" msg_severity="WARNING" msg_loc="/home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/src/dot_prod.cpp:25:9" msg_body="HLS pragma dump">
+        <args ARG_PragmaFunction="dot_prod" ARG_PragmaIsValid="1" ARG_PragmaOptions="s_axilite port = vector_len bundle = control" ARG_PragmaType="interface" ClangWarningOption="dump-hls-pragmas"/>
+    </msg>
+    <msg msg_groups="PRAGMA_VERBOSE_DUMP" msg_id="207-5471" msg_severity="WARNING" msg_loc="/home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/src/dot_prod.cpp:26:9" msg_body="HLS pragma dump">
+        <args ARG_PragmaFunction="dot_prod" ARG_PragmaIsValid="1" ARG_PragmaOptions="s_axilite port = return bundle = control" ARG_PragmaType="interface" ClangWarningOption="dump-hls-pragmas"/>
+    </msg>
+</xilinx:hls_fe_msgs>
+

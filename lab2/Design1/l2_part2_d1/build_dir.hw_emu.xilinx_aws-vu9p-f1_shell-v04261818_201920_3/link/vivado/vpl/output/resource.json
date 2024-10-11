@@ -1,0 +1,36 @@
+{
+    "Available Resources": [
+        {
+            "pblock": "A",
+            "resources": [
+                {
+                    "DUMMY": "0"
+                }
+            ]
+        },
+        {
+            "pblock": "B",
+            "resources": [
+                {
+                    "DUMMY": "0"
+                }
+            ]
+        },
+        {
+            "pblock": "C",
+            "resources": [
+                {
+                    "DUMMY": "0"
+                }
+            ]
+        },
+        {
+            "pblock": "D",
+            "resources": [
+                {
+                    "DUMMY": "0"
+                }
+            ]
+        }
+    ]
+}

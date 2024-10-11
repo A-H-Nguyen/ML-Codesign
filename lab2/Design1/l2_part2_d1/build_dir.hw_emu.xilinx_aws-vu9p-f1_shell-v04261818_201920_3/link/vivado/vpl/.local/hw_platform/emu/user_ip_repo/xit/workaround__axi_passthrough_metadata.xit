@@ -1,0 +1,65 @@
+
+dbg_puts "# ----------------------------------------------------------------------"
+dbg_puts "# BEGIN: WORKAROUND AXI_PASSTHROUGH_METADATA"
+foreach resource [dict keys $mem_bank_utilization M*_AXI_MEM*] {
+  dbg_puts "Processing $resource:"
+  regexp {M(\d\d)_AXI} $resource {} idx
+
+  set pidx M${idx}_AXI
+  foreach intf_port [get_bd_intf_ports $pidx*] {  
+    set intf_port_name [get_property NAME $intf_port]
+
+    set rs [create_bd_cell -vlnv xilinx.com:ip:axi_register_slice:* rs_$intf_port_name]
+    set_property -quiet CONFIG.REG_AW 0 $rs
+    set_property -quiet CONFIG.REG_AR 0 $rs
+    set_property -quiet CONFIG.REG_R 0  $rs
+    set_property -quiet CONFIG.REG_W 0  $rs
+    set_property -quiet CONFIG.REG_B 0  $rs
+
+    dbg_puts "Created: $rs"
+    set rs_params {}
+    foreach p [list_property $rs CONFIG.*] {
+      if {[dict exists $CONFIG intf_metadata $intf_port_name $p]} {
+        dict set rs_params $p [dict get $CONFIG intf_metadata $intf_port_name $p]
+      }
+    }
+    dbg_puts "Assign: $rs_params"
+    set_property -quiet -dict $rs_params $rs
+
+    set intf_net  [get_bd_intf_nets -quiet -of $intf_port]
+    dbg_puts "$intf_port net $intf_net"
+    set intf_connection {}
+    if {[llength $intf_net] == 1} {
+      set intf_connection [find_bd_objs -relation CONNECTED_TO $intf_port]
+      delete_bd_objs $intf_net      
+    }
+
+    connect_bd_intf_net $intf_port [get_bd_intf_pins $rs/M_AXI]
+    if {[llength $intf_connection] == 1} {
+      connect_bd_intf_net $intf_connection [get_bd_intf_pins $rs/S_AXI]
+    }
+
+    # TODO: use the port clock source?
+    connect_bd_net [dict get $mem_bank_aclk $resource] [get_bd_pins $rs/aclk]
+    connect_bd_net [dict get $mem_bank_aresetn $resource] [get_bd_pins $rs/aresetn]
+    
+    dict set hierarchy interconnect $rs $rs
+
+    if {[dict exists $CONFIG advanced_properties __experimental_features enable_axi_memory_init]} {
+      # TODO: suppress multiple axi_memory_init instances when multipath-passthrough detected. 
+      dbg_puts "BEGIN: ENABLE_AXI_MEMORY_INIT__AXI_PASSTHROUGH"
+      delete_bd_objs [get_bd_intf_nets -of [get_bd_intf_pins $rs/S_AXI]]
+      set mem_init [create_bd_cell -vlnv xilinx.com:ip:axi_memory_init [string tolower ${intf_port_name}_memory_init]]
+      connect_bd_intf_net [get_bd_intf_pins $mem_init/M_AXI] [get_bd_intf_pins $rs/S_AXI]
+      connect_bd_intf_net [get_bd_intf_pins $mem_init/S_AXI] $intf_connection
+      connect_bd_net [get_bd_pins $mem_init/aclk] [dict get $mem_bank_aclk $resource]
+      connect_bd_net [get_bd_pins $mem_init/aresetn] [dict get $mem_bank_aresetn $resource]
+      dict set hierarchy interconnect $mem_init $mem_init
+      dbg_puts "END: ENABLE_AXI_MEMORY_INIT__AXI_PASSTHROUGH"    
+    }
+
+  }
+  
+}
+dbg_puts "# END: WORKAROUND AXI_PASSTHROUGH_METADATA"
+dbg_puts "# ----------------------------------------------------------------------"

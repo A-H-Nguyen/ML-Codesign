@@ -1,0 +1,39 @@
+Begin Function 'dot_prod'
+
+RTL state condition: (1'b1 == ap_CS_fsm_state1)
+# ST_1
+local trunc_ln <partselect_34> <integer> <> 'partselect' </home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/src/dot_prod.cpp:34>
+trunc_ln /home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/src/dot_prod.cpp:34
+reg: trunc_ln_reg_239[57:0] lv
+
+local trunc_ln34_1 <partselect_34> <integer> <> 'partselect' </home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/src/dot_prod.cpp:34>
+trunc_ln34_1 /home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/src/dot_prod.cpp:34
+reg: trunc_ln34_1_reg_244[57:0] lv
+
+local trunc_ln3 <partselect_49> <integer> <> 'partselect' </home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/src/dot_prod.cpp:49>
+trunc_ln3 /home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/src/dot_prod.cpp:49
+reg: trunc_ln3_reg_249[57:0] lv
+
+
+RTL state condition: (1'b1 == ap_CS_fsm_state72)
+# ST_72
+local gmem_addr_read <read_34> <integer> <> 'read' </home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/src/dot_prod.cpp:34>
+gmem_addr_read /home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/src/dot_prod.cpp:34
+reg: gmem_addr_read_reg_266[511:0] lv
+
+
+RTL state condition: (1'b1 == ap_CS_fsm_state73)
+# ST_73
+local gmem_addr_1_read <read_34> <integer> <> 'read' </home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/src/dot_prod.cpp:34>
+gmem_addr_1_read /home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/src/dot_prod.cpp:34
+reg: gmem_addr_1_read_reg_277[511:0] lv
+
+
+RTL state condition: (1'b1 == ap_CS_fsm_state75)
+# ST_75
+
+RTL state condition: (1'b1 == ap_CS_fsm_state77)
+# ST_77
+
+End Function 'dot_prod'
+

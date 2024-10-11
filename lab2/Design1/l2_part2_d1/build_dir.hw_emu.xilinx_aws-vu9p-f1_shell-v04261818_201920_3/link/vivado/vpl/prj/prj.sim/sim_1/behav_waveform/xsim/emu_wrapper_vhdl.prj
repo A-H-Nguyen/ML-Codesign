@@ -1,0 +1,15 @@
+# compile vhdl design source files
+vhdl xil_defaultlib  \
+"../../../../prj.ip_user_files/bd/pfm_dynamic/ip/pfm_dynamic_psr_kernel_clk_0_0/sim/pfm_dynamic_psr_kernel_clk_0_0.vhd" \
+"../../../../prj.ip_user_files/bd/pfm_dynamic/ip/pfm_dynamic_psr_kernel2_clk_0_0/sim/pfm_dynamic_psr_kernel2_clk_0_0.vhd" \
+"../../../../prj.ip_user_files/bd/pfm_dynamic/ip/pfm_dynamic_to_delete_kernel_ctrl_0_0/sim/pfm_dynamic_to_delete_kernel_ctrl_0_0.vhd" \
+"../../../../prj.ip_user_files/bd/pfm_dynamic/ip/pfm_dynamic_psr_kernel_clk_1_0/sim/pfm_dynamic_psr_kernel_clk_1_0.vhd" \
+"../../../../prj.ip_user_files/bd/pfm_dynamic/ip/pfm_dynamic_psr_kernel2_clk_1_0/sim/pfm_dynamic_psr_kernel2_clk_1_0.vhd" \
+"../../../../prj.ip_user_files/bd/pfm_dynamic/ip/pfm_dynamic_psr_kernel_clk_2_0/sim/pfm_dynamic_psr_kernel_clk_2_0.vhd" \
+"../../../../prj.ip_user_files/bd/pfm_dynamic/ip/pfm_dynamic_psr_kernel2_clk_2_0/sim/pfm_dynamic_psr_kernel2_clk_2_0.vhd" \
+"../../../../prj.ip_user_files/bd/pfm_dynamic/ip/pfm_dynamic_to_delete_kernel_ctrl_2_0/sim/pfm_dynamic_to_delete_kernel_ctrl_2_0.vhd" \
+"../../../../prj.ip_user_files/bd/emu/ip/emu_axi_intc_0_0/sim/emu_axi_intc_0_0.vhd" \
+"../../../../prj.ip_user_files/bd/emu/ip/emu_psr_dma_pcie_aclk_0/sim/emu_psr_dma_pcie_aclk_0.vhd" \
+
+# Do not sort compile order
+nosort

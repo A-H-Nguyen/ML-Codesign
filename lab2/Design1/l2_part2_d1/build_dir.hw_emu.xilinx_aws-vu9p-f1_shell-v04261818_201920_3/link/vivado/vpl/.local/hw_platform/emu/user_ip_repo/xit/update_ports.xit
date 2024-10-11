@@ -1,0 +1,28 @@
+source_ipfile xit/debug_util.xit
+source_ipfile xit/guards.xit
+
+# ----------------------------------------------------------------------
+set ip [::ipxit::current_inst]  
+
+# ----------------------------------------------------------------------
+# 
+set CONFIG {}
+
+# ----------------------------------------------------------------------
+# Process the board information to determine how many memory
+# interfaces are available...
+# 
+# PENDING
+
+# ----------------------------------------------------------------------
+
+dict set CONFIG num_si [get_property CONFIG.NUM_SI $ip]
+dict set CONFIG num_clks [get_property CONFIG.NUM_CLKS $ip]
+dict set CONFIG advanced_properties [get_property CONFIG.ADVANCED_PROPERTIES $ip]
+
+# TODO: add user parameter
+dict set CONFIG enable_monitor_ports [info exists env(XIL_SDX_HIP_ENABLE_MONITOR_PORTS)]
+
+# ----------------------------------------------------------------------
+
+source_ipfile xit/generate_boundary.xit

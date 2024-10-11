@@ -1,0 +1,18 @@
+{
+    "kernelContainerValues": [
+        "dot_prod:xo"
+    ],
+    "compile": "false",
+    "debug": "false",
+    "exportScript": "false",
+    "gccHostCompile": "false",
+    "generateEstimateRpt": "false",
+    "keepSolution": "false",
+    "link": "false",
+    "logDir": "\/home\/centos\/src\/project_data\/aws-fpga\/Vitis\/examples\/xilinx_2021.2\/l2_part2_d1\/build_dir.hw_emu.xilinx_aws-vu9p-f1_shell-v04261818_201920_3\/logs\/link",
+    "package": "false",
+    "reportDir": "\/home\/centos\/src\/project_data\/aws-fpga\/Vitis\/examples\/xilinx_2021.2\/l2_part2_d1\/build_dir.hw_emu.xilinx_aws-vu9p-f1_shell-v04261818_201920_3\/reports\/link",
+    "saveTemps": "false",
+    "verbose": "false",
+    "vplNoIpCache": "false"
+}

@@ -1,0 +1,139 @@
+<profile>
+
+<section name = "Vitis HLS Report for 'dot_prod_Pipeline_load'" level="0">
+<item name = "Date">Fri Oct 11 17:28:54 2024
+</item>
+<item name = "Version">2021.2 (Build 3367213 on Tue Oct 19 02:47:39 MDT 2021)</item>
+<item name = "Project">dot_prod</item>
+<item name = "Solution">solution (Vitis Kernel Flow Target)</item>
+<item name = "Product family">virtexuplus</item>
+<item name = "Target device">xcvu9p-flgb2104-2-i</item>
+</section>
+
+<section name = "Performance Estimates" level="0">
+<item name = "Timing">
+<section name = "" level="1">
+<item name = "Summary"><table name="" hasTotal="0">
+<keys size="4">Clock, Target, Estimated, Uncertainty</keys>
+<column name="ap_clk">4.00 ns, 1.336 ns, 1.08 ns</column>
+</table>
+</item>
+</section>
+</item>
+<item name = "Latency">
+<section name = "" level="1">
+<item name = "Summary"><table name="" hasTotal="0">
+<keys size="8">, min, max, min, max, min, max, Type</keys>
+<column name="">18, 18, 72.000 ns, 72.000 ns, 18, 18, no</column>
+</table>
+</item>
+<item name = "Detail">
+<section name = "" level="1">
+<item name = "Instance"><table name="" hasTotal="0">
+<keys size="9">Instance, Module, min, max, min, max, min, max, Type</keys>
+</table>
+</item>
+<item name = "Loop"><table name="" hasTotal="0">
+<keys size="8">Loop Name, min, max, Latency, achieved, target, Count, Pipelined</keys>
+<column name="- load">16, 16, 1, 1, 1, 16, yes</column>
+</table>
+</item>
+</section>
+</item>
+</section>
+</item>
+</section>
+
+<section name = "Utilization Estimates" level="0">
+<item name = "Summary"><table name="" hasTotal="1">
+<keys size="6">Name, BRAM_18K, DSP, FF, LUT, URAM</keys>
+<column name="DSP">-, -, -, -, -</column>
+<column name="Expression">-, -, 0, 30, -</column>
+<column name="FIFO">-, -, -, -, -</column>
+<column name="Instance">-, -, -, -, -</column>
+<column name="Memory">-, -, -, -, -</column>
+<column name="Multiplexer">-, -, -, 45, -</column>
+<column name="Register">-, -, 1032, -, -</column>
+<specialColumn name="Available SLR">1440, 2280, 788160, 394080, 320</specialColumn>
+<specialColumn name="Utilization SLR (%)">0, 0, ~0, ~0, 0</specialColumn>
+<specialColumn name="Available">4320, 6840, 2364480, 1182240, 960</specialColumn>
+<specialColumn name="Utilization (%)">0, 0, ~0, ~0, 0</specialColumn>
+</table>
+</item>
+<item name = "Detail">
+<section name = "" level="1">
+<item name = "Instance"><table name="" hasTotal="1">
+<keys size="7">Instance, Module, BRAM_18K, DSP, FF, LUT, URAM</keys>
+</table>
+</item>
+<item name = "DSP"><table name="" hasTotal="0">
+<keys size="3">Instance, Module, Expression</keys>
+</table>
+</item>
+<item name = "Memory"><table name="" hasTotal="1">
+<keys size="10">Memory, Module, BRAM_18K, FF, LUT, URAM, Words, Bits, Banks, W*Bits*Banks</keys>
+</table>
+</item>
+<item name = "FIFO"><table name="" hasTotal="1">
+<keys size="8">Name, BRAM_18K, FF, LUT, URAM, Depth, Bits, Size:D*B</keys>
+</table>
+</item>
+<item name = "Expression"><table name="" hasTotal="1">
+<keys size="7">Variable Name, Operation, DSP, FF, LUT, Bitwidth P0, Bitwidth P1</keys>
+<column name="add_ln34_fu_116_p2">+, 0, 0, 12, 5, 1</column>
+<column name="ap_ext_blocking_n">and, 0, 0, 2, 2, 2</column>
+<column name="ap_int_blocking_n">and, 0, 0, 2, 2, 2</column>
+<column name="ap_str_blocking_n">and, 0, 0, 2, 2, 2</column>
+<column name="icmp_ln34_fu_110_p2">icmp, 0, 0, 10, 5, 6</column>
+<column name="ap_enable_pp0">xor, 0, 0, 2, 1, 2</column>
+</table>
+</item>
+<item name = "Multiplexer"><table name="" hasTotal="1">
+<keys size="5">Name, LUT, Input Size, Bits, Total Bits</keys>
+<column name="ap_done_int">9, 2, 1, 2</column>
+<column name="ap_enable_reg_pp0_iter1">9, 2, 1, 2</column>
+<column name="i_fu_50">9, 2, 5, 10</column>
+<column name="shiftreg9_fu_42">9, 2, 512, 1024</column>
+<column name="shiftreg_fu_46">9, 2, 512, 1024</column>
+</table>
+</item>
+<item name = "Register"><table name="" hasTotal="1">
+<keys size="5">Name, FF, LUT, Bits, Const Bits</keys>
+<column name="ap_CS_fsm">1, 0, 1, 0</column>
+<column name="ap_done_reg">1, 0, 1, 0</column>
+<column name="ap_enable_reg_pp0_iter1">1, 0, 1, 0</column>
+<column name="i_fu_50">5, 0, 5, 0</column>
+<column name="shiftreg9_fu_42">512, 0, 512, 0</column>
+<column name="shiftreg_fu_46">512, 0, 512, 0</column>
+</table>
+</item>
+</section>
+</item>
+</section>
+
+<section name = "Interface" level="0">
+<item name = "Summary"><table name="" hasTotal="0">
+<keys size="6">RTL Ports, Dir, Bits, Protocol, Source Object, C Type</keys>
+<column name="ap_clk">in, 1, ap_ctrl_hs, dot_prod_Pipeline_load, return value</column>
+<column name="ap_rst">in, 1, ap_ctrl_hs, dot_prod_Pipeline_load, return value</column>
+<column name="ap_start">in, 1, ap_ctrl_hs, dot_prod_Pipeline_load, return value</column>
+<column name="ap_done">out, 1, ap_ctrl_hs, dot_prod_Pipeline_load, return value</column>
+<column name="ap_idle">out, 1, ap_ctrl_hs, dot_prod_Pipeline_load, return value</column>
+<column name="ap_ready">out, 1, ap_ctrl_hs, dot_prod_Pipeline_load, return value</column>
+<column name="ap_ext_blocking_n">out, 1, ap_ctrl_hs, dot_prod_Pipeline_load, return value</column>
+<column name="ap_str_blocking_n">out, 1, ap_ctrl_hs, dot_prod_Pipeline_load, return value</column>
+<column name="ap_int_blocking_n">out, 1, ap_ctrl_hs, dot_prod_Pipeline_load, return value</column>
+<column name="gmem_load">in, 512, ap_none, gmem_load, scalar</column>
+<column name="gmem_load_1">in, 512, ap_none, gmem_load_1, scalar</column>
+<column name="va_buffer_address0">out, 4, ap_memory, va_buffer, array</column>
+<column name="va_buffer_ce0">out, 1, ap_memory, va_buffer, array</column>
+<column name="va_buffer_we0">out, 1, ap_memory, va_buffer, array</column>
+<column name="va_buffer_d0">out, 32, ap_memory, va_buffer, array</column>
+<column name="vb_buffer_address0">out, 4, ap_memory, vb_buffer, array</column>
+<column name="vb_buffer_ce0">out, 1, ap_memory, vb_buffer, array</column>
+<column name="vb_buffer_we0">out, 1, ap_memory, vb_buffer, array</column>
+<column name="vb_buffer_d0">out, 32, ap_memory, vb_buffer, array</column>
+</table>
+</item>
+</section>
+</profile>

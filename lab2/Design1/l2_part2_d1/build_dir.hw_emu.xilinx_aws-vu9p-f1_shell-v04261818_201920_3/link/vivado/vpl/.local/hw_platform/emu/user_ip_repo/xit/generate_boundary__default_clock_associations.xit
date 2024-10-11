@@ -1,0 +1,17 @@
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "BEGIN: GENERATE_BOUNDARY DEFAULT_CLOCK_ASSOCIATIONS"
+set busif_names {}
+foreach i [get_bd_intf_ports *_AXI*] {
+  lappend busif_names [get_property NAME $i]
+}
+
+set_property CONFIG.ASSOCIATED_BUSIF [join $busif_names :] [get_bd_ports /aclk]
+dbg_puts "/aclk associated with $busif_names"
+
+if {[dict get $CONFIG enable_monitor_ports]} {
+  foreach ui_clk [lsort [get_bd_ports ddr4*_ui_clk]] mon_port [lsort [get_bd_intf_ports DDR4_MON*_AXI]] {
+    set_property CONFIG.ASSOCIATED_BUSIF [get_property NAME $mon_port] $ui_clk
+  }
+}
+dbg_puts "END: GENERATE_BOUNDARY DEFAULT_CLOCK_ASSOCIATIONS"
+dbg_puts "----------------------------------------------------------------------"

@@ -1,0 +1,272 @@
+set data_file_name sdx_memory_subsystem.rld
+set xdc_file_name [current_instname].xdc
+
+if {![catch {gets_ipfile $data_file_name data}]} {
+
+  if {[llength $data] > 0} {    
+    set f [add_ipfile -usedIn {implementation} -usedInConstant true $xdc_file_name -processingOrder late]
+    set slr_mode [get_param ips.enableSLRParameter]
+  
+    set preamble_text {
+# *************************************************************************
+#    ____  ____
+#   /   /\/   /
+#  /___/  \  /
+#  \   \   \/    © Copyright 2017 Xilinx, Inc. All rights reserved.
+#   \   \        This file contains confidential and proprietary
+#   /   /        information of Xilinx, Inc. and is protected under U.S.
+#  /___/   /\    and international copyright and other intellectual
+#  \   \  /  \   property laws.
+#   \___\/\___\
+#
+#
+# *************************************************************************
+#
+# Disclaimer:
+#
+#       This disclaimer is not a license and does not grant any rights to
+#       the materials distributed herewith. Except as otherwise provided in
+#       a valid license issued to you by Xilinx, and to the maximum extent
+#       permitted by applicable law: (1) THESE MATERIALS ARE MADE AVAILABLE
+#       "AS IS" AND WITH ALL FAULTS, AND XILINX HEREBY DISCLAIMS ALL
+#       WARRANTIES AND CONDITIONS, EXPRESS, IMPLIED, OR STATUTORY,
+#       INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY,
+#       NON-INFRINGEMENT, OR FITNESS FOR ANY PARTICULAR PURPOSE; and
+#       (2) Xilinx shall not be liable (whether in contract or tort,
+#       including negligence, or under any other theory of liability) for
+#       any loss or damage of any kind or nature related to, arising under
+#       or in connection with these materials, including for any direct, or
+#       any indirect, special, incidental, or consequential loss or damage
+#       (including loss of data, profits, goodwill, or any type of loss or
+#       damage suffered as a result of any action brought by a third party)
+#       even if such damage or loss was reasonably foreseeable or Xilinx
+#       had been advised of the possibility of the same.
+#
+# Critical Applications:
+#
+#       Xilinx products are not designed or intended to be fail-safe, or
+#       for use in any application requiring fail-safe performance, such as
+#       life-support or safety devices or systems, Class III medical
+#       devices, nuclear facilities, applications related to the deployment
+#       of airbags, or any other applications that could lead to death,
+#       personal injury, or severe property or environmental damage
+#       (individually and collectively, "Critical Applications"). Customer
+#       assumes the sole risk and liability of any use of Xilinx products
+#       in Critical Applications, subject only to applicable laws and
+#       regulations governing limitations on product liability.
+#
+# THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS PART OF THIS
+# FILE AT ALL TIMES.
+#
+# *************************************************************************
+}
+
+    # ----------------------------------------------------------------------
+    set child_pblock_text ""
+    if {[dict exists $data dsa_info child_pblock_declarations]} {
+      set t {}
+      send_msg WARNING 1 "Support for child_pblock_declarations in sdx_memory_subsystem is deprecated.  Please move constraints to the dynamic region constraint file of the DSA itself."
+      dict for {child_pblock_name child_pblock_spec} [dict get $data dsa_info child_pblock_declarations] {
+        set child_bank_ref {}
+        regexp {(ddr4_mem\d\d)} $child_pblock_name {} child_bank_ref
+        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        # TODO:  Move to a data-driven guard mechanism instead of this name-based convention 
+        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        if {[string length $child_bank_ref] > 0} {        
+          set child_bank_active [lsearch [dict get $data bank_utilization] [string toupper $child_bank_ref]]
+          if {$child_bank_active != -1} {          
+            dict with child_pblock_spec {
+              if {$slr_mode == 2} {
+                lappend t "create_pblock $child_pblock_name"
+                foreach cell_path $cell_paths {
+                  lappend t "add_cells_to_pblock \[get_pblocks $child_pblock_name\] \[get_cells \[list $cell_path\]\]"
+                }
+                lappend t "resize_pblock \[get_pblocks $child_pblock_name\] -add \{$range\}"            
+                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                # TODO:  move these to a 'property' section of the dict?
+                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                lappend t "set_property SNAPPING_MODE ON \[get_pblocks $child_pblock_name\]"
+                lappend t "set_property PARENT $parent \[get_pblocks $child_pblock_name\]"
+                lappend t {}
+              }
+            }
+          }
+        }
+      }
+      set child_pblock_text [join $t "\n"]
+    }
+  
+    # ----------------------------------------------------------------------
+    # Switchboard assignments for each interconnect
+    set t {}
+    dict for {interconnect_name slr} [dict get $data interconnect_slr_map] {
+      set parent_pblock_name [dict get $data dsa_info slr_pblock_map $slr]
+      set lc_interconnect_name [string tolower $interconnect_name]
+      if {![dict exists $data interconnect_one_to_one [string tolower $interconnect_name]]} {
+        if {$slr_mode == 2} {
+          lappend t "add_cells_to_pblock \[get_pblocks $parent_pblock_name\] \[get_cells \[list interconnect/$lc_interconnect_name/inst/switchboards \] \]"      
+        }
+        if {$slr_mode == 4} {
+          lappend t "set_property USER_SLR_ASSIGNMENT $slr \[get_cells interconnect/$lc_interconnect_name/inst/switchboards \]"
+        }
+      }
+    }
+  
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    # TODO: Make this dynamic based on SLR info:
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    if {[dict exists $data ctrl_slr_map]} {
+      set ctrl_slr [dict get $data ctrl_slr_map S_AXI_CTRL]
+      set ctrl_pblock [dict get $data dsa_info slr_pblock_map $ctrl_slr]                     
+      if {$slr_mode == 2} {
+        lappend t "add_cells_to_pblock \[get_pblocks $ctrl_pblock\] \[get_cells memory/interconnect_ddrmem_ctrl\]"
+      }
+      if {$slr_mode == 4} {
+        lappend t "set_property USER_SLR_ASSIGNMENT $ctrl_slr \[get_cells memory/interconnect_ddrmem_ctrl\]"
+      }
+    }
+  
+    # ----------------------------------------------------------------------
+    # Control interfaces - place clock converter in DDR SLR
+    if {[dict exists $data ctrl_cc]} {
+      dict for {ctrl_cc_name ctrl_cc_slr} [dict get $data ctrl_cc] {
+        set ctrl_cc_pblock [dict get $data dsa_info slr_pblock_map $ctrl_cc_slr]
+        if {$slr_mode == 2} {
+          lappend t "add_cells_to_pblock  \[get_pblocks $ctrl_cc_pblock\] \[get_cells memory/$ctrl_cc_name\]"
+        }
+        if {$slr_mode == 4} {
+          lappend t "set_property USER_SLR_ASSIGNMENT $ctrl_cc_slr \[get_cells memory/$ctrl_cc_name\]"
+        }
+      }
+    }
+    set interconnect_pblock_assignment_text [join $t "\n"]
+  
+    # ----------------------------------------------------------------------
+    # Interconnect Crossing Assignments
+    set slr_crossing_text {}
+    set t {}
+    dict for {interconnect_name slr_crossings} [dict get $data slr_crossings] {
+      set interconnect_name [string tolower $interconnect_name]
+      lappend t "\# ------------------------------------------------------------"
+      lappend t "\# BEGIN $interconnect_name"
+      lappend t "\# ------------------------------------------------------------"
+
+      dict for {intf_name slr_crossing_spec} $slr_crossings {
+        regexp {(M|S)(\d\d)} $intf_name {} intf_role intf_idx 
+        set intf_role [string tolower $intf_role]
+        dict with slr_crossing_spec {
+          set r [string tolower $intf_role]
+          # ----------------------------------------------------------------------
+          # Source Side Constraints
+          # ----------------------------------------------------------------------
+          set parent_pblock [dict get $data dsa_info slr_pblock_map $source_slr]
+          set one_to_one [dict exists $data interconnect_one_to_one $interconnect_name]
+          if {$r == "s"} {
+            lappend t "\n\# $intf_name:$source_slr -> $interconnect_name:$target_slr"            
+          } else {
+            lappend t "\n\# $interconnect_name:$source_slr -> $intf_name:$target_slr"            
+          }
+          if {!$one_to_one || ($one_to_one && $r=="s")} {
+            if {$slr_mode == 2} {
+              lappend t "add_cells_to_pblock \[get_pblocks $parent_pblock\] \\"
+              lappend t "  \[list \\"
+              lappend t "  interconnect/$interconnect_name/inst/$r${intf_idx}_nodes/$r${intf_idx}_aw_node/inst/inst_si_handler \\"
+              lappend t "  interconnect/$interconnect_name/inst/$r${intf_idx}_nodes/$r${intf_idx}_ar_node/inst/inst_si_handler \\"
+              lappend t "  interconnect/$interconnect_name/inst/$r${intf_idx}_nodes/$r${intf_idx}_w_node/inst/inst_si_handler \\"
+              lappend t "  interconnect/$interconnect_name/inst/$r${intf_idx}_nodes/$r${intf_idx}_r_node/inst/inst_mi_handler \\"
+              lappend t "  interconnect/$interconnect_name/inst/$r${intf_idx}_nodes/$r${intf_idx}_b_node/inst/inst_mi_handler \\"
+              lappend t " \]"              
+            }
+            
+            if {$slr_mode == 4} {
+              lappend t "set_property USER_SLR_ASSIGNMENT $source_slr \[get_cells interconnect/$interconnect_name/inst/$r${intf_idx}_nodes/$r${intf_idx}_aw_node/inst/inst_si_handler \]"
+              lappend t "set_property USER_SLR_ASSIGNMENT $source_slr \[get_cells interconnect/$interconnect_name/inst/$r${intf_idx}_nodes/$r${intf_idx}_ar_node/inst/inst_si_handler \]"
+              lappend t "set_property USER_SLR_ASSIGNMENT $source_slr \[get_cells interconnect/$interconnect_name/inst/$r${intf_idx}_nodes/$r${intf_idx}_w_node/inst/inst_si_handler \]"
+              lappend t "set_property USER_SLR_ASSIGNMENT $source_slr \[get_cells interconnect/$interconnect_name/inst/$r${intf_idx}_nodes/$r${intf_idx}_r_node/inst/inst_mi_handler \]"
+              lappend t "set_property USER_SLR_ASSIGNMENT $source_slr \[get_cells interconnect/$interconnect_name/inst/$r${intf_idx}_nodes/$r${intf_idx}_b_node/inst/inst_mi_handler \]"
+            }
+          }
+          if {$r == "s"} {
+            if {$slr_mode == 2} {
+              lappend t "add_cells_to_pblock \[get_pblocks $parent_pblock\] \\"
+              lappend t "  \[list \\"
+              lappend t "  interconnect/$interconnect_name/inst/$r${intf_idx}_entry_pipeline \\"
+              lappend t "  interconnect/$interconnect_name/inst/$r${intf_idx}_axi2sc \\"
+              lappend t " \]"              
+            }
+            if {$slr_mode == 4} {
+              lappend t "set_property USER_SLR_ASSIGNMENT $source_slr \[get_cells interconnect/$interconnect_name/inst/$r${intf_idx}_entry_pipeline \]"                
+              lappend t "set_property USER_SLR_ASSIGNMENT $source_slr \[get_cells interconnect/$interconnect_name/inst/$r${intf_idx}_axi2sc \]"                              
+            }
+          }
+          
+          # ----------------------------------------------------------------------
+          # Target Side Constraints
+          # ----------------------------------------------------------------------
+          set parent_pblock [dict get $data dsa_info slr_pblock_map $target_slr]
+          if {!$one_to_one} {
+            if {$slr_mode == 2} {
+              lappend t "add_cells_to_pblock \[get_pblocks $parent_pblock\] \\"
+              lappend t "  \[list \\"
+              lappend t "  interconnect/$interconnect_name/inst/$r${intf_idx}_nodes/$r${intf_idx}_aw_node/inst/inst_mi_handler \\"
+              lappend t "  interconnect/$interconnect_name/inst/$r${intf_idx}_nodes/$r${intf_idx}_ar_node/inst/inst_mi_handler \\"
+              lappend t "  interconnect/$interconnect_name/inst/$r${intf_idx}_nodes/$r${intf_idx}_w_node/inst/inst_mi_handler \\"
+              lappend t "  interconnect/$interconnect_name/inst/$r${intf_idx}_nodes/$r${intf_idx}_r_node/inst/inst_si_handler \\"
+              lappend t "  interconnect/$interconnect_name/inst/$r${intf_idx}_nodes/$r${intf_idx}_b_node/inst/inst_si_handler \\"            
+              lappend t " \]"
+            }
+            if {$slr_mode == 4} {
+              lappend t "set_property USER_SLR_ASSIGNMENT $target_slr \[get_cells interconnect/$interconnect_name/inst/$r${intf_idx}_nodes/$r${intf_idx}_aw_node/inst/inst_mi_handler\]"
+              lappend t "set_property USER_SLR_ASSIGNMENT $target_slr \[get_cells interconnect/$interconnect_name/inst/$r${intf_idx}_nodes/$r${intf_idx}_ar_node/inst/inst_mi_handler\]"
+              lappend t "set_property USER_SLR_ASSIGNMENT $target_slr \[get_cells interconnect/$interconnect_name/inst/$r${intf_idx}_nodes/$r${intf_idx}_w_node/inst/inst_mi_handler\]"
+              lappend t "set_property USER_SLR_ASSIGNMENT $target_slr \[get_cells interconnect/$interconnect_name/inst/$r${intf_idx}_nodes/$r${intf_idx}_r_node/inst/inst_si_handler\]"
+              lappend t "set_property USER_SLR_ASSIGNMENT $target_slr \[get_cells interconnect/$interconnect_name/inst/$r${intf_idx}_nodes/$r${intf_idx}_b_node/inst/inst_si_handler\]"
+            }
+          }
+          if {$r == "m"} {
+            if {$slr_mode == 2} {
+              lappend t "add_cells_to_pblock \[get_pblocks $parent_pblock\] \\"
+              lappend t "  \[list \\"
+              lappend t "  interconnect/$interconnect_name/inst/m${intf_idx}_exit_pipeline \\"
+              lappend t "  interconnect/$interconnect_name/inst/$r${intf_idx}_sc2axi \\"
+              lappend t " \]"
+            }
+            if {$slr_mode == 4} {
+              lappend t "set_property USER_SLR_ASSIGNMENT $target_slr \[get_cells interconnect/$interconnect_name/inst/m${intf_idx}_exit_pipeline\]"
+              lappend t "set_property USER_SLR_ASSIGNMENT $target_slr \[get_cells interconnect/$interconnect_name/inst/$r${intf_idx}_sc2axi\]"
+            }
+          }
+        }
+      }
+    lappend t "\# ------------------------------------------------------------"
+    lappend t "\# END $interconnect_name"
+    lappend t "\# ------------------------------------------------------------"
+
+    }
+  
+    set slr_crossing_text [join $t "\n"]
+  
+    puts_ipfile $f $preamble_text
+    puts_ipfile $f "\# ----------------------------------------------------------------------"
+    puts_ipfile $f "\# Interconnect Switchboard PBLOCK assignments"
+    puts_ipfile $f "\# ----------------------------------------------------------------------"
+    puts_ipfile $f $interconnect_pblock_assignment_text
+    puts_ipfile $f "\n"
+    puts_ipfile $f "\# ----------------------------------------------------------------------"
+    puts_ipfile $f "\# SLR-crossing PBLOCK assignments"
+    puts_ipfile $f "\# ----------------------------------------------------------------------"
+    puts_ipfile $f $slr_crossing_text
+    if {[llength $child_pblock_text] > 0} {
+      puts_ipfile $f "\# ----------------------------------------------------------------------"
+      puts_ipfile $f "\# Child PBLOCK declaration and assignment"
+      puts_ipfile $f "\# ----------------------------------------------------------------------"
+      puts_ipfile $f $child_pblock_text
+      puts_ipfile $f "\n"
+    }
+  
+    close_ipfile $f
+  }
+  close_ipfile $data_file_name
+}
+
+

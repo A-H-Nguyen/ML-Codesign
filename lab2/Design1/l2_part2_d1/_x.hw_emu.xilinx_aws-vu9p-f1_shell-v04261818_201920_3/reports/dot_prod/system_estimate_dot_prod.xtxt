@@ -1,0 +1,45 @@
+===============================================================================
+Version:    v++ v2021.2 (64-bit)
+Build:      SW Build 3363252 on 2021-10-14-04:41:01
+Copyright:  Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.
+Created:    Fri Oct 11 17:29:15 2024
+===============================================================================
+
+-------------------------------------------------------------------------------
+Design Name:             dot_prod
+Target Device:           xilinx:aws-vu9p-f1:shell-v04261818:201920.3
+Target Clock:            250.000000MHz
+Total number of kernels: 1
+-------------------------------------------------------------------------------
+
+Kernel Summary
+Kernel Name  Type  Target              OpenCL Library  Compute Units
+-----------  ----  ------------------  --------------  -------------
+dot_prod     c     fpga0:OCL_REGION_0  dot_prod        1
+
+
+-------------------------------------------------------------------------------
+OpenCL Binary:     dot_prod
+Kernels mapped to: clc_region
+
+Timing Information (MHz)
+Compute Unit  Kernel Name  Module Name                Target Frequency  Estimated Frequency
+------------  -----------  -------------------------  ----------------  -------------------
+dot_prod_1    dot_prod     dot_prod_Pipeline_load     250               748.502991
+dot_prod_1    dot_prod     dot_prod_Pipeline_compute  250               436.490631
+dot_prod_1    dot_prod     dot_prod                   250               342.465759
+
+Latency Information
+Compute Unit  Kernel Name  Module Name                Start Interval  Best (cycles)  Avg (cycles)  Worst (cycles)  Best (absolute)  Avg (absolute)  Worst (absolute)
+------------  -----------  -------------------------  --------------  -------------  ------------  --------------  ---------------  --------------  ----------------
+dot_prod_1    dot_prod     dot_prod_Pipeline_load     18              18             18            18              72.000 ns        72.000 ns       72.000 ns
+dot_prod_1    dot_prod     dot_prod_Pipeline_compute  21              21             21            21              84.000 ns        84.000 ns       84.000 ns
+dot_prod_1    dot_prod     dot_prod                   185             184            184           184             0.736 us         0.736 us        0.736 us
+
+Area Information
+Compute Unit  Kernel Name  Module Name                FF    LUT   DSP  BRAM  URAM
+------------  -----------  -------------------------  ----  ----  ---  ----  ----
+dot_prod_1    dot_prod     dot_prod_Pipeline_load     1032  75    0    0     0
+dot_prod_1    dot_prod     dot_prod_Pipeline_compute  372   195   0    0     0
+dot_prod_1    dot_prod     dot_prod                   4527  3338  0    30    0
+-------------------------------------------------------------------------------

@@ -1,0 +1,14 @@
+#-----------------------------------------------------------
+# xsim v2021.2 (64-bit)
+# SW Build 3367213 on Tue Oct 19 02:47:39 MDT 2021
+# IP Build 3369179 on Thu Oct 21 08:25:16 MDT 2021
+# Start of session at: Fri Oct 11 17:38:49 2024
+# Process ID: 16091
+# Current directory: /home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/.run/16009/hw_em/device0/binary_0/behav_waveform/xsim
+# Command line: xsim -log simulate.log -mode tcl -source {xsim.dir/emu_wrapper_behav/xsim_script.tcl}
+# Log file: /home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/.run/16009/hw_em/device0/binary_0/behav_waveform/xsim/simulate.log
+# Journal file: /home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/.run/16009/hw_em/device0/binary_0/behav_waveform/xsim/xsim.jou
+# Running On: ip-172-31-83-237.ec2.internal, OS: Linux, CPU Frequency: 2499.998 MHz, CPU Physical cores: 2, Host memory: 16461 MB
+#-----------------------------------------------------------
+source xsim.dir/emu_wrapper_behav/xsim_script.tcl
+source emu_wrapper.tcl

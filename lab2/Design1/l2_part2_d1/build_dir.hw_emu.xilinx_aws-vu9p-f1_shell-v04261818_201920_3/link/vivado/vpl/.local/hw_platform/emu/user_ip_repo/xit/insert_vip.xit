@@ -1,0 +1,164 @@
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "BEGIN: INSERT_AXI_VIP"
+
+foreach si [get_bd_intf_ports -quiet S*_AXI] {
+  set intf_net [get_bd_intf_nets -quiet -of $si]
+  set si_name [get_property NAME $si]
+  
+  if {[llength $intf_net] == 1} {
+    dbg_puts "AXI_VIP: $si - OK"
+    set mi [find_bd_objs -relation CONNECTED_TO $si]
+    set clock_source [get_bd_ports [dict get $clock_associations $si_name]]
+    delete_bd_obj $intf_net
+    set si_target $si
+    
+    # Propagation issues in 2018.2 required this explicit RS instance to work around.
+    # Not required in 2018.3...
+    if {[info exists env(SDX_ENABLE_VIP_REGSLICE)]} {
+      set rs [create_bd_cell -vlnv xilinx.com:ip:axi_register_slice rs_$si_name]
+      set si_addr_width [get_property CONFIG.ADDR_WIDTH $si]
+      set_property -dict [list CONFIG.ADDR_WIDTH $si_addr_width CONFIG.REG_AW 0 CONFIG.REG_AR 0 CONFIG.REG_R 0 CONFIG.REG_W 0 CONFIG.REG_B 0] $rs
+      connect_bd_intf_net $si [get_bd_intf_pins $rs/S_AXI]
+      connect_bd_net $clock_source [get_bd_pins $rs/aclk]
+      
+      # TODO: resync to per-clock/per-slr PSR
+      connect_bd_net [get_bd_ports /aresetn] [get_bd_pins $rs/aresetn]      
+      dict set hierarchy interconnect $rs $rs      
+      set si_target [get_bd_intf_pins $rs/M_AXI]
+    }
+    
+    set vip [create_bd_cell -vlnv xilinx.com:ip:axi_vip vip_$si_name]    
+    connect_bd_intf_net $si_target [get_bd_intf_pins $vip/S_AXI]
+    connect_bd_intf_net $mi [get_bd_intf_pins $vip/M_AXI]
+    connect_bd_net $clock_source [get_bd_pins $vip/aclk]
+    
+    set psr [dict get $CONFIG psr [get_property NAME $clock_source] [dict get $CONFIG si_slr_map $si_name]]
+    set reset_source [get_bd_pins $psr/interconnect_aresetn] 
+    connect_bd_net $reset_source [get_bd_pins $vip/aresetn]
+    
+    dict set hierarchy interconnect $vip $vip
+  } else {
+    dbg_puts "AXI_VIP: $si - DISABLED"
+  }
+}
+
+foreach mi [get_bd_intf_ports -quiet M*_AXI] {
+  set intf_net [get_bd_intf_nets -quiet -of $mi]
+  set mi_intf_name [get_property NAME $mi]
+  if {[llength $intf_net] == 1} {
+    dbg_puts "AXI_VIP: $mi - OK"
+    set si [find_bd_objs -relation CONNECTED_TO $mi]
+    set vip [create_bd_cell -vlnv xilinx.com:ip:axi_vip vip_$mi_intf_name]
+    set clock_source [get_bd_ports [dict get $clock_associations $mi_intf_name]]
+    delete_bd_obj $intf_net
+    connect_bd_intf_net $si [get_bd_intf_pins $vip/S_AXI]
+    connect_bd_intf_net $mi [get_bd_intf_pins $vip/M_AXI]
+    connect_bd_net $clock_source [get_bd_pins $vip/aclk]
+    
+    # RESYNC?  OMIT?
+#    connect_bd_net [get_bd_ports /aresetn] [get_bd_pins $vip/aresetn]
+    
+    set psr [dict get $CONFIG psr [get_property NAME $clock_source] [dict get $mem_bank_slr_map ${mi_intf_name}_MEM00]]
+    set reset_source [get_bd_pins $psr/interconnect_aresetn] 
+    connect_bd_net $reset_source [get_bd_pins $vip/aresetn]
+
+    dict set hierarchy interconnect $vip $vip
+  } else {
+    dbg_puts "AXI_VIP: $mi - DISABLED"
+  }
+}
+
+foreach bank [dict keys [dict filter $mem_bank_utilization key DDR4_MEM*]] {
+  set ddr4_axi_intf [dict get $mem_bank_data_intf $bank]
+  set ddr4_aclk [dict get $mem_bank_aclk $bank]
+  set ddr4_aresetn [dict get $mem_bank_aresetn $bank]
+
+  set intf_net [get_bd_intf_nets -quiet -of $ddr4_axi_intf]
+  if {[llength $intf_net] == 1} {
+    dbg_puts "AXI_VIP: $bank - OK"
+    set si [find_bd_objs -relation CONNECTED_TO $ddr4_axi_intf]
+    set vip [create_bd_cell -vlnv xilinx.com:ip:axi_vip vip_$bank]
+    delete_bd_obj $intf_net
+    connect_bd_intf_net $si [get_bd_intf_pins $vip/S_AXI]
+    connect_bd_intf_net $ddr4_axi_intf [get_bd_intf_pins $vip/M_AXI]
+    connect_bd_net $ddr4_aclk [get_bd_pins $vip/aclk]
+    connect_bd_net $ddr4_aresetn [get_bd_pins $vip/aresetn]  
+    dict set hierarchy memory $vip $vip
+
+    if {![guard__aws]} {
+	    set ddr4_inst [dict get $mem_bank_ddr_inst $bank]
+	    set vip_clk [create_bd_cell -vlnv xilinx.com:ip:clk_vip:1.0 vip_ui_clk_$bank]    
+	    dict set hierarchy memory $vip_clk $vip_clk
+
+	    set ddr4_clk_pin [get_bd_pins $ddr4_inst/c0_ddr4_ui_clk]
+	    set ddr4_clk_sinks [find_bd_objs -relation CONNECTED_TO $ddr4_clk_pin]
+	    set ddr4_clk_net [get_bd_nets -of $ddr4_clk_pin]
+
+	    delete_bd_obj $ddr4_clk_net
+	    connect_bd_net [get_bd_pins $vip_clk/clk_in] $ddr4_clk_pin
+	    connect_bd_net [get_bd_pins $vip_clk/clk_out] $ddr4_clk_sinks
+
+	    set vip_rst [create_bd_cell -vlnv xilinx.com:ip:rst_vip:1.0 vip_ui_rst_$bank]
+	    dict set hierarchy memory $vip_rst $vip_rst
+
+	    set ddr4_rst_pin [get_bd_pins $ddr4_inst/c0_ddr4_ui_clk_sync_rst]
+	    set ddr4_rst_sinks [find_bd_objs -relation CONNECTED_TO $ddr4_rst_pin]
+
+	    set ddr4_rst_net [get_bd_nets -of $ddr4_rst_pin]
+	    delete_bd_obj $ddr4_rst_net
+
+	    connect_bd_net [get_bd_pins $vip_rst/rst_in] $ddr4_rst_pin
+	    connect_bd_net [get_bd_pins $vip_rst/rst_out] $ddr4_rst_sinks    	
+    } else {
+    	# TODO:
+    	# AWS MODE CLOCK AND RESET VIP INSERTION
+    }
+
+  } else {
+    dbg_puts "AXI_VIP: $bank - DISABLED"
+  }
+
+  if {[dict exists $mem_bank_ctrl_intf $bank]} {
+    set ctrl_intf [dict get $mem_bank_ctrl_intf $bank]
+    set si [find_bd_objs -relation CONNECTED_TO $ctrl_intf]
+    set intf_net [get_bd_intf_nets -of $ctrl_intf]
+    set vip [create_bd_cell -vlnv xilinx.com:ip:axi_vip vip_ctrl_$bank]
+    delete_bd_obj $intf_net
+    connect_bd_intf_net $si [get_bd_intf_pins $vip/S_AXI]
+    connect_bd_intf_net $ctrl_intf [get_bd_intf_pins $vip/M_AXI]
+    
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    # TODO - move this to a toplevel dictionary
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    set ctrl_port [get_bd_intf_ports S_AXI_CTRL]    
+    set ctrl_port_clock_key [dict get $CONFIG si_clk_keys_info S_AXI_CTRL]
+    set ctrl_port_clock_source [get_bd_ports [dict get $clock_key_map $ctrl_port_clock_key]]
+    connect_bd_net $ctrl_port_clock_source [get_bd_pins $vip/aclk]
+    
+    connect_bd_net [get_bd_pins $psr_ctrl_interconnect/interconnect_aresetn] [get_bd_pins $vip/aresetn]
+    dict set hierarchy memory $vip $vip
+  }
+}
+
+foreach bank [dict keys [dict filter $mem_bank_utilization key PLRAM_MEM*]] {
+  set ddr4_axi_intf [dict get $mem_bank_data_intf $bank]
+  set ddr4_aclk [dict get $mem_bank_aclk $bank]
+  set ddr4_aresetn [dict get $mem_bank_aresetn $bank]
+  dbg_puts "Adding AXI_VIP to PLRAM instance $bank"
+  set intf_net [get_bd_intf_nets -quiet -of $ddr4_axi_intf]
+  if {[llength $intf_net] == 1} {
+    set si [find_bd_objs -relation CONNECTED_TO $ddr4_axi_intf]
+    set vip [create_bd_cell -vlnv xilinx.com:ip:axi_vip vip_$bank]
+    delete_bd_obj $intf_net
+    connect_bd_intf_net $si [get_bd_intf_pins $vip/S_AXI]
+    connect_bd_intf_net $ddr4_axi_intf [get_bd_intf_pins $vip/M_AXI]
+    connect_bd_net $ddr4_aclk [get_bd_pins $vip/aclk]
+    connect_bd_net $ddr4_aresetn [get_bd_pins $vip/aresetn]  
+    dict set hierarchy memory $vip $vip
+  } else {
+    dbg_puts "ERROR: Expected to find interface net attached to $ddr4_axi_intf!"
+  }
+}
+
+dbg_puts "END: INSERT_AXI_VIP"
+dbg_puts "----------------------------------------------------------------------"

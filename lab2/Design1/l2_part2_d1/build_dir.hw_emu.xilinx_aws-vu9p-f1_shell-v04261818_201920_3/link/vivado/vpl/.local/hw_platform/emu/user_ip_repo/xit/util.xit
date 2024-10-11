@@ -1,0 +1,139 @@
+# ----------------------------------------------------------------------
+# Utility Procedures:
+proc find_first_unconnected_intf { intf_pins } {
+  foreach i $intf_pins {
+    if {[llength [get_bd_intf_nets -quiet -of $i]] == 0} {
+      return $i
+    }
+  }
+  return ""
+}
+
+proc find_first_unconnected_pin { pins } {
+  foreach i $pins {
+    if {[llength [get_bd_nets -quiet -of $i]] == 0} {
+      return $i
+    }
+  }
+  return ""
+}
+
+proc get_clock_key { o } {
+  set clock_metadata {}
+  foreach p {FREQ_HZ PHASE CLK_DOMAIN} {
+    lappend clock_metadata [get_property CONFIG.$p $o]
+  }
+  set clock_key [join $clock_metadata :]
+  return $clock_key
+}
+
+proc xil_clog2 { i } {
+  set l 1
+  while {[expr 1<<$l] <= $i} { incr l }
+  return $l
+}
+
+proc get_bd_obj { i } {
+  set result [get_bd_pins -quiet $i]
+  if {[llength $result] == 0} {
+    set result [get_bd_ports -quiet $i]
+  }
+  return $result
+}
+
+proc clog_range { range } {
+
+  if {![regexp {(\d+)(K|M|G|T)} $range {} range_value range_type]} {
+    send_msg ERROR 1 "Segment range format incorrect: $range"
+    return {}
+  }
+
+  set clog_range_type_map {K 10 M 20 G 30 T 40}
+  set clog_range_type [dict get $clog_range_type_map $range_type]
+#  set clog_range_value [xil_clog2 $range_value]
+#  set addr_width [expr $clog_range_value + $clog_range_type]
+  set range_high_addr [expr ($range_value*(1<<$clog_range_type))-1]
+  set clog_range [xil_clog2 $range_high_addr]
+  return $clog_range
+}
+
+proc find_existing_clk_connection { clock_source clock_pins } {
+  set source_key [get_clock_key $clock_source] 
+  foreach pin $clock_pins {
+    set pin_key [get_clock_key $pin]
+    if {$source_key == $pin_key} {
+      return $pin
+    }
+  }
+  return {}
+}
+
+# TODO : Refactor these to procs to a common base proc and two wrappers:
+proc find_slowest_clk { clock_sources } {
+  variable clock_definitions
+  set clk_key_client_count {}
+  set clk_key_by_freq_hz {}
+  foreach clock_source $clock_sources {
+    set clock_source [get_bd_ports $clock_source ]
+    set clk_key [dict get $clock_definitions [get_property name $clock_source]  ]
+    dict set clock_source_by_key $clk_key $clock_source
+    
+    lassign [split $clk_key :] freq_hz phase clk_domain
+    if {$freq_hz < $min_freq_hz || ![info exists min_freq_hz]} {
+      set min_freq_hz $freq_hz
+    }
+    dict incr clk_key_client_count $clk_key
+    dict set clk_key_by_freq_hz $freq_hz $clk_key 1
+  }
+  
+  set min_freq_clk_keys [dict keys [dict get $clk_key_by_freq_hz $min_freq_hz]] 
+  if {[llength $min_freq_clk_keys] == 1} {
+    set selected_clk_key $min_freq_clk_keys
+  } else {
+    set unsorted_marjoity_key {}
+    foreach clk_key $min_freq_clk_keys {
+      lappend unsorted_majority_key [list [dict get $clk_key_client_count $clk_key] $clk_key]
+    }
+    set sorted_majority_key [lsort -integer -decreasing -index 0 $unsorted_majority_key]   
+    set selected_clk_key [lindex $sorted_majority_key 0 1]
+  }
+  
+  set selected_clk [dict get $clock_source_by_key $selected_clk_key]
+
+  return $selected_clk
+}
+
+proc find_fastest_clk { clock_sources } {
+  variable clock_definitions
+  set max_freq_hz 0
+  set clk_key_client_count {}
+  set clk_key_by_freq_hz {}
+  foreach clock_source $clock_sources {
+    set clock_source [get_bd_ports $clock_source ]
+    set clk_key [dict get $clock_definitions [get_property name $clock_source]  ]
+    dict set clock_source_by_key $clk_key $clock_source
+    
+    lassign [split $clk_key :] freq_hz phase clk_domain
+    if {$freq_hz > $max_freq_hz} {
+      set max_freq_hz $freq_hz
+    }
+    dict incr clk_key_client_count $clk_key
+    dict set clk_key_by_freq_hz $freq_hz $clk_key 1
+  }
+  
+  set max_freq_clk_keys [dict keys [dict get $clk_key_by_freq_hz $max_freq_hz]] 
+  if {[llength $max_freq_clk_keys] == 1} {
+    set selected_clk_key $max_freq_clk_keys
+  } else {
+    set unsorted_marjority_key {}
+    foreach clk_key $max_freq_clk_keys {
+      lappend unsorted_majority_key [list [dict get $clk_key_client_count $clk_key] $clk_key]
+    }
+    set sorted_majority_key [lsort -integer -decreasing -index 0 $unsorted_majority_key]   
+    set selected_clk_key [lindex $sorted_majority_key 0 1]
+  }
+  
+  set selected_clk [dict get $clock_source_by_key $selected_clk_key]
+
+  return $selected_clk
+}

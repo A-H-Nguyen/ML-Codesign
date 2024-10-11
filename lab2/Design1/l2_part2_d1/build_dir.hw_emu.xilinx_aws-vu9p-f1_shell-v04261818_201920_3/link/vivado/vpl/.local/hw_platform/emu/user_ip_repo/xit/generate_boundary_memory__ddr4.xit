@@ -1,0 +1,56 @@
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "BEGIN: GENERATE_BOUNDARY_MEMORY__DDR4"
+
+# ----------------------------------------------------------------------
+# DDR4-specific HIP Interfaces
+for {set i 0} {$i < [dict get $CONFIG num_ddr4_mem]} {incr i} {
+  set idx [format %.2d $i]
+  set intf [create_bd_intf_port -vlnv xilinx.com:interface:ddr4_rtl:1.0 -default_portmap -mode master DDR4_MEM${idx}]
+}
+
+for {set i 0} {$i < [dict get $CONFIG num_ddr4_mem]} {incr i} {
+  set idx [format %.2d $i]
+  set bcn [dict get $mem_bank_component_map DDR4_MEM${idx}]
+  dbg_puts "Generating interface for DDR4_MEM${idx} ($bcn)"
+  set preset [dict get $CONFIG board_info $bcn preset]
+  if {[dict exists $preset CONFIG.System_Clock] && [dict get $preset CONFIG.System_Clock] == "No_Buffer"} {
+    set intf [create_bd_port -dir I -type clk ddr4_mem${idx}_clk]
+  } else {
+    set intf [create_bd_intf_port -vlnv xilinx.com:interface:diff_clock_rtl:1.0 -default_portmap -mode slave DDR4_MEM${idx}_DIFF_CLK]
+  }
+  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  # TODO: assign frequency from board interface properties
+  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#  set_property CONFIG.FREQ_HZ 300000000 $intf
+  set_property CONFIG.FREQ_HZ [dict get $CONFIG board_info $bcn component_properties frequency] $intf
+  
+}
+
+if {[dict get $CONFIG enable_monitor_ports]} {
+  for {set i 0} {$i < [dict get $CONFIG num_ddr4_mem]} {incr i} {
+    set idx [format %.2d $i]
+    set intf [create_bd_intf_port -vlnv xilinx.com:interface:aximm_rtl:1.0 -default_portmap -mode monitor DDR4_MON${idx}_AXI]
+  }
+}
+
+for {set i 0} {$i < [dict get $CONFIG num_ddr4_mem]} {incr i} {
+  set idx [format %.2d $i]
+  set port [create_bd_port -type clk -dir o ddr4_mem${idx}_ui_clk]
+}
+
+for {set i 0} {$i < [dict get $CONFIG num_ddr4_mem]} {incr i} {
+  set idx [format %.2d $i]
+  set port [create_bd_port -type rst -dir i ddr4_mem${idx}_sys_rst]
+  set_property CONFIG.POLARITY ACTIVE_HIGH $port
+}
+
+set port [create_bd_port -type data -dir o ddr4_mem_calib_complete]
+
+if {![info exists env(SDX_HIP_DISABLE_DDR4_MEM_CALIB_VEC)]} {
+  if {[dict get $CONFIG num_ddr4_mem] > 0} {
+    set port [create_bd_port -type data -dir o -from [expr [dict get $CONFIG num_ddr4_mem] - 1] -to 0 ddr4_mem_calib_vec]
+  }
+}
+
+dbg_puts "END: GENERATE_BOUNDARY_MEMORY__DDR4"
+dbg_puts "----------------------------------------------------------------------"

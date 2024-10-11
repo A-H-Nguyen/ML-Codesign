@@ -1,0 +1,29 @@
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "BEGIN: GENERATE_PSR"
+set formatstr "%30s %10s %10s"
+foreach clk_port [get_bd_ports aclk*] {
+  foreach slr [dict get $CONFIG slrs] {
+    set clk_port_name [get_property NAME $clk_port]
+
+    # TODO: Only generate a PSR if the clk/slr combination is actually in use
+    
+    set psr [create_bd_cell -vlnv xilinx.com:ip:proc_sys_reset:* psr_${clk_port_name}_$slr]
+    connect_bd_net [get_bd_pins $psr/ext_reset_in] [get_bd_ports /aresetn]
+    connect_bd_net [get_bd_pins $psr/slowest_sync_clk] $clk_port
+    
+    # TODO: Find a more robust way of handling non-ssit devices
+    set_property -quiet CONFIG.SLR_ASSIGNMENTS $slr $psr
+    
+    dict set hierarchy reset $psr $psr
+    dict set CONFIG psr $clk_port_name $slr $psr
+    dbg_puts [format $formatstr $psr $clk_port_name $slr]
+  }
+}
+
+set psr_ctrl_interconnect [create_bd_cell -vlnv xilinx.com:ip:proc_sys_reset:* psr_ctrl_interconnect]
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# TODO: move all PSR generation here
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+dbg_puts "END: GENERATE_PSR"
+dbg_puts "----------------------------------------------------------------------"

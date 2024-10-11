@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<cf:model cf:cpu="x86" cf:partition="0" cf:prefix="p_0_" cf:name="dr" xd:type="design" xmlns:xd="http://www.xilinx.com/xd" xmlns:cf="http://www.xilinx.com/connections">
+  <cf:block cf:name="hwblk_dot_prod">
+    <cf:port cf:name="s_axi_control" cf:portType="stream" cf:direction="in"/>
+    <cf:port cf:name="vec_a" cf:portType="stream" cf:direction="in"/>
+    <cf:port cf:name="vec_b" cf:portType="stream" cf:direction="in"/>
+    <cf:port cf:name="results" cf:portType="stream" cf:direction="in"/>
+    <cf:port cf:name="vector_len" cf:portType="stream" cf:direction="in"/>
+  </cf:block>
+  <cf:block cf:name="swblk_dot_prod">
+    <cf:port cf:name="s_axi_control" cf:portType="stream" cf:direction="out"/>
+    <cf:port cf:name="vec_a" cf:portType="stream" cf:direction="out"/>
+    <cf:port cf:name="vec_b" cf:portType="stream" cf:direction="out"/>
+    <cf:port cf:name="results" cf:portType="stream" cf:direction="out"/>
+    <cf:port cf:name="vector_len" cf:portType="stream" cf:direction="out"/>
+  </cf:block>
+  <cf:comp cf:name="shell-v04261818" xd:componentRef="shell-v04261818" xd:clockId="0"/>
+  <cf:comp cf:name="dot_prod_1" xd:componentRef="dot_prod" xd:clockId="0"/>
+  <cf:instance cf:name="hwinst_dot_prod_1" cf:blockName="hwblk_dot_prod" cf:compName="dot_prod_1">
+    <cf:portMap cf:blockPort="s_axi_control" cf:compPort="s_axi_control" xd:register="0x0"/>
+    <cf:portMap cf:blockPort="vec_a" cf:compPort="m_axi_gmem" cf:ctrlPort="s_axi_control" xd:register="0x10"/>
+    <cf:portMap cf:blockPort="vec_b" cf:compPort="m_axi_gmem" cf:ctrlPort="s_axi_control" xd:register="0x1C"/>
+    <cf:portMap cf:blockPort="results" cf:compPort="m_axi_gmem" cf:ctrlPort="s_axi_control" xd:register="0x28"/>
+    <cf:portMap cf:blockPort="vector_len" cf:compPort="s_axi_control" xd:register="0x34"/>
+  </cf:instance>
+  <cf:instance cf:name="swinst_dot_prod_1" cf:blockName="swblk_dot_prod" cf:compName="shell-v04261818">
+    <cf:portMap cf:blockPort="s_axi_control" cf:compPort="slr1/interconnect_axilite_user_1_M01_AXI"/>
+    <cf:portMap cf:blockPort="vec_a" cf:compPort="memory_subsystem" cf:ctrlPort="slr1/interconnect_axilite_user_1_M01_AXI" cf:sptag="DDR[1]"/>
+    <cf:portMap cf:blockPort="vec_b" cf:compPort="memory_subsystem" cf:ctrlPort="slr1/interconnect_axilite_user_1_M01_AXI" cf:sptag="DDR[1]"/>
+    <cf:portMap cf:blockPort="results" cf:compPort="memory_subsystem" cf:ctrlPort="slr1/interconnect_axilite_user_1_M01_AXI" cf:sptag="DDR[1]"/>
+    <cf:portMap cf:blockPort="vector_len" cf:compPort="slr1/interconnect_axilite_user_1_M01_AXI"/>
+  </cf:instance>
+  <cf:connection cf:srcInst="swinst_dot_prod_1" cf:srcPort="s_axi_control" cf:dstInst="hwinst_dot_prod_1" cf:dstPort="s_axi_control">
+    <cf:dataMover cf:compName="shell-v04261818" cf:softwareLib="axi_lite"/>
+  </cf:connection>
+  <cf:connection cf:srcInst="swinst_dot_prod_1" cf:srcPort="vec_a" cf:dstInst="hwinst_dot_prod_1" cf:dstPort="vec_a">
+    <cf:dataMover cf:compName="dot_prod_1" cf:softwareLib="zero_copy"/>
+  </cf:connection>
+  <cf:connection cf:srcInst="swinst_dot_prod_1" cf:srcPort="vec_b" cf:dstInst="hwinst_dot_prod_1" cf:dstPort="vec_b">
+    <cf:dataMover cf:compName="dot_prod_1" cf:softwareLib="zero_copy"/>
+  </cf:connection>
+  <cf:connection cf:srcInst="swinst_dot_prod_1" cf:srcPort="results" cf:dstInst="hwinst_dot_prod_1" cf:dstPort="results">
+    <cf:dataMover cf:compName="dot_prod_1" cf:softwareLib="zero_copy"/>
+  </cf:connection>
+  <cf:connection cf:srcInst="swinst_dot_prod_1" cf:srcPort="vector_len" cf:dstInst="hwinst_dot_prod_1" cf:dstPort="vector_len">
+    <cf:dataMover cf:compName="shell-v04261818" cf:softwareLib="axi_lite"/>
+  </cf:connection>
+</cf:model>

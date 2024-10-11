@@ -1,0 +1,113 @@
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "BEGIN: GENERATE_MEMORY__PLRAM"
+
+foreach bank [dict keys $mem_bank_utilization PLRAM*] {
+  dbg_puts "Generating $bank"
+  set mem_inst_name [string tolower $bank]
+
+  regexp {(\d\d)} $bank {} idx
+  set i [scan $idx %d]
+  set plram_spec [lindex [dict get $CONFIG advanced_properties plram_specifications] $i]
+  
+  if {[llength $plram_spec] == 0} {
+    dbg_puts "ERROR: can't find plram spec for bank $bank (idx: $idx, i: $i)"
+  }
+
+  dict set params CONFIG.DATA_WIDTH [dict get $plram_spec AXI_DATA_WIDTH]
+  dict set params CONFIG.SLR_ASSIGNMENTS [dict get $plram_spec SLR_ASSIGNMENT]
+
+  set mem [create_bd_cell -quiet -vlnv xilinx.com:ip:axi_bram_ctrl $mem_inst_name -set_params $params ]
+  dict set hierarchy memory $mem $mem
+  apply_bd_automation -quiet -rule xilinx.com:bd_rule:bram_cntlr -config {BRAM "Auto"}  [get_bd_intf_pins $mem/BRAM_PORTA]
+  apply_bd_automation -quiet -rule xilinx.com:bd_rule:bram_cntlr -config {BRAM "Auto"}  [get_bd_intf_pins $mem/BRAM_PORTB]
+
+  if {[dict exists $plram_spec READ_LATENCY]} {
+    set_property CONFIG.READ_LATENCY [dict get $plram_spec READ_LATENCY] $mem
+  }
+
+  set bmg [get_bd_cells -of [find_bd_objs -relation CONNECTED_TO [get_bd_intf_pins $mem/BRAM_PORTA]]]
+	if {[dict exists $plram_spec SLR_ASSIGNMENT]} {
+  	set_property -quiet CONFIG.SLR_ASSIGNMENTS [dict get $plram_spec SLR_ASSIGNMENT] $bmg
+	}
+  if {![dict exists $hierarchy memory $bmg]} {
+    dict set hierarchy memory $bmg $bmg
+  }
+
+  if {[dict exists $plram_spec MEMORY_PRIMITIVE]} {
+    set v [dict get $plram_spec MEMORY_PRIMITIVE]
+    set bram_intf [get_bd_intf_pins $mem/BRAM_PORTA]
+    set bmg [get_bd_cells -of [find_bd_objs -relation CONNECTED_TO $bram_intf]]
+    dbg_puts "Forcing primitive type $v on $bmg..."
+    set_property CONFIG.PRIM_type_to_Implement $v $bmg
+  }
+  
+  dbg_brk
+  dbg_puts "Selecting clock source for $bank:"
+  set si_clients [dict get $mem_bank_utilization $bank]
+  set max_freq_hz 0
+  set clk_key_client_count {}
+  set clk_key_by_freq_hz {}
+  dbg_puts "clock_definitions: $clock_definitions"
+  dbg_puts "clock_key_map: $clock_key_map "
+  foreach si_name $si_clients {
+    set si_clk_name [dict get $clock_associations $si_name ]
+    set si_clk_key [dict get $clock_definitions $si_clk_name]
+    
+    lassign [split $si_clk_key :] freq_hz phase clk_domain
+    if {$freq_hz > $max_freq_hz} {
+      set max_freq_hz $freq_hz
+    }
+    dict incr clk_key_client_count $si_clk_key
+    dict set clk_key_by_freq_hz $freq_hz $si_clk_key 1
+  }
+
+  dbg_puts "max_freq_hz: $max_freq_hz"
+  dbg_puts "clk_key_client_count: $clk_key_client_count"
+  dbg_puts "clk_key_by_freq_hz: $clk_key_by_freq_hz"
+  
+  set max_freq_clk_keys [dict keys [dict get $clk_key_by_freq_hz $max_freq_hz]] 
+  if {[llength $max_freq_clk_keys] == 1} {
+    set selected_clk_key $max_freq_clk_keys
+  } else {
+    dbg_puts "Finding majority decision"
+    set unsorted_marjoity_key {}
+    foreach clk_key $max_freq_clk_keys {
+      lappend unsorted_majority_key [list [dict get $clk_key_client_count $clk_key] $clk_key]
+    }
+    dbg_puts "unsorted_majority_key: $unsorted_majority_key"
+    set sorted_majority_key [lsort -integer -decreasing -index 0 $unsorted_majority_key]
+    dbg_puts "sorted_majority_key: $sorted_majority_key"
+    
+    set selected_clk_key [lindex $sorted_majority_key 0 1]
+  }
+
+  dbg_puts "Selected: $selected_clk_key "
+  set clk_source [dict get $clock_key_map $selected_clk_key]
+  dbg_puts "clk_source: $clk_source"
+  dbg_brk
+  
+  connect_bd_net $clk_source [get_bd_pins $mem/*aclk]
+  
+  set plram_slr [dict get $plram_spec SLR_ASSIGNMENT]
+
+  set psr [dict get $CONFIG psr [get_property NAME $clk_source] $plram_slr]
+
+  set rst_source [get_bd_pins $psr/interconnect_aresetn]
+  connect_bd_net $rst_source [get_bd_pins $mem/*aresetn]
+
+  # ----------------------------------------------------------------------
+  # Hooks for later use:
+  dict set mem_bank_data_intf $bank [get_bd_intf_pins $mem/S_AXI]    
+  dict set mem_bank_ddr_inst  $bank $mem
+  dict set mem_bank_aclk      $bank $clk_source
+  dict set mem_bank_aresetn   $bank $rst_source
+  
+  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  # TODO: How to migrate this to graph flow?
+  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  set sc [dict get $ict $bank]
+  connect_bd_intf_net [get_bd_intf_pins $sc/M00_AXI] [dict get $mem_bank_data_intf $bank]
+}
+
+dbg_puts "END: GENERATE_MEMORY__PLRAM"
+dbg_puts "----------------------------------------------------------------------"

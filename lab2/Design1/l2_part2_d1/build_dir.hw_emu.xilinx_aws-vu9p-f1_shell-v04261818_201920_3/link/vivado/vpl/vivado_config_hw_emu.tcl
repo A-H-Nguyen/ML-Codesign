@@ -1,0 +1,7 @@
+set_property hw_emu.en_vitis_codehooks_for_sim true [current_project]
+set_property target_simulator xsim [current_project]
+set_property -name {xsim.simulate.runtime} -value all -objects [current_fileset -simset]
+set_property -name {XSIM.ELABORATE.XELAB.MORE_OPTIONS} -value {  -ignore_assertions  --debug sc} -objects [current_fileset -simset]
+set_property -name {xsim.simulate.xsim.more_options} -value " $*" -objects [current_fileset -simset]
+set_property -name {hw_emu.debug_mode} -value {wdb} -objects [current_fileset -simset]
+set_property -name {hw_emu.is_waveform_mode} -value {true} -objects [current_fileset -simset]

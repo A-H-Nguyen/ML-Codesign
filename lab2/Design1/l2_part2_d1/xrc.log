@@ -1,0 +1,12 @@
+Fri Oct 11 17:29:31 2024: Server was asked to start on port: '36370'
+Fri Oct 11 17:29:31 2024: Server is using token UUID: 'c31d2462-a948-4cca-a76d-ca423dee4ef7'
+Fri Oct 11 17:29:31 2024: Attempting to start server on port '36370'
+Fri Oct 11 17:29:31 2024: XRC main fifo: created main fifo '/tmp/xrcmainc31d2462-a948-4cca-a76d-ca423dee4ef7', fd read = 13
+Fri Oct 11 17:29:31 2024: Running Rule Check Server
+Fri Oct 11 17:29:31 2024: Version 1.6.1
+Fri Oct 11 17:29:31 2024: Rule Check Server: Accepted socket connection from client
+Fri Oct 11 17:29:31 2024: EXCHANGE_TOKEN received, server token: c31d2462-a948-4cca-a76d-ca423dee4ef7, passed token: c31d2462-a948-4cca-a76d-ca423dee4ef7
+Fri Oct 11 17:29:31 2024: SESSION_MGR: creating session with session uuid: '435241df-042b-4921-b672-26e7b6c6fc2d' and name 'v++_link_dot_prod_app'
+Fri Oct 11 17:29:39 2024: Rule Check Server: Accepted socket connection from client
+Fri Oct 11 17:30:23 2024: Rule Check Server: Accepted socket connection from client
+Fri Oct 11 17:36:20 2024: SESSION_MGR: closing session for UUID '435241df-042b-4921-b672-26e7b6c6fc2d' with name 'v++_link_dot_prod_app'

@@ -1,0 +1,7 @@
+INFO: [HW-EMU 01] Hardware emulation runs simulation underneath. Using a large data set will result in long simulation times. It is recommended that a small dataset is used for faster execution. The flow uses approximate models for Global memories and interconnect and hence the performance data generated is approximate.
+INFO::[ Vitis-EM 22 ] [Time elapsed: 0 minute(s) 11 seconds, Emulation time: 0.0423035 ms]
+Data transfer between kernel(s) and global memory(s)
+dot_prod_1:m_axi_gmem-DDR[1]          RD = 0.125 KB               WR = 0.062 KB        
+
+INFO: [HW-EMU 06-0] Waiting for the simulator process to exit
+INFO: [HW-EMU 06-1] All the simulator processes exited successfully

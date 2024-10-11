@@ -1,0 +1,16 @@
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "BEGIN: REMOVE_REDUNDANT_PSRS"
+
+foreach psr [get_bd_cells -filter {VLNV=~*proc_sys_reset*}] {
+	set psr_name [get_property NAME $psr]
+	if {[llength [get_bd_nets -quiet -of [get_bd_pins $psr/interconnect_aresetn]]] == 0} {
+		dbg_puts "$psr_name : REMOVED"
+		delete_bd_objs $psr
+	} else {
+		dbg_puts "$psr_name : OK"
+	}
+}
+
+dbg_puts "END: REMOVE_REDUNDANT_PSRS"
+dbg_puts "----------------------------------------------------------------------"
+

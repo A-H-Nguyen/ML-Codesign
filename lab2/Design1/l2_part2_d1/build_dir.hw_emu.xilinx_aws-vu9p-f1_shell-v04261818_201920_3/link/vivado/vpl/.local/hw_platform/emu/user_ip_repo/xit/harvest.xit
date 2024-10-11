@@ -1,0 +1,522 @@
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "BEGIN: HARVEST"
+
+dict set CONFIG segment_map {}
+
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "BEGIN: HARVEST__DDR4"
+
+# ----------------------------------------------------------------------
+# Extract DDR information from board definition
+set board_info {}
+
+# ----------------------------------------------------------------------
+# This dictionary maps the S<nn>_AXI memory segment name to an actual
+# ddr4 memory component on the board:
+set mem_bank_component_map {}
+
+dict set CONFIG resource_names {}
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# TODO: Remove this when AWS board file exists
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+set ddr4_ecc_enabled 0
+
+if {[llength $board_part] == 1 && ![guard__aws]} {
+  # DIMM or Component memory? 
+  set board_dimm_connectors [board::get_board_components -filter {TYPE==connector && SUB_TYPE==dimm}]
+  if {[llength $board_dimm_connectors] > 0} {
+    source_ipfile xit/harvest__board_dimm_mem.xit
+  } else {
+    source_ipfile xit/harvest__board_component_mem.xit
+  }
+} else {
+  if {[llength $board_part] == 0} {
+    dbg_puts "Skipping DDR4 component extraction - no project board_part specified..."
+  }
+  if {[guard__aws]} {
+    dbg_puts "Skipping DDR4 component extraction - AWS mode enabled..."
+
+    dict set mem_bank_component_map DDR4_MEM00 aws_ddrc
+    dict set mem_bank_component_map DDR4_MEM01 aws_ddra
+    dict set mem_bank_component_map DDR4_MEM02 aws_ddrb
+    dict set mem_bank_component_map DDR4_MEM03 aws_ddrd
+    
+    foreach bank [lsort [dict keys $mem_bank_component_map]] {
+      set bcn [dict get $mem_bank_component_map $bank]
+      set slr [dict get $CONFIG dsa_info board_component_slr_map $bcn]
+      dict set mem_bank_slr_map $bank $slr
+      dict set CONFIG resource_names $bank 1
+    }
+    
+    dict set board_info aws_ddra component_properties size 16G
+    dict set board_info aws_ddrb component_properties size 16G
+    dict set board_info aws_ddrc component_properties size 16G
+    dict set board_info aws_ddrd component_properties size 16G
+  }
+}
+
+dict set CONFIG board_info $board_info
+dict set CONFIG num_ddr4_mem [llength [dict keys $board_info]]
+set ddr4_components [lsort [dict keys [dict get $CONFIG board_info]]]
+
+dbg_puts "END: HARVEST__DDR4"
+dbg_puts "----------------------------------------------------------------------"
+
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "BEGIN: HARVEST__PLRAM"
+
+if {[dict exists $CONFIG advanced_properties plram_specifications]} {
+  set plram_specifications [dict get $CONFIG advanced_properties plram_specifications]
+  dbg_puts "PLRAM specifications detected: $plram_specifications"
+  set i 0
+  foreach plram_spec $plram_specifications {
+    set bank_name [format PLRAM_MEM%.2d $i]
+    dbg_puts "Processing $bank_name"
+    set valid 1
+    foreach key {SIZE AXI_DATA_WIDTH SLR_ASSIGNMENT} {
+      if {![dict exists $plram_spec $key]} {
+        dbg_puts "PLRAM specification is incomplete - required key $key is not specified"
+        set valid 0
+      }      
+    }
+    if {!$valid} {
+      send_msg CRITICAL_WARNING 1 "Incomplete PLRAM specification ($plram_spec) has been ignored."
+      continue
+    }
+    dict set CONFIG segment_map $bank_name range [dict get $plram_spec SIZE]
+    if {[dict exists $plram_spec SLR_ASSIGNMENT]} {
+      dict set mem_bank_slr_map $bank_name [dict get $plram_spec SLR_ASSIGNMENT]      
+    } else {
+      dbg_msg "WARNING: No SLR assignment for PLRAM specification"
+      # TODO: warning message
+    }
+    dict set CONFIG resource_names $bank_name 1
+    incr i
+  }
+} else {
+  dbg_puts "No PLRAM specifications provided"
+}
+dbg_puts "END: HARVEST__PLRAM"
+dbg_puts "----------------------------------------------------------------------"
+
+# ----------------------------------------------------------------------
+# Import metadata:
+#
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# TODO: replace with native API calls
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#  BOARD ERROR 
+
+if {![info exists env_extract_spec]} {
+  set env_extract_spec {
+    ADDR ERROR 
+    SLR CRITICAL_WARNING
+    DSA CRITICAL_WARNING
+    SI_CLK_KEYS ERROR
+  }
+}
+
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "BEGIN: HARVEST__ADDR_ASSIGNMENTS"
+if {![info exists env(SDX_HIP_DISABLE_IPI_NATIVE_API)]} {
+  dbg_puts "IPI Native Metadata Extraction Enabled"
+  
+  set ipi_harvest [bd::addr_func get_memory_subsystem_metadata]
+  if {[llength $ipi_harvest] > 0} {
+    if {[dict exists $ipi_harvest addr_assignments]} {
+      # ----------------------------------------------------------------------
+      # Transform IPI handoff to internal CONFIG dict format
+      # ----------------------------------------------------------------------
+      set ipi_addr_metadata [dict get $ipi_harvest addr_assignments]
+      dict for {si_name si_addr_config} $ipi_addr_metadata {
+        if {[llength $mi_bifs] == 1} {
+          dict for {slave_seg_name slave_seg_assignment} {
+            dict with slave_seg_assignment {
+              dict set CONFIG addr_info $slave_seg_name $offset $range
+            }
+          }
+        } else {
+          send_msg ERROR 1 "Address metadata indicates multiple masters attached to $si_name.   This is not currently_supported."
+        }
+      }
+      
+      # ADDR extraction from BD file disabled.
+      dict unset env_extract_spec ADDR
+    }
+  }
+} else {
+  dbg_puts "Disabled."
+}
+dbg_puts "END: HARVEST__ADDR_ASSIGNMENTS"
+dbg_puts "----------------------------------------------------------------------"
+
+if {![info exists env(SDX_HIP_DISABLE_CLK_METADATA_EXTRACTION)]} {
+  dbg_puts "----------------------------------------------------------------------"
+  dbg_puts "BEGIN: HARVEST__CLK_METADATA"
+
+  # TODO:  find_bd_objs clock key metadata
+  foreach intf [get_bd_ports -quiet aclk*] {
+    set intf_name [get_property NAME $intf]
+    set ext_ref [find_bd_objs -thru_hier -boundary_type extern -relation CONNECTED_TO $intf]
+    if {[llength $ext_ref] == 0} {
+      dbg_puts "$intf_name <- DISCONNECTED"
+      continue
+    }
+    dbg_puts "$intf_name <- $ext_ref"
+    foreach p {FREQ_HZ PHASE CLK_DOMAIN} {
+      dict set CONFIG clk_metadata $intf_name $p [get_property CONFIG.$p $ext_ref]      
+    }
+  }
+
+  if {[dict exists $CONFIG clk_metadata]} {
+    set formatstr "%15s %10s %10s %-s"
+    dbg_puts [format $formatstr Port FREQ_HZ PHASE CLK_DOMAIN]
+    dict for {k v} [dict get $CONFIG clk_metadata] {
+      dict with v {
+        dbg_puts [format $formatstr $k $FREQ_HZ $PHASE $CLK_DOMAIN]
+      }
+    }
+  }
+  
+  # ENV extraction from BD file disabled.
+  dict unset env_extract_spec SI_CLK  
+  dbg_puts "END: HARVEST__CLK_METADATA"
+  dbg_puts "----------------------------------------------------------------------"
+}
+
+
+if {![info exists env(SDX_HIP_DISABLE_AXI_METADATA_EXTRACTION)]} {
+  dbg_puts "----------------------------------------------------------------------"
+  dbg_puts "BEGIN: HARVEST__AXI_INTERFACE_METADATA"
+
+  set property_names {}
+  # TODO: find_bd_objs SI/MI metadata
+  foreach intf [get_bd_intf_ports -quiet *_AXI] {
+    set intf_name [get_property NAME $intf]
+    set ext_intf [find_bd_objs -thru_hier -boundary_type extern -relation CONNECTED_TO $intf]
+    if {[llength $ext_intf] == 0} {
+      dbg_puts "$intf_name <- DISCONNECTED"
+      continue
+    }
+    dbg_puts "$intf_name <- $ext_intf"
+
+    foreach p [list_property $ext_intf CONFIG.*] {
+      dict set CONFIG intf_metadata $intf_name $p [get_property $p $ext_intf]      
+      dict incr property_names $p
+    }
+  }
+  
+  if {[dict exists $CONFIG intf_metadata]} {
+
+    # Rebuild slr_info to replace BD handoff
+    # TODO: Refactor SLR_INFO refs to pull from intf_metadata?
+    dict set CONFIG slr_info {}
+    foreach intf [dict keys [dict get $CONFIG intf_metadata]] {
+      if {[dict exists $CONFIG intf_metadata $intf CONFIG.SLR_ASSIGNMENT]} {
+        set v [dict get $CONFIG intf_metadata $intf CONFIG.SLR_ASSIGNMENT]
+        dict set CONFIG slr_info $intf $v
+      }
+    }
+    dbg_brk
+    dbg_puts "slr_info:"
+    dict for {k v} [dict get $CONFIG slr_info] { dbg_puts [format "%-10s %s" $k $v] }
+    dbg_brk
+
+    set axi_interface_names [lsort [dict keys [dict get $CONFIG intf_metadata]]]
+    set formatstr "%30s [string repeat %15s [llength $axi_interface_names]]"
+    dbg_puts [format $formatstr Property {*}$axi_interface_names]
+    foreach p [dict keys $property_names] {
+      set l $p
+      foreach intf_name $axi_interface_names {
+        if {[dict exists $CONFIG intf_metadata $intf_name $p]} {
+          lappend l [dict get $CONFIG intf_metadata $intf_name $p]
+        } else {
+          lappend l -
+        }
+      }
+      dbg_puts [format $formatstr {*}$l]
+    }    
+  }
+  
+  # ENV extraction from BD file disabled.
+  dict unset env_extract_spec SLR  
+  dbg_puts "END: HARVEST__AXI_INTERFACE_METADATA"
+  dbg_puts "----------------------------------------------------------------------"
+}
+
+
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "BEGIN: HARVEST__BD_ENV_HANDOFF"
+dbg_puts "env_extract_spec: $env_extract_spec"
+
+foreach {type severity} $env_extract_spec {
+  if {[info exists env(SDX_HIP_${type}_INFO)]} {
+    set key [string tolower $type]_info
+    dict set CONFIG $key $env(SDX_HIP_${type}_INFO)
+    dbg_puts "ENV_EXTRACTION: $key: $env(SDX_HIP_${type}_INFO)"
+  } else {
+    send_msg $severity 1 "SDX_HIP_${type}_INFO not found in ENV"
+  }
+}
+dbg_puts "END: HARVEST__BD_ENV_HANDOFF"
+dbg_puts "----------------------------------------------------------------------"
+
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "BEGIN: HARVEST__ADJUST_ADDR_INFO"
+
+if {[dict exists $CONFIG addr_info]} {
+
+  if {[dict exists $CONFIG addr_info S_AXI_CTRL]} {
+    dbg_puts "Moving control address information to separate key..."
+    dict set CONFIG ctrl_addr_info [dict get $CONFIG addr_info S_AXI_CTRL]
+    dict unset CONFIG addr_info S_AXI_CTRL
+    dbg_puts "addr_info (data_segs only): [dict get $CONFIG addr_info]"
+    dbg_puts "ctrl_addr_info (ctrl_segs only): [dict get $CONFIG ctrl_addr_info]"
+  }
+  
+  dbg_puts "----------------------------------------------------------------------"
+  dbg_puts "BEGIN: HARVEST__APPLY_RESOURCE_ACCESS_CONSTRAINTS"
+
+  if {[dict exists $CONFIG advanced_properties resource_access_constraints]} {
+    dbg_puts "Applying resource_access_constraints"
+    dbg_puts "Initial addr_info: [dict get $CONFIG addr_info]"
+    set access_constraints [dict get $CONFIG advanced_properties resource_access_constraints]
+    dict for {si valid_banks} $access_constraints {
+      if {[dict exists $CONFIG addr_info $si]} {
+        set si_mappings [dict get $CONFIG addr_info $si]
+        foreach si_mapped_bank [lsort [dict keys $si_mappings]] {
+          if {[lsearch $valid_banks $si_mapped_bank] == -1} {
+            dbg_puts "$si mapped an inaccessible bank ($si_mapped_bank).  The mapping will be ignored..."
+            dict unset CONFIG addr_info $si $si_mapped_bank
+          }
+        }
+      }
+    }
+    if {[dict exists $CONFIG addr_info]} {
+      dbg_puts "Updated addr_info: [dict get $CONFIG addr_info]"
+    } else {
+      dbg_puts "addr_info: resolved to null"
+    }
+  }
+  dbg_puts "END: HARVEST__APPLY_RESOURCE_ACCESS_CONSTRAINTS"
+  dbg_puts "----------------------------------------------------------------------"
+
+  
+  dbg_puts "----------------------------------------------------------------------"
+  dbg_puts "BEGIN: WORKAROUND POPULATE_BOARD_COMPONENT_SLR_MAP (CR: ??????)"
+  # TODO: Remove this workaround:
+  dict set CONFIG dsa_info board_component_slr_map {}
+  foreach bcn [dict keys $board_info] {
+    if {[dict exists $board_info $bcn component_properties slr]} {
+      set v [dict get $board_info $bcn component_properties slr]
+      dict set CONFIG dsa_info board_component_slr_map $bcn $v
+      dbg_puts "Updating board_component_slr_map for $bcn -> $v"
+      dbg_puts [dict get $CONFIG dsa_info board_component_slr_map]
+    }
+  }
+  dbg_puts "END: WORKAROUND POPULATE_BOARD_COMPONENT_SLR_MAP (CR: ??????)"
+  dbg_puts "----------------------------------------------------------------------"
+  
+  dbg_puts "----------------------------------------------------------------------"
+  dbg_puts "BEGIN: HARVEST__APPLY_RESOURCE_MAP_REPLICATION"
+  if {[dict exists $CONFIG advanced_properties resource_map_replication]} {
+    set replication_specs [dict get $CONFIG advanced_properties resource_map_replication]
+    set replicated_ports [lsort [dict keys $replication_specs]]
+    set non_replicated_ports {}
+    foreach si [get_bd_intf_ports S*_AXI] {
+      set si_name [get_property NAME $si]
+      if {[lsearch -exact $replicated_ports [get_property NAME $si]] == -1} {
+        if {![dict exists $CONFIG addr_info $si_name]} {
+          dbg_puts "SI port $si_name has no address mappings to replicate."
+          continue
+        }
+        lappend non_replicated_ports $si
+      }
+    }
+      
+    if {[llength $non_replicated_ports] > 0} {
+      dbg_puts "Address mappings from ($non_replicated_ports) will be replicated to ($replicated_ports)."
+      set replicated_mappings {}
+      set formatstr "%15s <-- %-15s %15s %10s %16s %16s"
+      dbg_puts [format $formatstr SI Replication_src Resource Access Offset Range]
+      foreach si_name $replicated_ports {
+        set si [get_bd_intf_ports $si_name]
+        foreach nrp $non_replicated_ports {
+          set nrp_name [get_property NAME $nrp]
+          set nrp_mappings [dict get $CONFIG addr_info $nrp_name]
+          foreach {bank assignment} $nrp_mappings {
+            lassign $assignment offset range
+            
+            if {[dict exists $replication_specs $si_name exclude_resources]} {
+              set excluded_resources [dict get $replication_specs $si_name exclude_resources]
+              foreach excluded_resource_name $excluded_resources {
+                if {[string match $excluded_resource_name $bank]} {
+                  dbg_puts [format $formatstr $si_name $nrp_name $bank EXCLUDED - -]                  
+                  continue
+                }
+              }
+            }
+
+            set valid_replication 1
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            # TODO:  remove this check - limiting address segment creation should mean that only
+            # accessible segments are ever mapped at the SI...
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            if {[dict exists $CONFIG advanced_properties resource_access_constraints $si_name]} {
+              set si_access_list [dict get $CONFIG advanced_properties resource_access_constraints $si_name]             
+              if {[lsearch -exact $si_access_list $bank] == -1} {
+                dbg_puts [format $formatstr $si_name $nrp_name $bank DISABLED - -]
+                set valid_replication 0
+              }
+            }          
+            if {$valid_replication} {              
+              # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+              # TODO:  deal with situation where SI have different mappings
+              # this won't happen in SDx flow today - connection API doesn't support it
+              # in future replicate the widest aperture
+              # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!              
+
+              if {![dict exists $replicated_mappings $si_name $bank]} {
+                dbg_puts [format $formatstr $si_name $nrp $bank OK [format %016x $offset] [format %016x $range]]
+                dict set replicated_mappings $si_name $bank $assignment                 
+              }
+            }
+          }
+        }
+        dbg_brk
+      }
+      dbg_brk
+      foreach si_name $replicated_ports {        
+        dbg_puts "Applying replication at $si_name:"
+        if {[dict exists $CONFIG addr_info $si_name]} {
+          dbg_puts "->>>>> Old address map at $si_name: [dict get $CONFIG addr_info $si_name]"
+          dict unset CONFIG addr_info $si_name
+        }
+        if {[dict exists $replicated_mappings $si_name]} {
+          set mappings [dict get $replicated_mappings $si_name]
+          dict set CONFIG addr_info $si_name $mappings          
+        } else {
+          dict set CONFIG addr_info $si_name {}
+        }
+        dbg_puts "->>>>> New address map at $si_name: [dict get $CONFIG addr_info $si_name]"
+      }
+    } else {
+       if {[dict exists $CONFIG advanced_properties minimal_initial_configuration]} {
+        dbg_puts "Configured for minimal_initial_configuration - removing default replicated port assignments from addr_info"
+        dict set CONFIG addr_info {}
+      } else {
+        dbg_puts "All enabled ports are replicated: preserving existing mapping (DSA startup condition)"        
+      }
+    }
+    dbg_brk
+    dbg_puts "addr_info after replication:"
+    foreach si_name [lsort [dict keys [dict get $CONFIG addr_info]]] {
+      dbg_puts "$si_name -> [dict get $CONFIG addr_info $si_name]"
+    }      
+  }
+
+  if {![dict exists $CONFIG advanced_properties resource_map_replication]} {  
+    dbg_puts "Using legacy host port replication"
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    # TODO:
+    # Replace S00_AXI address map with union of other interfaces to work around
+    # incomplete DSA mappings in systemlinker
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    set host_substitute_assignment {}
+    dict for {intf addr_assignments} [dict get $CONFIG addr_info] {
+      if {[string match S00_AXI $intf]} {
+        continue
+      } else {
+        dict for {bank mapping} $addr_assignments {
+          dict set host_substitute_assignment $bank $mapping
+        }
+      }    
+    }
+    
+    if {[llength $host_substitute_assignment] > 0} {
+      if {[dict exists $CONFIG addr_info S00_AXI]} {
+        dbg_puts "Original assignment [dict get $CONFIG addr_info S00_AXI]"
+      }
+      dbg_puts "Full Addr Info: [dict get $CONFIG addr_info]"
+      dbg_puts "Substitute assignment $host_substitute_assignment"
+      dict set CONFIG addr_info S00_AXI $host_substitute_assignment
+    }
+  }
+  # ----------------------------------------------------------------------
+  # This dictionary will be populated with a list of memory banks that
+  # have been mapped by at least one of the S<nn>_AXI ports.
+  #
+  set mem_bank_utilization {}
+  dict for {intf addr_assignments} [dict get $CONFIG addr_info] {
+    set banks [dict keys $addr_assignments]
+    foreach b $banks { 
+      dict lappend mem_bank_utilization $b $intf
+    }
+  }
+  dbg_puts "mem_bank_utilization: $mem_bank_utilization"
+  dbg_brk
+  dbg_puts "END: HARVEST__APPLY_RESOURCE_MAP_REPLICATION"
+  dbg_puts "----------------------------------------------------------------------"
+
+} else {
+  dbg_puts "No address info available!"
+}
+dbg_puts "END: HARVEST__ADJUST_ADDR_INFO"
+dbg_puts "----------------------------------------------------------------------"
+
+
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "BEGIN: HARVEST__PASSTHROUGH"
+if {[dict exists $CONFIG dsa_info axi_passthrough]} {
+  set i 0
+  foreach {bank bank_config} [dict get $CONFIG dsa_info axi_passthrough] {
+    # ----------------------------------------------------------------------
+    # TODO: support multiple segments per MI
+    # ----------------------------------------------------------------------
+    set pidx [format M%.2d_AXI $i]
+    set bank_name ${pidx}_MEM00
+    dbg_puts "Creating passthrough $bank_name"
+    dict set mem_bank_component_map $bank_name $pidx 
+    if {[dict exists $bank_config slr]} {
+      dict set mem_bank_slr_map $bank_name [dict get $bank_config slr]
+    }
+    incr i
+    dict set CONFIG resource_names $bank_name 1
+    dict set CONFIG resource_name_to_axi_passthrough_key $bank_name $bank
+  }
+} else {
+  dbg_puts "No passthrough specifications provided."
+}
+dbg_puts "END: HARVEST__PASSTHROUGH"
+dbg_puts "----------------------------------------------------------------------"
+
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "BEGIN: HARVEST__DEFAULT_SLR_PBLOCK_MAP"
+if {![dict exists $CONFIG dsa_info slr_pblock_map]} {
+  set part [get_project_property PART]
+  set device_data [get_device_data D_BANKS_SLRS BT_ALL]
+  set device_slrs [lsort -unique [lsearch -inline -all $device_data SLR*]]
+  set num_slrs [llength $device_slrs]
+  foreach slr $device_slrs {
+    dict set CONFIG dsa_info slr_pblock_map $slr pblock_dynamic_[string toupper $slr]
+  }
+  dbg_puts "Created map: [dict get $CONFIG dsa_info slr_pblock_map]" 
+  dict set CONFIG num_slrs $num_slrs
+  dict set CONFIG slrs $device_slrs  
+} else {
+  dbg_puts "Using existing CONFIG.dsa_info.slr_pblock_map: [dict get $CONFIG dsa_info slr_pblock_map]"
+  dict set CONFIG slrs [lsort [dict keys [dict get $CONFIG dsa_info slr_pblock_map]]]
+  dict set CONFIG num_slrs [llength [dict get $CONFIG slrs]]
+}
+dbg_puts "END: HARVEST__DEFAULT_SLR_PBLOCK_MAP"
+dbg_puts "----------------------------------------------------------------------"
+
+if {[llength [dict get $CONFIG resource_names]] == 0} {
+  send_msg WARNING 1 "No resources (DDR, PLRAM, AXI Passthrough) are enabled."
+} else {
+  dict set CONFIG resource_names [lsort [dict keys [dict get $CONFIG resource_names]]]    
+}
+
+dbg_puts "END: HARVEST"
+dbg_puts "----------------------------------------------------------------------"

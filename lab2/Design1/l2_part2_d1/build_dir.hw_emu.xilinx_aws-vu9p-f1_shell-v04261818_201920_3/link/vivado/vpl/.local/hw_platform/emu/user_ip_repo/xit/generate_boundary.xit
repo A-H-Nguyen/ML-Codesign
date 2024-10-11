@@ -1,0 +1,99 @@
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# TODO: move to update_ports.xit
+# ----------------------------------------------------------------------
+source_ipfile xit/util.xit
+
+source_ipfile xit/validate_advanced_properties.xit
+
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "BEGIN: GENERATE_BOUNDARY"
+
+set board_part [get_project_property BOARD]
+if {[llength $board_part] != 1 && ![guard__aws]} {
+  send_msg INFO 1 "Vivado project has no BOARD_PART set.   No DDR4 resources will be generated."
+}
+
+# CONFIG segment_map contains the address assignments (offset,range) of each memory resource 
+dict set CONFIG segment_map {}
+
+set env_extract_spec {}
+if {![dict exists $CONFIG advanced_properties __temp_dsa_info]} {
+  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  # TODO: Deprecate DSA_INFO when all DSA metadata is moved to official DSA data storage
+  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  if {![info exists env(DSA_INFO)]} {
+    dbg_puts "No DSA_INFO environment variable found - setting default value {}"
+    dict set CONFIG dsa_info {}
+  } else {
+    send_msg CRITICAL_WARNING 1 "DSA_INFO environment variable is deprecated." 
+    # Limited extraction from environment variables during boundary elaboration
+    set env(SDX_HIP_DSA_INFO) $env(DSA_INFO)
+    dict set env_extract_spec DSA ERROR  
+    dict set CONFIG dsa_info $env(DSA_INFO)    
+  }
+  
+} else {  
+  dbg_puts "Extracting config dsa_info from advanced properties"
+  dict set CONFIG dsa_info [dict get $CONFIG advanced_properties __temp_dsa_info]
+}
+
+source_ipfile xit/harvest.xit
+   
+# ----------------------------------------------------------------------
+# Clocks:
+#
+# $num_clks specifies the number of ports to be created
+# clock ports are named aclk, aclk1, ... 
+#
+for {set i 0} {$i < [dict get $CONFIG num_clks]} {incr i} {
+  set idx [format CLK%.2d $i]
+
+  if {$i==0} {
+    set name aclk
+  } else {
+    set name aclk$i
+  }
+
+  set clk [create_bd_port -type clk -dir I -name $name]
+}
+
+# ----------------------------------------------------------------------
+# Reset input:
+create_bd_port -type rst -dir I -name aresetn 
+
+# ----------------------------------------------------------------------
+# AXI4-Lite control interface
+#
+# Allows register access to memory controller instances within the HIP
+#
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# Todo: only enable this port if the DDR4 configurations have ECC enabled:  
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+if {$ddr4_ecc_enabled} {
+  set ctrl_intf [create_bd_intf_port -vlnv xilinx.com:interface:aximm_rtl:1.0 -default_portmap -mode slave S_AXI_CTRL ]
+  set_property CONFIG.PROTOCOL AXI4LITE $ctrl_intf
+}
+
+# ----------------------------------------------------------------------
+# Generate Snn_AXI interfaces
+for {set i 0} {$i < [dict get $CONFIG num_si]} {incr i} {
+  set intf [create_bd_intf_port -vlnv xilinx.com:interface:aximm_rtl:1.0 -default_portmap -mode slave [format S%.2d_AXI $i]]
+}
+
+# ----------------------------------------------------------------------
+# Generate memory-specific boundary objects
+if {![guard__aws]} {
+  source_ipfile xit/generate_boundary_memory__ddr4.xit
+} else {
+  source_ipfile xit/generate_boundary_memory__aws.xit
+}
+
+source_ipfile xit/generate_boundary_memory__axi_passthrough.xit
+
+source_ipfile xit/generate_boundary__si_address_segments.xit
+
+source_ipfile xit/generate_boundary__default_clock_associations.xit
+
+dbg_puts "END: GENERATE_BOUNDARY"
+dbg_puts "----------------------------------------------------------------------"

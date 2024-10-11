@@ -1,0 +1,93 @@
+dbg_puts "----------------------------------------------------------------------"
+dbg_puts "BEGIN: GENERATE_RLD__MEMORY"
+
+set result {}
+set fields {Resource Size {Data Width} Bandwidth SLR}
+set num_data_cols [expr [llength $fields] -1]
+set formatstr "%15s [string repeat { %10s} $num_data_cols]"
+dbg_puts [format $formatstr {*}$fields]
+
+foreach resource [dict get $CONFIG resource_names] {
+  if {![dict exists $mem_bank_utilization $resource]} {
+    dbg_puts [format $formatstr $resource {*}[lrepeat $num_data_cols -]]
+    continue
+  }      
+  
+  if {[string match "DDR4_MEM*" $resource]} {
+    
+    set ddr_axi_intf [dict get $mem_bank_data_intf $resource]
+    set ddr_ui_clk_pin [get_bd_pins aclk]
+    
+    set data_width [get_property CONFIG.DATA_WIDTH $ddr_axi_intf]
+    set freq_hz [get_property CONFIG.FREQ_HZ $ddr_ui_clk_pin]
+
+    set ddr [dict get $mem_bank_ddr_inst $resource]
+    set bcn [dict get $mem_bank_component_map $resource]
+
+    set size [dict get $board_info $bcn component_properties size]
+
+  }
+  
+  if {[string match "M*_AXI_MEM*" $resource]} {
+    regexp {M(\d\d)_AXI} $resource {} idx
+    set i [scan $idx %d]
+
+    # TODO: for 2019.1 multipath, assume that all multipath interfaces have the same metadata configuration.
+    # post 2019.1 this handoff metadata will need to be revised to indicate the aggregate bandwidth to the resource
+    # over the available paths?   This is generally low priority as xocc does not make use of the metadata at the moment.
+    #
+    set mi_ports [get_bd_intf_ports M${idx}_AXI*]
+    set mi_name [get_property NAME [lindex $mi_ports 0]]
+#    set mi_name M${idx}_AXI
+
+    if {[dict exists $CONFIG intf_metadata $mi_name]} {
+      set data_width [dict get $CONFIG intf_metadata $mi_name CONFIG.DATA_WIDTH]
+      set freq_hz [dict get $CONFIG intf_metadata $mi_name CONFIG.FREQ_HZ]      
+    } else {
+      # It's possible that the MI port is not yet connected so apply defaults...
+      set data_width 32
+      set freq_hz 1
+    }
+    
+    set passthrough_specs [dict get $CONFIG dsa_info axi_passthrough]
+    set passthrough_keys [dict keys $passthrough_specs]   
+    set bcn [lindex $passthrough_keys $i]
+    set passthrough_spec [dict get $CONFIG dsa_info axi_passthrough $bcn]
+    set size [dict get $passthrough_spec range]
+  }
+  
+  if {[string match "PLRAM_MEM*" $resource]} {
+    regexp {PLRAM_MEM(\d\d)} $resource {} idx
+    set i [scan $idx %d]
+    set plram_specs [dict get $CONFIG advanced_properties plram_specifications]
+    set plram_spec [lindex $plram_specs $i]
+    set data_width [dict get $plram_spec AXI_DATA_WIDTH]
+    set freq_hz [get_property CONFIG.FREQ_HZ [get_bd_pins aclk]]
+    set size [dict get $plram_spec SIZE]
+  }
+
+  set slr [dict get $mem_bank_slr_map $resource]
+  set bandwidth [expr int( (($data_width/8) * $freq_hz) / pow(1024,2))]    
+
+  set max_masters 15
+  
+  dict set result $resource size $size
+  dict set result $resource data_width $data_width
+  dict set result $resource peak_memory_bandwidth  $bandwidth
+  dict set result $resource slr $slr
+  dict set result $resource max_masters $max_masters
+  dbg_puts [format $formatstr $resource $size $data_width $bandwidth $slr $max_masters]
+
+}
+
+dbg_brk
+dbg_puts "result: $result"
+dbg_brk
+set fn "sdx_memory_subsystem__hpfm_handoff.rld"
+add_ipfile -fileType elaboratedData $fn
+puts_ipfile $fn [string map {\n {}} $result]
+close_ipfile $fn
+dbg_puts "Generated: $fn "
+dbg_brk
+dbg_puts "END: GENERATE_RLD__MEMORY"
+dbg_puts "----------------------------------------------------------------------"

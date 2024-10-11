@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xd:component xmlns:xd="http://www.xilinx.com/xd" xd:vendor="xilinx.com" xd:library="xd" xd:name="dr" xd:version="1.00" xd:type="design">
+    <xd:repository>
+    <xd:file xd:name="xd_ip_db.xml"/>
+  </xd:repository>
+    <xd:instance xd:name="shell-v04261818" xd:componentRef="shell-v04261818"/>
+    <xd:instance xd:name="dot_prod_1" xd:componentRef="dot_prod"/>
+    <xd:connection>
+    <xd:port xd:name="kernel_clk_clk" xd:instanceRef="shell-v04261818"/>
+    <xd:port xd:name="slr1/interconnect_axilite_user_1_M01_ACLK" xd:instanceRef="shell-v04261818"/>
+    <xd:port xd:name="ap_clk" xd:instanceRef="dot_prod_1"/>
+  </xd:connection>
+    <xd:connection>
+    <xd:port xd:name="slr1/psr_kernel_clk_1_interconnect_aresetn" xd:instanceRef="shell-v04261818"/>
+    <xd:port xd:name="slr1/interconnect_axilite_user_1_M01_ARESETN" xd:instanceRef="shell-v04261818"/>
+  </xd:connection>
+    <xd:connection>
+    <xd:port xd:name="slr1/psr_kernel_clk_1_peripheral_aresetn" xd:instanceRef="shell-v04261818"/>
+    <xd:port xd:name="ap_rst_n" xd:instanceRef="dot_prod_1"/>
+  </xd:connection>
+    <xd:connection>
+    <xd:busInterface xd:name="slr1/interconnect_axilite_user_1_M01_AXI" xd:instanceRef="shell-v04261818"/>
+    <xd:busInterface xd:name="s_axi_control" xd:instanceRef="dot_prod_1"/>
+  </xd:connection>
+    <xd:connection>
+    <xd:busInterface xd:name="m_axi_gmem" xd:instanceRef="dot_prod_1"/>
+    <xd:busInterface xd:name="memory_subsystem" xd:instanceRef="shell-v04261818" xd:memssSegments="M01_AXI_MEM00"/>
+  </xd:connection>
+</xd:component>

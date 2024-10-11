@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="dot_prod_app">
+  <platform vendor="xilinx" boardid="aws-vu9p-f1" name="shell-v04261818" featureRomTime="0">
+    <version major="201920" minor="3"/>
+    <description/>
+    <board name="" vendor="amazon" fpga="">
+      <interfaces>
+        <interface id="int1" name="PCIe" type="gen3x16"/>
+      </interfaces>
+      <memories>
+        <memory name="mem0" type="ddr4" size="16GB"/>
+        <memory name="mem1" type="ddr4" size="16GB"/>
+        <memory name="mem2" type="ddr4" size="16GB"/>
+        <memory name="mem3" type="ddr4" size="16GB"/>
+      </memories>
+      <images>
+        <image name="" type="HDPI"/>
+        <image name="" type="MDPI"/>
+        <image name="" type="LDPI"/>
+      </images>
+      <id>
+        <vendor/>
+        <device/>
+        <subsystem/>
+      </id>
+    </board>
+    <build_flow/>
+    <host architecture="x86_64"/>
+    <device name="fpga0" fpgaDevice="virtexuplus:xcvu9p:flgb2104:-2:i" addrWidth="0">
+      <systemClocks>
+        <clock port="clk_main_a0" frequency="250MHz" name="clk_main_a0"/>
+      </systemClocks>
+      <core name="OCL_REGION_0" target="hw_em" type="clc_region" clockFreq="0MHz" numComputeUnits="60">
+        <kernelClocks>
+          <clock port="KERNEL_CLK" frequency="500.000000MHz" name="kernel2_clk/clk"/>
+          <clock port="DATA_CLK" frequency="300.000000MHz" name="kernel_clk/clk"/>
+        </kernelClocks>
+        <kernel name="dot_prod" language="c" vlnv="xilinx.com:hls:dot_prod:1.0" preferredWorkGroupSizeMultiple="0" workGroupSize="1" debug="true" interrupt="true" hwControlProtocol="ap_ctrl_chain" countedAutoRestart="0" deadlockDetection="none" mailbox="none" swReset="false">
+          <module name="dot_prod">
+            <module name="dot_prod_Pipeline_load" instName="grp_dot_prod_Pipeline_load_fu_150" type="NonDataflowHS">
+              <rtlPort name="gmem_load" object="gmem_load" protocol="ap_none"/>
+              <rtlPort name="gmem_load_1" object="gmem_load_1" protocol="ap_none"/>
+              <rtlPort name="va_buffer_d0" object="va_buffer" protocol="ap_memory"/>
+              <rtlPort name="vb_buffer_d0" object="vb_buffer" protocol="ap_memory"/>
+            </module>
+            <module name="dot_prod_Pipeline_compute" instName="grp_dot_prod_Pipeline_compute_fu_158" type="NonDataflowHS">
+              <rtlPort name="va_buffer_q0" object="va_buffer" protocol="ap_memory"/>
+              <rtlPort name="vb_buffer_q0" object="vb_buffer" protocol="ap_memory"/>
+            </module>
+          </module>
+          <port name="M_AXI_GMEM" mode="master" range="0xFFFFFFFF" dataWidth="512" portType="addressable" base="0x0"/>
+          <port name="S_AXI_CONTROL" mode="slave" range="0x3C" dataWidth="32" portType="addressable" base="0x0"/>
+          <arg name="vec_a" addressQualifier="1" id="0" port="M_AXI_GMEM" size="0x8" offset="0x10" hostOffset="0x0" hostSize="0x8" type="void*"/>
+          <arg name="vec_b" addressQualifier="1" id="1" port="M_AXI_GMEM" size="0x8" offset="0x1C" hostOffset="0x0" hostSize="0x8" type="void*"/>
+          <arg name="results" addressQualifier="1" id="2" port="M_AXI_GMEM" size="0x8" offset="0x28" hostOffset="0x0" hostSize="0x8" type="void*"/>
+          <arg name="vector_len" addressQualifier="0" id="3" port="S_AXI_CONTROL" size="0x4" offset="0x34" hostOffset="0x0" hostSize="0x4" type="unsigned int"/>
+          <compileWorkGroupSize x="1" y="1" z="1"/>
+          <maxWorkGroupSize x="1" y="1" z="1"/>
+          <string_table/>
+          <instance name="dot_prod_1">
+            <addrRemap base="0x000000001D020000" range="0x10000" port="S_AXI_CONTROL"/>
+          </instance>
+          <FIFOInformation/>
+        </kernel>
+        <connection srcType="core" srcInst="OCL_REGION_0" srcPort="slr1/interconnect_axilite_user_1_M01_AXI" dstType="kernel" dstInst="dot_prod_1" dstPort="S_AXI_CONTROL"/>
+        <connection srcType="core" srcInst="OCL_REGION_0" srcPort="memory_subsystem" dstType="kernel" dstInst="dot_prod_1" dstPort="M_AXI_GMEM"/>
+      </core>
+    </device>
+  </platform>
+</project>
