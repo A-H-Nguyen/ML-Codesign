@@ -1,9 +1,0 @@
-dot_prod_flow_control_loop_pipe_sequential_init
-dot_prod_mul_32s_32s_32_2_1
-dot_prod_flow_control_loop_pipe_sequential_init
-dot_prod_va_buffer_RAM_AUTO_1R1W
-dot_prod_control_s_axi
-dot_prod_gmem_m_axi
-dot_prod_Pipeline_load
-dot_prod_Pipeline_compute
-dot_prod

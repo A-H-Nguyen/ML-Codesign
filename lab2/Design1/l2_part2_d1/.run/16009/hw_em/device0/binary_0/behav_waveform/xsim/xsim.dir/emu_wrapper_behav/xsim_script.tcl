@@ -1,1 +1,0 @@
-xsim {emu_wrapper_behav} -wdb {xilinx:pcie-hw-em:7v3:1.0-0-dot_prod_app.wdb} -autoloadwcfg -tclbatch {emu_wrapper.tcl} -key {Behavioral:sim_1:Functional:emu_wrapper} -protoinst {protoinst_files/bd_d216.protoinst} -protoinst {protoinst_files/pfm_dynamic.protoinst} -protoinst {protoinst_files/emu.protoinst} -protoinst {./dr_behav.protoinst}

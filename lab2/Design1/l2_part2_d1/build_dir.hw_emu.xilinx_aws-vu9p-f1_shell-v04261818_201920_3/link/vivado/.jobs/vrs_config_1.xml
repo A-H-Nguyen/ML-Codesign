@@ -1,5 +1,0 @@
-<?xml version="1.0"?>
-<Runs Version="1" Minor="0">
-	<Run Id="vpl" LaunchDir="/home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/build_dir.hw_emu.xilinx_aws-vu9p-f1_shell-v04261818_201920_3/link/vivado/vpl" FlowId="VPL_HW_Emulation" FromStepId="create_project" ToStepId="config_hw_emu.elaborate"/>
-</Runs>
-

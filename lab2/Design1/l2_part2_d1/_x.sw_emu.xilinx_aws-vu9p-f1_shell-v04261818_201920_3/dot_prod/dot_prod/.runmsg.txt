@@ -1,2 +1,0 @@
-performing high-level synthesis for kernel: dot_prod
-Log file: /home/centos/src/project_data/aws-fpga/Vitis/examples/xilinx_2021.2/l2_part2_d1/_x.sw_emu.xilinx_aws-vu9p-f1_shell-v04261818_201920_3/dot_prod/dot_prod/vitis_hls.log

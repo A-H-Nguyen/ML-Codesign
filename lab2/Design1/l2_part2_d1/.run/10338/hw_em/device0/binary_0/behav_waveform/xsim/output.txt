@@ -1,1 +1,0 @@
-./simulate.sh: line 28: LD_LIBRARY_PATH: unbound variable

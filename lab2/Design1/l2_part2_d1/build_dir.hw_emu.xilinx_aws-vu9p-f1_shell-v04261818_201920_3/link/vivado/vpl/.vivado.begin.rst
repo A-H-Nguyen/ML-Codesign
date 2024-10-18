@@ -1,5 +1,0 @@
-<?xml version="1.0"?>
-<ProcessHandle Version="1" Minor="0">
-    <Process Command="vivado" Owner="centos" Host="ip-172-31-83-237.ec2.internal" Pid="14474" HostCore="4" HostMemory="16075724">
-    </Process>
-</ProcessHandle>

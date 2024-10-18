@@ -1,3 +1,0 @@
-Kernel trace events
-Device, Binary, Kernel, Compute Unit, Function, Data Type, Index, Start Time (ms), End Time (ms), Value
-xilinx_aws-vu9p-f1_shell-v04261818_201920_3-0,dot_prod_app,dot_prod,dot_prod_1,top,top,0,0.040153,0.040756,0
