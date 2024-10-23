@@ -107,3 +107,4 @@ void dot_prod(const int *mat_a,     // Read-Only Vector 1
         }
     }
 }
+}
