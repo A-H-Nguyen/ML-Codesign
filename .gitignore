@@ -2,3 +2,4 @@
 .run/
 _x.*/
 build_dir.*/
+*.out
