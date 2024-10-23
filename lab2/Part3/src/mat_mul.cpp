@@ -85,7 +85,8 @@ void dot_prod(const int *mat_a,     // Read-Only Vector 1
                             sub_mat_b[h] = mat_b_buf[(j*16) + h];
                         }
 
-                        //can split into 16 muls here
+                        //can split into 16 muls here (rotate and do 3 more times)
+                        //loop unroll so 16 at same time
                         for(int g = 0; g < 16; g++){
                             mat_c_buf[(j*16) + g] = sub_mat_a[g] * sub_mat_b[g];
                         }
