@@ -2,31 +2,23 @@
 #include <stdint.h>
 
 
-extern "C" {
+// extern "C" {
 
-void dot_prod(const int *mat_a,     // Read-Only Vector 1
-          const int *mat_b,         // Read-Only Vector 2
-          const int row_a,
-          const int row_b,
-          const int col_a,
-          const int col_b,
-          int **mat_c,             // Output Result
-          const unsigned int vector_len //Vector size
-) {
-
+void matrix_multiply(const int **mat_a, const int **mat_b, int **mat_c,
+                     int row_a, int col_a, int row_b, int col_b) {
 //TODO (2): Determine the correct depth
-#pragma HLS INTERFACE m_axi port = mat_a offset = slave depth=row_a*col_a bundle = gmem
-#pragma HLS INTERFACE m_axi port = mat_b offset = slave depth=row_b*col_b bundle = gmem
-#pragma HLS INTERFACE m_axi port = mat_c offset = slave depth=row_a*col_b bundle = gmem
+// #pragma HLS INTERFACE m_axi port = mat_a offset = slave depth=row_a*col_a bundle = gmem
+// #pragma HLS INTERFACE m_axi port = mat_b offset = slave depth=row_b*col_b bundle = gmem
+// #pragma HLS INTERFACE m_axi port = mat_c offset = slave depth=row_a*col_b bundle = gmem
 
-#pragma HLS INTERFACE s_axilite port = mat_a bundle = control
-#pragma HLS INTERFACE s_axilite port = mat_b bundle = control
-#pragma HLS INTERFACE s_axilite port = row_a bundle = control
-#pragma HLS INTERFACE s_axilite port = row_b bundle = control
-#pragma HLS INTERFACE s_axilite port = col_a bundle = control
-#pragma HLS INTERFACE s_axilite port = col_b bundle = control
-#pragma HLS INTERFACE s_axilite port = mat_c bundle = control
-#pragma HLS INTERFACE s_axilite port = return bundle = control
+// #pragma HLS INTERFACE s_axilite port = mat_a bundle = control
+// #pragma HLS INTERFACE s_axilite port = mat_b bundle = control
+// #pragma HLS INTERFACE s_axilite port = row_a bundle = control
+// #pragma HLS INTERFACE s_axilite port = row_b bundle = control
+// #pragma HLS INTERFACE s_axilite port = col_a bundle = control
+// #pragma HLS INTERFACE s_axilite port = col_b bundle = control
+// #pragma HLS INTERFACE s_axilite port = mat_c bundle = control
+// #pragma HLS INTERFACE s_axilite port = return bundle = control
 
   int8_t block_a[BLOCK_DIM_ROW_A][BLOCK_DIM_COL_A];
   int8_t block_b[BLOCK_DIM_ROW_B][BLOCK_DIM_COL_B];
@@ -52,4 +44,4 @@ void dot_prod(const int *mat_a,     // Read-Only Vector 1
   }
 }
 
-}
+// }

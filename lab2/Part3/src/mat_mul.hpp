@@ -10,7 +10,7 @@
 #define BLOCK_DIM_COL_B   4 
 #define BUFFER_LEN        4 
 
-int16_t pe[16] = {0};
+int16_t pe[16];
 int8_t a_out_0[16] = {0};
 int8_t b_out_0[16] = {0};
 int8_t a_out_1[16] = {0};
@@ -38,11 +38,7 @@ void mac(int8_t a, int8_t b, int i, int cycle) {
     }
 }
 
-void mat_mul_mac(int8_t a_buf[4],     // Read-Only Vector 1
-          int8_t b_buf[4],         // Read-Only Vector 2
-          int cycle
-) {
-
+void mat_mul_mac(int8_t a_buf[4], int8_t b_buf[4], int cycle) {
     for(int i = 0; i < 16; i++){
         int row = (i/4);
         int col = (i%4);
@@ -57,9 +53,7 @@ void mat_mul_mac(int8_t a_buf[4],     // Read-Only Vector 1
             } else {
                 b_val = b_out_1[i-4];
             }
-            
         }
-
         if(col == 0){
             a_val = a_buf[row];
         }  else {
@@ -68,22 +62,20 @@ void mat_mul_mac(int8_t a_buf[4],     // Read-Only Vector 1
             } else {
                 a_val = a_out_1[i-1];
             }
-            
         }
-
         mac(a_val,b_val,i,cycle);
-    }    
-    
-    std::cout << "cycle number : " << cycle << std::endl;
-    for(int i = 0; i < 16; i++){
-        std::cout << pe[i] << " ";
-        if(((i+1) % 4) == 0){
-            std::cout << std::endl;
-        }
     }
+
+    // std::cout << "cycle number : " << cycle << std::endl;
+    // for(int i = 0; i < 16; i++){
+    //     std::cout << pe[i] << " ";
+    //     if(((i+1) % 4) == 0){
+    //         std::cout << std::endl;
+    //     }
+    // }
 }
 
-void block_matrix() {
-}
+void matrix_multiply(const int **mat_a, const int **mat_b, int **mat_c,
+                     int row_a, int col_a, int row_b, int col_b);
 
 #endif
