@@ -10,24 +10,36 @@
 extern "C" {
 
 int16_t pe[16] = {0};
-int8_t a_out[16] = {0};
-int8_t b_out[16] = {0};
+int8_t a_out_0[16] = {0};
+int8_t b_out_0[16] = {0};
+int8_t a_out_1[16] = {0};
+int8_t b_out_1[16] = {0};
 int8_t a_in[4] = {0};
 int8_t b_in[4] = {0};
 uint64_t cycle = 0;
 
-void mac(int a, int b, int i) {
+void mac(int a, int b, int i, int db) {
     pe[i] += a*b;
     if(((i+1) % 4) != 0){
-        a_out[i+1] = a;
+        if((db%2) == 0){
+            a_out_1[i+1] = a;
+        } else {
+            a_out_0[i+1] = a;
+        }
+        
     }
     if((i+4) < 16){
-        b_out[i+4] = b;
+        if((db%2) == 0){
+            b_out_1[i+4] = b;
+        } else {
+            b_out_0[i+4] = b;
+        }
     }
 }
 
 void mat_mul_mac(int8_t a_buf[4],     // Read-Only Vector 1
-          int8_t b_buf[4]         // Read-Only Vector 2
+          int8_t b_buf[4],         // Read-Only Vector 2
+          int db
 ) {
 
     for(int i = 0; i < 16; i++){
@@ -39,16 +51,26 @@ void mat_mul_mac(int8_t a_buf[4],     // Read-Only Vector 1
         if(row == 0){
             b_val = b_buf[col];
         } else {
-            b_val = b_out[(row-1)*4 + col];
+            if((db%2) == 0){
+                b_val = b_out_0[(row-1)*4 + col];
+            } else {
+                b_val = b_out_1[(row-1)*4 + col];
+            }
+            
         }
 
         if(col == 0){
             a_val = a_buf[row];
         }  else {
-            a_val = a_out[(row) + (col-1)];
+            if((db%2) == 0){
+                a_val = a_out_0[(row) + (col-1)];
+            } else {
+                a_val = a_out_1[(row) + (col-1)];
+            }
+            
         }
 
-        mac(a_val,b_val,i);
+        mac(a_val,b_val,i,db);
     }    
     
     std::cout << "cycle number : " << cycle << std::endl;
