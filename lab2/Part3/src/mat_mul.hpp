@@ -38,13 +38,11 @@ void mat_mul_mac(int8_t a_buf[4],     // Read-Only Vector 1
 ) {
 
     for(int i = 0; i < 16; i++){
-        int row = (i/4);
-        int col = (i%4);
         int8_t a_val = 0;
         int8_t b_val = 0;
 
-        if(row == 0){
-            b_val = b_buf[col];
+        if((i/4) == 0){
+            b_val = b_buf[i%4];
         } else {
             if((cycle%2) == 0){
                 b_val = b_out_0[i-4];
@@ -54,8 +52,8 @@ void mat_mul_mac(int8_t a_buf[4],     // Read-Only Vector 1
             
         }
 
-        if(col == 0){
-            a_val = a_buf[row];
+        if((i%4) == 0){
+            a_val = a_buf[i/4];
         }  else {
             if((cycle%2) == 0){
                 a_val = a_out_0[i-1];
