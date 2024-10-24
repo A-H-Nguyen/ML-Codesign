@@ -4,6 +4,12 @@
 #include <stdint.h>
 #include <iostream>
 
+#define BLOCK_DIM_ROW_A   4
+#define BLOCK_DIM_COL_A   16
+#define BLOCK_DIM_ROW_B   16 
+#define BLOCK_DIM_COL_B   4 
+#define BUFFER_LEN        4 
+
 int16_t pe[16] = {0};
 int8_t a_out_0[16] = {0};
 int8_t b_out_0[16] = {0};
@@ -75,6 +81,9 @@ void mat_mul_mac(int8_t a_buf[4],     // Read-Only Vector 1
             std::cout << std::endl;
         }
     }
+}
+
+void block_matrix() {
 }
 
 #endif
