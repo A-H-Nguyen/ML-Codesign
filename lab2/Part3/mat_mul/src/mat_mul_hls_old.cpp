@@ -17,13 +17,13 @@ const unsigned int v_len = VEC_LEN;
 
 extern "C" {
 
-void mat_mul_hls(const int8_t* input_a,                 // Read-Only Vector 1
+void mat_mul_hls_old(const int8_t* input_a,                 // Read-Only Vector 1
               const int8_t* input_b,                 // Read-Only Vector 2
               int16_t* output_c,                     // Output Result
-              const int8_t* rows_a,
-              const int8_t* rows_b,
-              const int8_t* cols_a,
-              const int8_t* cols_b ) { //Vector size
+              int8_t* rows_a,
+              int8_t* rows_b,
+              int8_t* cols_a,
+              int8_t* cols_b ) { //Vector size
 
 //TODO (2): Determine the correct depth
 #pragma HLS INTERFACE m_axi port = input_a offset = slave depth = 65536 bundle = gmem
@@ -46,26 +46,19 @@ void mat_mul_hls(const int8_t* input_a,                 // Read-Only Vector 1
   int8_t block_a[4][256];   // Local SRAM to store vector A
   int8_t block_b[256][4];   // Local SRAM to store vector B
   int16_t block_c[4][4]; // Local Register to store result
-  /*
-  const int8_t ROWS_A = rows_a[0];
-  const int8_t ROWS_B = rows_b[0];
-  const int8_t COLS_A = cols_a[0];
-  const int8_t COLS_B = cols_b[0];
-  */
-  const int8_t ROWS_A = 32;
-  const int8_t ROWS_B = 32;
-  const int8_t COLS_A = 32;
-  const int8_t COLS_B = 32;
+  int8_t ROWS_A = rows_a[0];
+  int8_t ROWS_B = rows_b[0];
+  int8_t COLS_A = cols_a[0];
+  int8_t COLS_B = cols_b[0];
 
-  //std::cout << int16_t(ROWS_A) << std::endl;
-  //std::cout << int16_t(COLS_A) << std::endl;
-  //std::cout << int16_t(ROWS_B) << std::endl;
-  //std::cout << int16_t(COLS_B) << std::endl;
+  std::cout << int16_t(ROWS_A) << std::endl;
+  std::cout << int16_t(COLS_A) << std::endl;
+  std::cout << int16_t(ROWS_B) << std::endl;
+  std::cout << int16_t(COLS_B) << std::endl;
 
   // Blocking of Matrix A and B, assuming that they have a row dim and col dim
   // divisible by our buffer length, which is 4 in this case
-   #pragma HLS pipeline off
-   for (int a_blk = 0; 
+  for (int a_blk = 0; 
        a_blk < (ROWS_A / 4); a_blk++) {
     for (int row = 0; row < 4; row++) {
       for (int col = 0; col < COLS_A; col++) {
@@ -105,14 +98,12 @@ void mat_mul_hls(const int8_t* input_a,                 // Read-Only Vector 1
 
       for (int reg_num = 0; reg_num < 16; reg_num++)
         block_c[reg_num/4][reg_num%4] = pe[reg_num];
-      
-      /*  
+
       for(int i = 0; i < 4; i++){ 
 	for(int j = 0; j < 4; j++){
             std::cout << block_c[i][j] << std::endl;
         }
       }
-      */
 
       for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {

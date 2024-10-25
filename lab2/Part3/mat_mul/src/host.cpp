@@ -36,10 +36,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // TODO (1): Define the size of the vector
 #define MAX_MAT_SIZE 256
 #define BATCH_SIZE 1
-#define ROWS_A 16
+#define ROWS_A 32
 #define COLS_A 32
 #define ROWS_B 32
-#define COLS_B 16
+#define COLS_B 32
 
 int main(int argc, char **argv) {
 
