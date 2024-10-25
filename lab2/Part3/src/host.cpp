@@ -36,6 +36,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // TODO (1): Define the size of the vector
 #define MAX_MAT_SIZE 256
 #define BATCH_SIZE 1
+#define ROWS_A 4
+#define COLS_A 4
+#define ROWS_B 4
+#define COLS_B 4
 
 int main(int argc, char **argv) {
 
@@ -60,14 +64,14 @@ int main(int argc, char **argv) {
     // We want an aligned allocator for these vectors so that opencl can use them directly
 
     //TODO (2): Define sizes of the vectors on the SW side
-    std::vector<int8_t, aligned_allocator<int>> mat_a(MAX_MAT_SIZE*MAX_MAT_SIZE);
-    std::vector<int8_t, aligned_allocator<int>> mat_b(MAX_MAT_SIZE*MAX_MAT_SIZE);
-    std::vector<int8_t, aligned_allocator<int>> rows_a(1);
-    std::vector<int8_t, aligned_allocator<int>> rows_b(1);
-    std::vector<int8_t, aligned_allocator<int>> cols_a(1);
-    std::vector<int8_t, aligned_allocator<int>> cols_b(1);
-    std::vector<int16_t, aligned_allocator<int>> hw_results(MAX_MAT_SIZE*MAX_MAT_SIZE);
-    std::vector<int16_t, aligned_allocator<int>> sw_results(MAX_MAT_SIZE*MAX_MAT_SIZE);
+    std::vector<int8_t, aligned_allocator<int8_t>> mat_a(MAX_MAT_SIZE*MAX_MAT_SIZE);
+    std::vector<int8_t, aligned_allocator<int8_t>> mat_b(MAX_MAT_SIZE*MAX_MAT_SIZE);
+    std::vector<int8_t, aligned_allocator<int8_t>> rows_a(1);
+    std::vector<int8_t, aligned_allocator<int8_t>> rows_b(1);
+    std::vector<int8_t, aligned_allocator<int8_t>> cols_a(1);
+    std::vector<int8_t, aligned_allocator<int8_t>> cols_b(1);
+    std::vector<int16_t, aligned_allocator<int16_t>> hw_results(MAX_MAT_SIZE*MAX_MAT_SIZE);
+    std::vector<int16_t, aligned_allocator<int16_t>> sw_results(MAX_MAT_SIZE*MAX_MAT_SIZE);
 
     //TODO (3): Define the sizes of the Transfers to / from the accelerator
     size_t block_to_accel_bytes = sizeof(int8_t) * MAX_MAT_SIZE*MAX_MAT_SIZE;
@@ -80,20 +84,20 @@ int main(int argc, char **argv) {
 
     //TODO (4): Generate some data to test with
     //Can do random or just asymmetrical
-    int8_t rows_a = 4;
-    int8_t cols_a = 4;
-    int8_t rows_b = 4;
-    int8_t cols_b = 4;
+    rows_a[0] = ROWS_A;
+    cols_a[0] = COLS_A;
+    rows_b[0] = ROWS_B;
+    cols_b[0] = COLS_B;
 
-    for (int i = 0; i < rows_a; i++){
-        for(int j = 0; j < cols_a; k++) {
-            mat_a[i*cols_a + j] = int8_t(n + rand() % (m - n + 1));
+    for (int i = 0; i < ROWS_A; i++){
+        for(int j = 0; j < COLS_A; j++) {
+            mat_a[i*COLS_A + j] = int8_t(n + rand() % (m - n + 1));
         }
     }
 
-    for (int i = 0; i < rows_b; i++){
-        for(int j = 0; j < cols_b; k++) {
-            mat_b[i*cols_b + j] = int8_t(n + rand() % (m - n + 1));
+    for (int i = 0; i < ROWS_B; i++){
+        for(int j = 0; j < COLS_B; j++) {
+            mat_b[i*COLS_B + j] = int8_t(n + rand() % (m - n + 1));
         }
     }
     
@@ -102,10 +106,10 @@ int main(int argc, char **argv) {
     std::fill(sw_results.begin(), sw_results.end(), 0);
 
     //TODO (5): Produce golden data
-    for (int8_t i = 0; i < rows_a; i++) {
-        for (int8_t j = 0; j < cols_b; j++) {
-            for(int8_t k = 0; k < cols_a; k++){
-                sw_results[i*cols_b + j] += mat_a[i*cols_a + k] * mat_b[k*cols_b + j];
+    for (int8_t i = 0; i < ROWS_A; i++) {
+        for (int8_t j = 0; j < COLS_B; j++) {
+            for(int8_t k = 0; k < COLS_A; k++){
+                sw_results[i*COLS_B + j] += mat_a[i*COLS_A + k] * mat_b[k*COLS_B + j];
             }
         }
     }  
@@ -172,28 +176,28 @@ int main(int argc, char **argv) {
               cl::Buffer buffer_rows_a(context,
                                     CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY,
                                     size_to_accel_bytes,
-                                    mat_b.data(),
+                                    rows_a.data(),
                                     &err));
 
     OCL_CHECK(err,
               cl::Buffer buffer_rows_b(context,
                                     CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY,
                                     size_to_accel_bytes,
-                                    mat_b.data(),
+                                    rows_b.data(),
                                     &err));
 
     OCL_CHECK(err,
               cl::Buffer buffer_cols_a(context,
                                     CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY,
                                     size_to_accel_bytes,
-                                    mat_b.data(),
+                                    cols_a.data(),
                                     &err));
 
     OCL_CHECK(err,
               cl::Buffer buffer_cols_b(context,
                                     CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY,
                                     size_to_accel_bytes,
-                                    mat_b.data(),
+                                    cols_b.data(),
                                     &err));
 
     OCL_CHECK(err,
@@ -232,14 +236,14 @@ int main(int argc, char **argv) {
 
     // Compare the results of the Device to the simulation
     bool match = true;
-    for (int b = 0; b < rows_a; b++){
-        for int(c = 0; c < cols_b; c++){
-            if (hw_results[b*cols_b + c] != sw_results[b*cols_b + c]) {
+    for (int8_t b = 0; b < ROWS_A; b++){
+        for (int8_t c = 0; c < COLS_B; c++){
+            if (hw_results[(b * COLS_B) + c] != sw_results[(b * COLS_B) + c]) {
                 std::cout << "Error: Result mismatch" << std::endl;
-                std::cout << hw_results[b] << " != " << sw_results[b] << std::endl;
+                std::cout << hw_results[(b * COLS_B) + c] << " != " << sw_results[(b * COLS_B) + c] << std::endl;
                 match = false;
             } else {
-            std::cout << hw_results[b] << " == " << sw_results[b] << std::endl;
+            //std::cout << hw_results[b] << " == " << sw_results[b] << std::endl;
             }
         }
     }
