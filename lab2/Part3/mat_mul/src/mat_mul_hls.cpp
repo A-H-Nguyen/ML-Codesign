@@ -51,10 +51,15 @@ void mat_mul_hls(const int8_t* input_a,                 // Read-Only Vector 1
   int8_t COLS_A = cols_a[0];
   int8_t COLS_B = cols_b[0];
 
+  std::cout << int16_t(ROWS_A) << std::endl;
+  std::cout << int16_t(COLS_A) << std::endl;
+  std::cout << int16_t(ROWS_B) << std::endl;
+  std::cout << int16_t(COLS_B) << std::endl;
+
   // Blocking of Matrix A and B, assuming that they have a row dim and col dim
   // divisible by our buffer length, which is 4 in this case
   for (int a_blk = 0; 
-       a_blk < ROWS_A / 4; a_blk++) {
+       a_blk < (ROWS_A / 4); a_blk++) {
     for (int row = 0; row < 4; row++) {
       for (int col = 0; col < COLS_A; col++) {
         block_a[row][col] = input_a[(row + (a_blk * 4))*COLS_A + col];
@@ -62,7 +67,7 @@ void mat_mul_hls(const int8_t* input_a,                 // Read-Only Vector 1
     }
 
     for (int b_blk = 0;
-         b_blk < COLS_B / 4; b_blk++) {
+         b_blk < (COLS_B / 4); b_blk++) {
       for (int row = 0; row < ROWS_B; row++) {
         for (int col = 0; col < 4; col++) {
           block_b[row][col] = input_b[(row)*COLS_B + col + (b_blk * 4)];
@@ -94,9 +99,15 @@ void mat_mul_hls(const int8_t* input_a,                 // Read-Only Vector 1
       for (int reg_num = 0; reg_num < 16; reg_num++)
         block_c[reg_num/4][reg_num%4] = pe[reg_num];
 
+      for(int i = 0; i < 4; i++){ 
+	for(int j = 0; j < 4; j++){
+            std::cout << block_c[i][j] << std::endl;
+        }
+      }
+
       for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
-          output_c[(i + (a_blk * ROWS_A))*COLS_B + j + (b_blk * COLS_B)] = block_c[i][j];
+          output_c[(i + (a_blk*4))*COLS_B + j + (b_blk * 4)] = block_c[i][j];
         }
       }
     }

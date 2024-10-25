@@ -36,10 +36,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // TODO (1): Define the size of the vector
 #define MAX_MAT_SIZE 256
 #define BATCH_SIZE 1
-#define ROWS_A 4
-#define COLS_A 4
-#define ROWS_B 4
-#define COLS_B 4
+#define ROWS_A 16
+#define COLS_A 32
+#define ROWS_B 32
+#define COLS_B 16
 
 int main(int argc, char **argv) {
 
@@ -236,6 +236,43 @@ int main(int argc, char **argv) {
 
     // Compare the results of the Device to the simulation
     bool match = true;
+    
+    std::cout << "Matrix A" << std::endl;
+    for (int i = 0; i < ROWS_A; i++){
+        for(int j = 0; j < COLS_A; j++) {
+            std::cout << int16_t(mat_a[i*COLS_A + j]) << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+
+    std::cout << "Matrix B" << std::endl;
+    for (int i = 0; i < ROWS_B; i++){
+        for(int j = 0; j < COLS_B; j++) {
+            std::cout << int16_t(mat_b[i*COLS_B + j]) << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+
+    std::cout << "Golden C" << std::endl;
+    for (int i = 0; i < ROWS_A; i++){
+        for(int j = 0; j < COLS_B; j++) {
+            std::cout << sw_results[i*COLS_B + j] << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+
+    std::cout << "Output C" << std::endl;
+    for (int i = 0; i < ROWS_A; i++){
+        for(int j = 0; j < COLS_B; j++) {
+            std::cout << hw_results[i*COLS_B + j] << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+
     for (int8_t b = 0; b < ROWS_A; b++){
         for (int8_t c = 0; c < COLS_B; c++){
             if (hw_results[(b * COLS_B) + c] != sw_results[(b * COLS_B) + c]) {
