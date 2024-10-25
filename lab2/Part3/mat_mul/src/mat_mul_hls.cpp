@@ -94,8 +94,8 @@ void mat_mul_hls(const int8_t* input_a,                 // Read-Only Vector 1
       for (int reg_num = 0; reg_num < 16; reg_num++)
         block_c[reg_num/4][reg_num%4] = pe[reg_num];
 
-      for (int i = 0; i < ROWS_A; i++) {
-        for (int j = 0; j < COLS_B; j++) {
+      for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
           output_c[(i + (a_blk * ROWS_A))*COLS_B + j + (b_blk * COLS_B)] = block_c[i][j];
         }
       }
