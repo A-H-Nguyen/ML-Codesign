@@ -53,23 +53,6 @@ int main() {
         }
       }
 
-      // std::cout << "Block A" << a_blk << ":" << std::endl;
-      // for (int row = 0; row < BLOCK_DIM_ROW_A; row++) {
-      //   for (int col = 0; col < BLOCK_DIM_COL_A; col++) {
-      //     std::cout << int16_t(input_a[row + (a_blk * BLOCK_DIM_ROW_A)][col]) 
-      //               << "\t";
-      //   } std::cout << std::endl;
-      // }   std::cout << std::endl;
-      // 
-      // std::cout << "Block B" << b_blk << ":" << std::endl;
-      // for (int row = 0; row < BLOCK_DIM_ROW_B; row++) {
-      //   for (int col = 0; col < BLOCK_DIM_COL_B; col++) {
-      //     std::cout << int16_t(input_b[row][col + (b_blk * BLOCK_DIM_COL_B)]) 
-      //               << "\t";
-      //   } std::cout << std::endl;
-      // }   std::cout << std::endl;
-
-      // std::cout << "Initialize PE regs" << std::endl;
       for (int i = 0; i < 16; i++) pe[i] = 0;
       
       int8_t buf_a[BUFFER_LEN] = {0};
@@ -89,35 +72,11 @@ int main() {
           }
         }
 
-        // Print buffers every iteration
-        // std::cout << "BUFFER A:\t";
-        // for (int j = 0; j < BUFFER_LEN; j++)
-        //   if (i > (j - 1) && i < (BUFFER_LEN + j))
-        //     std::cout << int16_t(buf_a[j]) << "\t";
-        //   else
-        //     std::cout << "0\t";
-        // std::cout << std::endl;
-
-        // std::cout << "BUFFER B:\t";
-        // for (int j = 0; j < BUFFER_LEN; j++)
-        //   if (i > (j - 1) && i < (BUFFER_LEN + j))
-        //     std::cout << int16_t(buf_b[j]) << "\t";
-        //   else
-        //     std::cout << "0\t";
-        // std::cout << std::endl;
-
         mat_mul_mac(buf_a, buf_b, i);
       } 
 
       for (int reg_num = 0; reg_num < 16; reg_num++)
         block_c[reg_num/4][reg_num%4] = pe[reg_num];
-
-      // std::cout << "Block C:" << std::endl;
-      // for (int i = 0; i < 4; i++) {
-      //   for (int j = 0; j < 4; j++) {
-      //     std::cout << block_c[i][j] << "\t";
-      //   } std::cout << std::endl;
-      // }   std::cout << std::endl;
 
       for (int i = 0; i < BLOCK_DIM_ROW_A; i++) {
         for (int j = 0; j < BLOCK_DIM_COL_B; j++) {
@@ -125,8 +84,6 @@ int main() {
                   [j + (b_blk * BLOCK_DIM_COL_B)] = block_c[i][j];
         }
       }
-      // std::cout << "-------------------------------------------------" 
-      //           << std::endl << std::endl;
     }
   }
 

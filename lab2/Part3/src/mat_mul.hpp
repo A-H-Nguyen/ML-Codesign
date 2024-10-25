@@ -4,11 +4,14 @@
 #include <stdint.h>
 #include <iostream>
 
+/*
 #define BLOCK_DIM_ROW_A   4
 #define BLOCK_DIM_COL_A   16
 #define BLOCK_DIM_ROW_B   16 
 #define BLOCK_DIM_COL_B   4 
+*/
 #define BUFFER_LEN        4 
+
 
 int16_t pe[16];
 int8_t a_out_0[16] = {0};
