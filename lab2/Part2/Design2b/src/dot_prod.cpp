@@ -4,7 +4,7 @@
 //TODO (1): Set block size
 #define BLOCK_SIZE 16
 
-//Identifiers for Design 2a
+//Identifiers for Design 2
 const unsigned int VEC_LEN = 1011;
 //TRIPCOUNT identifier
 const unsigned int v_len = VEC_LEN;
@@ -58,8 +58,7 @@ void dot_prod(const int *vec_a,                 // Read-Only Vector 1
 
     results[0] = 0;
 
-    #pragma HLS PIPELINE off
-     for(int counter = 0; counter < NUM_BLOCK; counter++) {
+    for(int counter = 0; counter < NUM_BLOCK; counter++) {
         read_vec(va_buffer, vb_buffer, vec_a, vec_b, counter);
         vec_mul(va_buffer, vb_buffer, vout_buffer);
 

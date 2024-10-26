@@ -42,6 +42,8 @@ void mac(int8_t a, int8_t b, int i, int cycle) {
 }
 
 void mat_mul_mac(int8_t a_buf[4], int8_t b_buf[4], int cycle) {
+    #pragma HLS pipeline II=1
+    #pragma HLS unroll factor=16
     for(int i = 0; i < 16; i++){
         int8_t a_val = 0;
         int8_t b_val = 0;
