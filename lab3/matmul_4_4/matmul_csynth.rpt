@@ -3,7 +3,7 @@
 ================================================================
 == Vitis HLS Report for 'matmul'
 ================================================================
-* Date:           Fri Nov 15 02:38:37 2024
+* Date:           Fri Nov 15 21:48:02 2024
 
 * Version:        2021.2 (Build 3367213 on Tue Oct 19 02:47:39 MDT 2021)
 * Project:        matmul
@@ -38,11 +38,11 @@
         |                                                            |                                                 |  Latency (cycles) |   Latency (absolute)  |      Interval     | Pipeline|
         |                          Instance                          |                      Module                     |   min   |   max   |    min    |    max    |   min   |   max   |   Type  |
         +------------------------------------------------------------+-------------------------------------------------+---------+---------+-----------+-----------+---------+---------+---------+
-        |grp_matmul_Pipeline_1_fu_244                                |matmul_Pipeline_1                                |  1048578|  1048578|   4.194 ms|   4.194 ms|  1048578|  1048578|       no|
-        |grp_matmul_Pipeline_VITIS_LOOP_50_1_fu_250                  |matmul_Pipeline_VITIS_LOOP_50_1                  |       18|       18|  72.000 ns|  72.000 ns|       18|       18|       no|
-        |grp_matmul_Pipeline_VITIS_LOOP_53_2_fu_256                  |matmul_Pipeline_VITIS_LOOP_53_2                  |       18|       18|  72.000 ns|  72.000 ns|       18|       18|       no|
-        |grp_matmul_Pipeline_VITIS_LOOP_87_3_VITIS_LOOP_88_4_fu_263  |matmul_Pipeline_VITIS_LOOP_87_3_VITIS_LOOP_88_4  |      118|      118|   0.472 us|   0.472 us|      118|      118|       no|
-        |grp_matmul_Pipeline_VITIS_LOOP_112_6_fu_282                 |matmul_Pipeline_VITIS_LOOP_112_6                 |       18|       18|  72.000 ns|  72.000 ns|       18|       18|       no|
+        |grp_matmul_Pipeline_1_fu_242                                |matmul_Pipeline_1                                |  1048578|  1048578|   4.194 ms|   4.194 ms|  1048578|  1048578|       no|
+        |grp_matmul_Pipeline_VITIS_LOOP_50_1_fu_248                  |matmul_Pipeline_VITIS_LOOP_50_1                  |       18|       18|  72.000 ns|  72.000 ns|       18|       18|       no|
+        |grp_matmul_Pipeline_VITIS_LOOP_53_2_fu_254                  |matmul_Pipeline_VITIS_LOOP_53_2                  |       18|       18|  72.000 ns|  72.000 ns|       18|       18|       no|
+        |grp_matmul_Pipeline_VITIS_LOOP_87_3_VITIS_LOOP_88_4_fu_261  |matmul_Pipeline_VITIS_LOOP_87_3_VITIS_LOOP_88_4  |      118|      118|   0.472 us|   0.472 us|      118|      118|       no|
+        |grp_matmul_Pipeline_VITIS_LOOP_107_6_fu_283                 |matmul_Pipeline_VITIS_LOOP_107_6                 |       18|       18|  72.000 ns|  72.000 ns|       18|       18|       no|
         +------------------------------------------------------------+-------------------------------------------------+---------+---------+-----------+-----------+---------+---------+---------+
 
         * Loop: 
@@ -60,12 +60,12 @@
 |DSP                  |        -|     -|        -|        -|    -|
 |Expression           |        -|     -|        0|      103|    -|
 |FIFO                 |        -|     -|        -|        -|    -|
-|Instance             |        8|    10|     2326|     3530|    0|
+|Instance             |        8|    10|     2406|     3615|    0|
 |Memory               |        4|     -|        0|        0|    0|
 |Multiplexer          |        -|     -|        -|      982|    -|
-|Register             |        -|     -|      833|        -|    -|
+|Register             |        -|     -|      825|        -|    -|
 +---------------------+---------+------+---------+---------+-----+
-|Total                |       12|    10|     3159|     4615|    0|
+|Total                |       12|    10|     3231|     4700|    0|
 +---------------------+---------+------+---------+---------+-----+
 |Available SLR        |     1440|  2280|   788160|   394080|  320|
 +---------------------+---------+------+---------+---------+-----+
@@ -82,16 +82,16 @@
     |                          Instance                          |                      Module                     | BRAM_18K| DSP|  FF |  LUT | URAM|
     +------------------------------------------------------------+-------------------------------------------------+---------+----+-----+------+-----+
     |control_s_axi_U                                             |control_s_axi                                    |        0|   0|  485|   794|    0|
-    |grp_matmul_Pipeline_1_fu_244                                |matmul_Pipeline_1                                |        0|   0|   23|    76|    0|
-    |grp_matmul_Pipeline_VITIS_LOOP_112_6_fu_282                 |matmul_Pipeline_VITIS_LOOP_112_6                 |        0|   0|  136|   102|    0|
-    |grp_matmul_Pipeline_VITIS_LOOP_50_1_fu_250                  |matmul_Pipeline_VITIS_LOOP_50_1                  |        0|   0|  136|    66|    0|
-    |grp_matmul_Pipeline_VITIS_LOOP_53_2_fu_256                  |matmul_Pipeline_VITIS_LOOP_53_2                  |        0|   0|  136|    93|    0|
-    |grp_matmul_Pipeline_VITIS_LOOP_87_3_VITIS_LOOP_88_4_fu_263  |matmul_Pipeline_VITIS_LOOP_87_3_VITIS_LOOP_88_4  |        0|   5|  632|  1553|    0|
-    |mul_20s_20s_20_1_1_U35                                      |mul_20s_20s_20_1_1                               |        0|   2|    0|    10|    0|
-    |mul_32s_32s_32_2_1_U34                                      |mul_32s_32s_32_2_1                               |        0|   3|  165|    49|    0|
+    |grp_matmul_Pipeline_1_fu_242                                |matmul_Pipeline_1                                |        0|   0|   23|    76|    0|
+    |grp_matmul_Pipeline_VITIS_LOOP_107_6_fu_283                 |matmul_Pipeline_VITIS_LOOP_107_6                 |        0|   0|  136|   102|    0|
+    |grp_matmul_Pipeline_VITIS_LOOP_50_1_fu_248                  |matmul_Pipeline_VITIS_LOOP_50_1                  |        0|   0|  136|    66|    0|
+    |grp_matmul_Pipeline_VITIS_LOOP_53_2_fu_254                  |matmul_Pipeline_VITIS_LOOP_53_2                  |        0|   0|  136|    93|    0|
+    |grp_matmul_Pipeline_VITIS_LOOP_87_3_VITIS_LOOP_88_4_fu_261  |matmul_Pipeline_VITIS_LOOP_87_3_VITIS_LOOP_88_4  |        0|   5|  712|  1638|    0|
+    |mul_20s_20s_20_1_1_U36                                      |mul_20s_20s_20_1_1                               |        0|   2|    0|    10|    0|
+    |mul_32s_32s_32_2_1_U35                                      |mul_32s_32s_32_2_1                               |        0|   3|  165|    49|    0|
     |wrapper0_m_axi_U                                            |wrapper0_m_axi                                   |        8|   0|  613|   787|    0|
     +------------------------------------------------------------+-------------------------------------------------+---------+----+-----+------+-----+
-    |Total                                                       |                                                 |        8|  10| 2326|  3530|    0|
+    |Total                                                       |                                                 |        8|  10| 2406|  3615|    0|
     +------------------------------------------------------------+-------------------------------------------------+---------+----+-----+------+-----+
 
     * DSP: 
@@ -113,9 +113,9 @@
     +-----------------------+----------+----+---+----+------------+------------+
     |     Variable Name     | Operation| DSP| FF| LUT| Bitwidth P0| Bitwidth P1|
     +-----------------------+----------+----+---+----+------------+------------+
-    |add48_fu_387_p2        |         +|   0|  0|  39|          32|           5|
-    |add_ln43_fu_370_p2     |         +|   0|  0|  27|          20|          20|
-    |sub_ln92_fu_418_p2     |         -|   0|  0|  27|          20|          20|
+    |add47_fu_388_p2        |         +|   0|  0|  39|          32|           5|
+    |add_ln43_fu_371_p2     |         +|   0|  0|  27|          20|          20|
+    |sub_ln92_fu_410_p2     |         -|   0|  0|  27|          20|          20|
     |ap_ext_blocking_cur_n  |       and|   0|  0|   2|           1|           1|
     |ap_ext_blocking_n      |       and|   0|  0|   2|           1|           1|
     |ap_int_blocking_n      |       and|   0|  0|   2|           1|           2|
@@ -150,8 +150,8 @@
     +-------------------------------------------------------------------------+-----+----+-----+-----------+
     |                                   Name                                  |  FF | LUT| Bits| Const Bits|
     +-------------------------------------------------------------------------+-----+----+-----+-----------+
-    |add48_reg_546                                                            |   32|   0|   32|          0|
-    |add_ln43_reg_510                                                         |   20|   0|   20|          0|
+    |add47_reg_544                                                            |   32|   0|   32|          0|
+    |add_ln43_reg_502                                                         |   20|   0|   20|          0|
     |ap_CS_fsm                                                                |  149|   0|  149|          0|
     |ap_done_reg                                                              |    1|   0|    1|          0|
     |ap_ext_blocking_n_reg                                                    |    1|   0|    1|          0|
@@ -160,28 +160,27 @@
     |ap_rst_reg_1                                                             |    1|   0|    1|          0|
     |ap_rst_reg_2                                                             |    1|   0|    1|          0|
     |ap_str_blocking_n_reg                                                    |    1|   0|    1|          0|
-    |empty_38_reg_482                                                         |   20|   0|   20|          0|
-    |empty_39_reg_498                                                         |   20|   0|   20|          0|
-    |empty_reg_476                                                            |   20|   0|   20|          0|
-    |grp_matmul_Pipeline_1_fu_244_ap_start_reg                                |    1|   0|    1|          0|
-    |grp_matmul_Pipeline_VITIS_LOOP_112_6_fu_282_ap_start_reg                 |    1|   0|    1|          0|
-    |grp_matmul_Pipeline_VITIS_LOOP_50_1_fu_250_ap_start_reg                  |    1|   0|    1|          0|
-    |grp_matmul_Pipeline_VITIS_LOOP_53_2_fu_256_ap_start_reg                  |    1|   0|    1|          0|
-    |grp_matmul_Pipeline_VITIS_LOOP_87_3_VITIS_LOOP_88_4_fu_263_ap_start_reg  |    1|   0|    1|          0|
-    |mul_reg_551                                                              |    8|   0|   10|          2|
-    |shl_ln_reg_556                                                           |   19|   0|   20|          1|
-    |sub_ln92_reg_561                                                         |   20|   0|   20|          0|
-    |total_inp_el_reg_525                                                     |   20|   0|   20|          0|
-    |trunc_ln1_reg_439                                                        |   60|   0|   60|          0|
-    |trunc_ln53_reg_504                                                       |   20|   0|   20|          0|
-    |trunc_ln92_1_reg_520                                                     |   18|   0|   18|          0|
-    |trunc_ln92_reg_515                                                       |   19|   0|   19|          0|
-    |trunc_ln9_reg_444                                                        |   60|   0|   60|          0|
-    |trunc_ln_reg_434                                                         |   60|   0|   60|          0|
-    |wrapper0_addr_1_read_reg_493                                             |  128|   0|  128|          0|
-    |wrapper0_addr_read_reg_461                                               |  128|   0|  128|          0|
+    |empty_36_reg_474                                                         |   20|   0|   20|          0|
+    |empty_37_reg_490                                                         |   20|   0|   20|          0|
+    |empty_reg_468                                                            |   20|   0|   20|          0|
+    |grp_matmul_Pipeline_1_fu_242_ap_start_reg                                |    1|   0|    1|          0|
+    |grp_matmul_Pipeline_VITIS_LOOP_107_6_fu_283_ap_start_reg                 |    1|   0|    1|          0|
+    |grp_matmul_Pipeline_VITIS_LOOP_50_1_fu_248_ap_start_reg                  |    1|   0|    1|          0|
+    |grp_matmul_Pipeline_VITIS_LOOP_53_2_fu_254_ap_start_reg                  |    1|   0|    1|          0|
+    |grp_matmul_Pipeline_VITIS_LOOP_87_3_VITIS_LOOP_88_4_fu_261_ap_start_reg  |    1|   0|    1|          0|
+    |shl_ln_reg_549                                                           |   19|   0|   20|          1|
+    |sub_ln92_reg_554                                                         |   20|   0|   20|          0|
+    |total_inp_el_reg_517                                                     |   20|   0|   20|          0|
+    |trunc_ln1_reg_431                                                        |   60|   0|   60|          0|
+    |trunc_ln53_reg_496                                                       |   20|   0|   20|          0|
+    |trunc_ln92_1_reg_512                                                     |   18|   0|   18|          0|
+    |trunc_ln92_reg_507                                                       |   19|   0|   19|          0|
+    |trunc_ln9_reg_436                                                        |   60|   0|   60|          0|
+    |trunc_ln_reg_426                                                         |   60|   0|   60|          0|
+    |wrapper0_addr_1_read_reg_485                                             |  128|   0|  128|          0|
+    |wrapper0_addr_read_reg_453                                               |  128|   0|  128|          0|
     +-------------------------------------------------------------------------+-----+----+-----+-----------+
-    |Total                                                                    |  833|   0|  836|          3|
+    |Total                                                                    |  825|   0|  826|          1|
     +-------------------------------------------------------------------------+-----+----+-----+-----------+
 
 
