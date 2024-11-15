@@ -1,0 +1,270 @@
+
+
+================================================================
+== Vitis HLS Report for 'matmul'
+================================================================
+* Date:           Fri Nov 15 21:48:02 2024
+
+* Version:        2021.2 (Build 3367213 on Tue Oct 19 02:47:39 MDT 2021)
+* Project:        matmul
+* Solution:       solution (Vitis Kernel Flow Target)
+* Product family: virtexuplus
+* Target device:  xcvu9p-flgb2104-2-i
+
+
+================================================================
+== Performance Estimates
+================================================================
++ Timing: 
+    * Summary: 
+    +--------+---------+----------+------------+
+    |  Clock |  Target | Estimated| Uncertainty|
+    +--------+---------+----------+------------+
+    |ap_clk  |  4.00 ns|  2.920 ns|     1.08 ns|
+    +--------+---------+----------+------------+
+
++ Latency: 
+    * Summary: 
+    +---------+---------+----------+----------+---------+---------+---------+
+    |  Latency (cycles) |  Latency (absolute) |      Interval     | Pipeline|
+    |   min   |   max   |    min   |    max   |   min   |   max   |   Type  |
+    +---------+---------+----------+----------+---------+---------+---------+
+    |  1048898|  1048898|  4.196 ms|  4.196 ms|  1048899|  1048899|       no|
+    +---------+---------+----------+----------+---------+---------+---------+
+
+    + Detail: 
+        * Instance: 
+        +------------------------------------------------------------+-------------------------------------------------+---------+---------+-----------+-----------+---------+---------+---------+
+        |                                                            |                                                 |  Latency (cycles) |   Latency (absolute)  |      Interval     | Pipeline|
+        |                          Instance                          |                      Module                     |   min   |   max   |    min    |    max    |   min   |   max   |   Type  |
+        +------------------------------------------------------------+-------------------------------------------------+---------+---------+-----------+-----------+---------+---------+---------+
+        |grp_matmul_Pipeline_1_fu_242                                |matmul_Pipeline_1                                |  1048578|  1048578|   4.194 ms|   4.194 ms|  1048578|  1048578|       no|
+        |grp_matmul_Pipeline_VITIS_LOOP_50_1_fu_248                  |matmul_Pipeline_VITIS_LOOP_50_1                  |       18|       18|  72.000 ns|  72.000 ns|       18|       18|       no|
+        |grp_matmul_Pipeline_VITIS_LOOP_53_2_fu_254                  |matmul_Pipeline_VITIS_LOOP_53_2                  |       18|       18|  72.000 ns|  72.000 ns|       18|       18|       no|
+        |grp_matmul_Pipeline_VITIS_LOOP_87_3_VITIS_LOOP_88_4_fu_261  |matmul_Pipeline_VITIS_LOOP_87_3_VITIS_LOOP_88_4  |      118|      118|   0.472 us|   0.472 us|      118|      118|       no|
+        |grp_matmul_Pipeline_VITIS_LOOP_107_6_fu_283                 |matmul_Pipeline_VITIS_LOOP_107_6                 |       18|       18|  72.000 ns|  72.000 ns|       18|       18|       no|
+        +------------------------------------------------------------+-------------------------------------------------+---------+---------+-----------+-----------+---------+---------+---------+
+
+        * Loop: 
+        N/A
+
+
+
+================================================================
+== Utilization Estimates
+================================================================
+* Summary: 
++---------------------+---------+------+---------+---------+-----+
+|         Name        | BRAM_18K|  DSP |    FF   |   LUT   | URAM|
++---------------------+---------+------+---------+---------+-----+
+|DSP                  |        -|     -|        -|        -|    -|
+|Expression           |        -|     -|        0|      103|    -|
+|FIFO                 |        -|     -|        -|        -|    -|
+|Instance             |        8|    10|     2406|     3615|    0|
+|Memory               |        4|     -|        0|        0|    0|
+|Multiplexer          |        -|     -|        -|      982|    -|
+|Register             |        -|     -|      825|        -|    -|
++---------------------+---------+------+---------+---------+-----+
+|Total                |       12|    10|     3231|     4700|    0|
++---------------------+---------+------+---------+---------+-----+
+|Available SLR        |     1440|  2280|   788160|   394080|  320|
++---------------------+---------+------+---------+---------+-----+
+|Utilization SLR (%)  |       ~0|    ~0|       ~0|        1|    0|
++---------------------+---------+------+---------+---------+-----+
+|Available            |     4320|  6840|  2364480|  1182240|  960|
++---------------------+---------+------+---------+---------+-----+
+|Utilization (%)      |       ~0|    ~0|       ~0|       ~0|    0|
++---------------------+---------+------+---------+---------+-----+
+
++ Detail: 
+    * Instance: 
+    +------------------------------------------------------------+-------------------------------------------------+---------+----+-----+------+-----+
+    |                          Instance                          |                      Module                     | BRAM_18K| DSP|  FF |  LUT | URAM|
+    +------------------------------------------------------------+-------------------------------------------------+---------+----+-----+------+-----+
+    |control_s_axi_U                                             |control_s_axi                                    |        0|   0|  485|   794|    0|
+    |grp_matmul_Pipeline_1_fu_242                                |matmul_Pipeline_1                                |        0|   0|   23|    76|    0|
+    |grp_matmul_Pipeline_VITIS_LOOP_107_6_fu_283                 |matmul_Pipeline_VITIS_LOOP_107_6                 |        0|   0|  136|   102|    0|
+    |grp_matmul_Pipeline_VITIS_LOOP_50_1_fu_248                  |matmul_Pipeline_VITIS_LOOP_50_1                  |        0|   0|  136|    66|    0|
+    |grp_matmul_Pipeline_VITIS_LOOP_53_2_fu_254                  |matmul_Pipeline_VITIS_LOOP_53_2                  |        0|   0|  136|    93|    0|
+    |grp_matmul_Pipeline_VITIS_LOOP_87_3_VITIS_LOOP_88_4_fu_261  |matmul_Pipeline_VITIS_LOOP_87_3_VITIS_LOOP_88_4  |        0|   5|  712|  1638|    0|
+    |mul_20s_20s_20_1_1_U36                                      |mul_20s_20s_20_1_1                               |        0|   2|    0|    10|    0|
+    |mul_32s_32s_32_2_1_U35                                      |mul_32s_32s_32_2_1                               |        0|   3|  165|    49|    0|
+    |wrapper0_m_axi_U                                            |wrapper0_m_axi                                   |        8|   0|  613|   787|    0|
+    +------------------------------------------------------------+-------------------------------------------------+---------+----+-----+------+-----+
+    |Total                                                       |                                                 |        8|  10| 2406|  3615|    0|
+    +------------------------------------------------------------+-------------------------------------------------+---------+----+-----+------+-----+
+
+    * DSP: 
+    N/A
+
+    * Memory: 
+    +---------------+--------------------------------+---------+---+----+-----+---------+-----+------+-------------+
+    |     Memory    |             Module             | BRAM_18K| FF| LUT| URAM|  Words  | Bits| Banks| W*Bits*Banks|
+    +---------------+--------------------------------+---------+---+----+-----+---------+-----+------+-------------+
+    |global_sram_U  |global_sram_RAM_1WNR_AUTO_1R1W  |        4|  0|   0|    0|  1048576|    8|     1|      8388608|
+    +---------------+--------------------------------+---------+---+----+-----+---------+-----+------+-------------+
+    |Total          |                                |        4|  0|   0|    0|  1048576|    8|     1|      8388608|
+    +---------------+--------------------------------+---------+---+----+-----+---------+-----+------+-------------+
+
+    * FIFO: 
+    N/A
+
+    * Expression: 
+    +-----------------------+----------+----+---+----+------------+------------+
+    |     Variable Name     | Operation| DSP| FF| LUT| Bitwidth P0| Bitwidth P1|
+    +-----------------------+----------+----+---+----+------------+------------+
+    |add47_fu_388_p2        |         +|   0|  0|  39|          32|           5|
+    |add_ln43_fu_371_p2     |         +|   0|  0|  27|          20|          20|
+    |sub_ln92_fu_410_p2     |         -|   0|  0|  27|          20|          20|
+    |ap_ext_blocking_cur_n  |       and|   0|  0|   2|           1|           1|
+    |ap_ext_blocking_n      |       and|   0|  0|   2|           1|           1|
+    |ap_int_blocking_n      |       and|   0|  0|   2|           1|           2|
+    |ap_str_blocking_n      |       and|   0|  0|   2|           1|           2|
+    |ap_block_state1        |        or|   0|  0|   2|           1|           1|
+    +-----------------------+----------+----+---+----+------------+------------+
+    |Total                  |          |   0|  0| 103|          77|          52|
+    +-----------------------+----------+----+---+----+------------+------------+
+
+    * Multiplexer: 
+    +----------------------+-----+-----------+-----+-----------+
+    |         Name         | LUT | Input Size| Bits| Total Bits|
+    +----------------------+-----+-----------+-----+-----------+
+    |ap_NS_fsm             |  791|        150|    1|        150|
+    |ap_done               |    9|          2|    1|          2|
+    |global_sram_address0  |   31|          6|   20|        120|
+    |global_sram_ce0       |   31|          6|    1|          6|
+    |global_sram_ce1       |    9|          2|    1|          2|
+    |global_sram_d0        |   26|          5|    8|         40|
+    |global_sram_we0       |   26|          5|    1|          5|
+    |wrapper0_ARADDR       |   14|          3|   64|        192|
+    |wrapper0_blk_n_AR     |    9|          2|    1|          2|
+    |wrapper0_blk_n_AW     |    9|          2|    1|          2|
+    |wrapper0_blk_n_B      |    9|          2|    1|          2|
+    |wrapper0_blk_n_R      |    9|          2|    1|          2|
+    |wrapper0_blk_n_W      |    9|          2|    1|          2|
+    +----------------------+-----+-----------+-----+-----------+
+    |Total                 |  982|        189|  102|        527|
+    +----------------------+-----+-----------+-----+-----------+
+
+    * Register: 
+    +-------------------------------------------------------------------------+-----+----+-----+-----------+
+    |                                   Name                                  |  FF | LUT| Bits| Const Bits|
+    +-------------------------------------------------------------------------+-----+----+-----+-----------+
+    |add47_reg_544                                                            |   32|   0|   32|          0|
+    |add_ln43_reg_502                                                         |   20|   0|   20|          0|
+    |ap_CS_fsm                                                                |  149|   0|  149|          0|
+    |ap_done_reg                                                              |    1|   0|    1|          0|
+    |ap_ext_blocking_n_reg                                                    |    1|   0|    1|          0|
+    |ap_int_blocking_n_reg                                                    |    1|   0|    1|          0|
+    |ap_rst_n_inv                                                             |    1|   0|    1|          0|
+    |ap_rst_reg_1                                                             |    1|   0|    1|          0|
+    |ap_rst_reg_2                                                             |    1|   0|    1|          0|
+    |ap_str_blocking_n_reg                                                    |    1|   0|    1|          0|
+    |empty_36_reg_474                                                         |   20|   0|   20|          0|
+    |empty_37_reg_490                                                         |   20|   0|   20|          0|
+    |empty_reg_468                                                            |   20|   0|   20|          0|
+    |grp_matmul_Pipeline_1_fu_242_ap_start_reg                                |    1|   0|    1|          0|
+    |grp_matmul_Pipeline_VITIS_LOOP_107_6_fu_283_ap_start_reg                 |    1|   0|    1|          0|
+    |grp_matmul_Pipeline_VITIS_LOOP_50_1_fu_248_ap_start_reg                  |    1|   0|    1|          0|
+    |grp_matmul_Pipeline_VITIS_LOOP_53_2_fu_254_ap_start_reg                  |    1|   0|    1|          0|
+    |grp_matmul_Pipeline_VITIS_LOOP_87_3_VITIS_LOOP_88_4_fu_261_ap_start_reg  |    1|   0|    1|          0|
+    |shl_ln_reg_549                                                           |   19|   0|   20|          1|
+    |sub_ln92_reg_554                                                         |   20|   0|   20|          0|
+    |total_inp_el_reg_517                                                     |   20|   0|   20|          0|
+    |trunc_ln1_reg_431                                                        |   60|   0|   60|          0|
+    |trunc_ln53_reg_496                                                       |   20|   0|   20|          0|
+    |trunc_ln92_1_reg_512                                                     |   18|   0|   18|          0|
+    |trunc_ln92_reg_507                                                       |   19|   0|   19|          0|
+    |trunc_ln9_reg_436                                                        |   60|   0|   60|          0|
+    |trunc_ln_reg_426                                                         |   60|   0|   60|          0|
+    |wrapper0_addr_1_read_reg_485                                             |  128|   0|  128|          0|
+    |wrapper0_addr_read_reg_453                                               |  128|   0|  128|          0|
+    +-------------------------------------------------------------------------+-----+----+-----+-----------+
+    |Total                                                                    |  825|   0|  826|          1|
+    +-------------------------------------------------------------------------+-----+----+-----+-----------+
+
+
+
+================================================================
+== Interface
+================================================================
+* Summary: 
++-------------------------+-----+-----+---------------+--------------+--------------+
+|        RTL Ports        | Dir | Bits|    Protocol   | Source Object|    C Type    |
++-------------------------+-----+-----+---------------+--------------+--------------+
+|s_axi_control_AWVALID    |   in|    1|          s_axi|       control|        scalar|
+|s_axi_control_AWREADY    |  out|    1|          s_axi|       control|        scalar|
+|s_axi_control_AWADDR     |   in|    7|          s_axi|       control|        scalar|
+|s_axi_control_WVALID     |   in|    1|          s_axi|       control|        scalar|
+|s_axi_control_WREADY     |  out|    1|          s_axi|       control|        scalar|
+|s_axi_control_WDATA      |   in|   32|          s_axi|       control|        scalar|
+|s_axi_control_WSTRB      |   in|    4|          s_axi|       control|        scalar|
+|s_axi_control_ARVALID    |   in|    1|          s_axi|       control|        scalar|
+|s_axi_control_ARREADY    |  out|    1|          s_axi|       control|        scalar|
+|s_axi_control_ARADDR     |   in|    7|          s_axi|       control|        scalar|
+|s_axi_control_RVALID     |  out|    1|          s_axi|       control|        scalar|
+|s_axi_control_RREADY     |   in|    1|          s_axi|       control|        scalar|
+|s_axi_control_RDATA      |  out|   32|          s_axi|       control|        scalar|
+|s_axi_control_RRESP      |  out|    2|          s_axi|       control|        scalar|
+|s_axi_control_BVALID     |  out|    1|          s_axi|       control|        scalar|
+|s_axi_control_BREADY     |   in|    1|          s_axi|       control|        scalar|
+|s_axi_control_BRESP      |  out|    2|          s_axi|       control|        scalar|
+|ap_local_block           |  out|    1|  ap_ctrl_chain|        matmul|  return value|
+|ap_clk                   |   in|    1|  ap_ctrl_chain|        matmul|  return value|
+|ap_rst_n                 |   in|    1|  ap_ctrl_chain|        matmul|  return value|
+|event_done               |  out|    1|  ap_ctrl_chain|        matmul|  return value|
+|interrupt                |  out|    1|  ap_ctrl_chain|        matmul|  return value|
+|event_start              |  out|    1|  ap_ctrl_chain|        matmul|  return value|
+|stall_start_ext          |  out|    1|  ap_ctrl_chain|        matmul|  return value|
+|stall_done_ext           |  out|    1|  ap_ctrl_chain|        matmul|  return value|
+|stall_start_str          |  out|    1|  ap_ctrl_chain|        matmul|  return value|
+|stall_done_str           |  out|    1|  ap_ctrl_chain|        matmul|  return value|
+|stall_start_int          |  out|    1|  ap_ctrl_chain|        matmul|  return value|
+|stall_done_int           |  out|    1|  ap_ctrl_chain|        matmul|  return value|
+|m_axi_wrapper0_AWVALID   |  out|    1|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_AWREADY   |   in|    1|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_AWADDR    |  out|   64|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_AWID      |  out|    1|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_AWLEN     |  out|    8|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_AWSIZE    |  out|    3|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_AWBURST   |  out|    2|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_AWLOCK    |  out|    2|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_AWCACHE   |  out|    4|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_AWPROT    |  out|    3|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_AWQOS     |  out|    4|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_AWREGION  |  out|    4|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_AWUSER    |  out|    1|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_WVALID    |  out|    1|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_WREADY    |   in|    1|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_WDATA     |  out|  128|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_WSTRB     |  out|   16|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_WLAST     |  out|    1|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_WID       |  out|    1|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_WUSER     |  out|    1|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_ARVALID   |  out|    1|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_ARREADY   |   in|    1|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_ARADDR    |  out|   64|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_ARID      |  out|    1|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_ARLEN     |  out|    8|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_ARSIZE    |  out|    3|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_ARBURST   |  out|    2|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_ARLOCK    |  out|    2|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_ARCACHE   |  out|    4|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_ARPROT    |  out|    3|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_ARQOS     |  out|    4|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_ARREGION  |  out|    4|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_ARUSER    |  out|    1|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_RVALID    |   in|    1|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_RREADY    |  out|    1|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_RDATA     |   in|  128|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_RLAST     |   in|    1|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_RID       |   in|    1|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_RUSER     |   in|    1|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_RRESP     |   in|    2|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_BVALID    |   in|    1|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_BREADY    |  out|    1|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_BRESP     |   in|    2|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_BID       |   in|    1|          m_axi|      wrapper0|       pointer|
+|m_axi_wrapper0_BUSER     |   in|    1|          m_axi|      wrapper0|       pointer|
++-------------------------+-----+-----+---------------+--------------+--------------+
+
