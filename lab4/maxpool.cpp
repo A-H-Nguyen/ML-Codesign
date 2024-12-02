@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <iostream>
 #include <ostream>
 #include <stdlib.h>
@@ -6,6 +5,15 @@
 #define X 8
 #define Y 8
 #define STRIDE 2
+
+inline int max(int *comp, int num_comps) {
+  int max_val = 0;
+  for (int i = 0; i < num_comps; i++) {
+    if (comp[i] > max_val)
+      max_val = comp[i];
+  }
+  return max_val;
+}
 
 void maxpool2D(unsigned int x_dim, unsigned int y_dim, 
                unsigned int in_len, unsigned int out_len,
@@ -19,11 +27,6 @@ void maxpool2D(unsigned int x_dim, unsigned int y_dim,
   int pool_num = 0;
 
   for (unsigned int i = 0; i < in_len; i += STRIDE) {
-    // unsigned int row = i / y_dim;
-    // unsigned int col = i % y_dim;
-    // std::cout << "i = " << i << " -> row: " << row << ", col: " << col << ":" 
-    //           << std::endl << std::endl;
-
     if ((i / y_dim) % 2 != 0)
       continue;
     
@@ -32,12 +35,9 @@ void maxpool2D(unsigned int x_dim, unsigned int y_dim,
     comp[2] = input[i+X];
     comp[3] = input[i+1+X];
 
-    // std::cout << std::max({comp1, comp2, comp3, comp4}) << std::endl;
-    // we probably need to write our own version of max().
-    // Why the hell can I not do std::max(comp)? 
-    output[pool_num] = std::max({comp[0], comp[1], comp[2], comp[3]});
+    output[pool_num] = max(comp, 4);
 
-    // This should really be its own loop
+    // SIlly hack cont. This should really be its own loop.
     if (pool_num < out_len)
       pool_num++;
   }
