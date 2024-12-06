@@ -1,74 +1,118 @@
+#include <cstdint>
 #include <iostream>
-#include <ostream>
 #include <stdlib.h>
 
 #define X 8
 #define Y 8
+#define C 3
 #define STRIDE 2
 
-inline int max(int *comp, int num_comps) {
-  int max_val = 0;
-  for (int i = 0; i < num_comps; i++) {
-    if (comp[i] > max_val)
-      max_val = comp[i];
-  }
-  return max_val;
-}
+// #include "im2row.hpp"
 
-void maxpool2D(unsigned int x_dim, unsigned int y_dim, 
+// inline int max(int *comp, int num_comps) {
+//   int max_val = 0;
+//   for (int i = 0; i < num_comps; i++) {
+//     if (comp[i] > max_val)
+//       max_val = comp[i];
+//   }
+//   return max_val;
+// }
+
+void maxpool2D(unsigned int input_cols, unsigned int input_rows, unsigned int channels,
                unsigned int in_len, unsigned int out_len,
-               int *input, int *output) {
-  // since we cannot do dynamic mem alloc in HLS, we should manually create 
-  // this vector. If we have a stride of 2, we will always be creating 2x2
-  // "pools". So each pool dim is really STRIDExSTRIDE
-  int comp[4]; 
+               uint8_t *input, uint8_t *output, unsigned int stride) {
+                
+  uint8_t start = 0;
+  uint8_t pool_number = 0;
 
-  // silly hack incoming
-  int pool_num = 0;
-
-  for (unsigned int i = 0; i < in_len; i += STRIDE) {
-    if ((i / y_dim) % 2 != 0)
-      continue;
-    
-    comp[0] = input[i];
-    comp[1] = input[i+1];
-    comp[2] = input[i+X];
-    comp[3] = input[i+1+X];
-
-    output[pool_num] = max(comp, 4);
-
-    // SIlly hack cont. This should really be its own loop.
-    if (pool_num < out_len)
-      pool_num++;
-  }
+  // for(int i = 0; i < input_rows; i++) {
+  for(int i = 0; i < input_rows; i += stride) {
+        // for (int j = 0; j < input_cols; j++) {
+        for (int j = 0; j < input_cols; j += stride) {
+            for (int k = 0; k < channels; k++) {
+                start = i*(input_cols) + j + k*input_rows*input_cols;
+                // per patch
+                uint8_t max = 0;
+                for(int l = 0; l < stride; l++) {
+                    for (int m = 0; m < stride; m++) {
+                       if(input[start + l*input_cols + m] > max){
+                        max = input[start + l*input_cols + m];
+                       }
+                    }
+                }
+                //place into output buffer 
+                output[pool_number] = max;
+                pool_number++;
+            }
+        }
+    }
 }
 
-int main() {
-  int input_len = X * Y;
+int main(int argc, char **argv) {
+  // if (argc != 5)
+  //   return -1;
 
-  // This might be totally wrong
-  int output_len = (X / STRIDE) * (Y / STRIDE);
+  // int X = atoi(argv[0]);
+  // int Y = atoi(argv[1]);
+  // int C = atoi(argv[2]);
+  // int STRIDE = atoi(argv[3]);
+
+
+  int input_len = X * Y * C;
+
+  int output_len = (X / STRIDE) * (Y / STRIDE) * C;
+
+  int num_patches = (X*Y) / (STRIDE*STRIDE);
   
-  int *m_in = new int[input_len];
-  int *m_out = new int[output_len];
-
+  uint8_t *m_in  = new uint8_t[input_len];
+  uint8_t *m_out = new uint8_t[output_len];
+  
   std::cout << "Input matrix:" << std::endl;
   for (int i = 0; i < input_len; i++) {
     m_in[i] = i;
-    if (i % Y == 0)
-      std::cout << std::endl;
-    std::cout << m_in[i] << "\t";
+    std::cout << i << " ";
   }
-  std::cout << std::endl << std::endl;
+  std::cout << std::endl;
+  std::cout << std::endl;
+  
+  for (int i = 0; i < output_len; i++) {
+    m_out[i] = 0;
+  }
 
-  maxpool2D(X, Y, input_len, output_len, m_in, m_out);
+  // Print out the inital matrix as patches
+  int start = 0;
+  for(int i = 0; i < X; i += STRIDE) {
+    for (int j = 0; j < Y; j += STRIDE) {
+      for (int k = 0; k < C; k++) {
+        start = (i * Y) + j + (k * X * Y);
+        std::cout << "Patch Start index: " << start << std::endl;
+        std::cout << "Patch contents: " << std::endl;
+        // per patch
+        for(int l = 0; l < STRIDE; l++) {
+          for (int m = 0; m < STRIDE; m++) {
+            // std::cout << "Curr index: " << start + l*Y + m << " ";
+            std::cout << uint16_t(m_in[start + l*Y + m]) << " ";
+          }
+          std::cout << std::endl;
+        }
+        std::cout << std::endl;
+      }
+    }
+  }
+  std::cout << std::endl;
+
+  // maxpool2D(X, Y, len, len, m_in, m_out);
+// void maxpool2D(unsigned int input_cols, unsigned int input_rows, unsigned int channels,
+//                unsigned int in_len, unsigned int out_len,
+//                uint8_t *input, uint8_t *output, unsigned int stride)
+
+  maxpool2D(Y, X, C, input_len, output_len, m_in, m_out, STRIDE);
 
   std::cout << "Output matrix:" << std::endl;
   for (int i = 0; i < output_len; i++) {
-    m_in[i] = i;
-    if (i % (Y / STRIDE) == 0)
-      std::cout << std::endl;
-    std::cout << m_out[i] << "\t";
+    // if (i % (Y / STRIDE) == 0)
+    //   std::cout << std::endl;
+    std::cout << uint16_t(m_out[i]) << " ";
   }
   std::cout << std::endl << std::endl;
 
